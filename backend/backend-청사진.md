@@ -302,43 +302,44 @@ backend/
 - [x] `./gradlew build`가 성공한다 (테스트 `contextLoads`도 클라우드 DB에 접속하므로 `secret.properties`가 있어야 한다)
 - [x] 단계 2까지의 동작(없는 경로 404)이 그대로다
 
-### 단계 4. 사용자 메뉴 조회 (anon)
+### 단계 4. 관리자 메뉴 관리 (admin)
 
 만들 것
 - `entity`: `Category`, `Menu`
 - `repository`: `MenuRepository`, `CategoryRepository`
 - `resources/data.sql`: 샘플 카테고리(커피/음료/디저트)와 메뉴. 재기동 때 중복되지 않게 `ON CONFLICT (id) DO NOTHING`, 직접 넣은 id 뒤로 시퀀스를 맞추는 `setval` 포함
+- `dto/admin/menu`: `MenuCreateRequestDto`, `MenuUpdateRequestDto`, `AdminMenuResponseDto`
+- `service/admin`: `AdminMenuService`, `DfAdminMenuService`
+- `controller/admin`: `AdminMenuController`
+
+완료 확인
+- [ ] 서버를 두 번 재기동해도 샘플 데이터가 중복되지 않는다
+- [ ] `GET /api/v1/admin/menus` → 200, **body 없이** 호출돼도 비공개 포함 전체 목록 응답
+- [ ] `POST /api/v1/admin/menus` (JSON body) → 201, 생성된 메뉴 응답
+- [ ] 방금 만든 메뉴가 `GET /api/v1/admin/menus/{id}`로 조회된다
+- [ ] `GET /api/v1/admin/menus/999` → 404 (`message` 포함)
+- [ ] `PUT /api/v1/admin/menus/{id}` → 200, 수정 값이 반영된다
+- [ ] `DELETE /api/v1/admin/menus/{id}` → 204, 이후 같은 id 조회 시 404
+- [ ] 새로 등록한 메뉴의 id가 샘플 데이터 id와 충돌하지 않는다 (시퀀스 정상)
+- [ ] 서버를 재기동해도 등록·수정한 메뉴가 유지된다 (DB에 저장됨)
+
+### 단계 5. 사용자 메뉴 조회 (anon)
+
+만들 것 (엔티티·Repository·샘플 데이터는 단계 4에서 만든 것을 쓴다)
 - `dto/anon/menu`: `MenuListRequestDto`, `MenuListResponseDto`, `MenuDetailResponseDto`, `CategoryListResponseDto`
 - `service/anon`: `MenuService`, `DfMenuService`, `CategoryService`, `DfCategoryService`
 - `controller/anon`: `MenuController`
 
 완료 확인
-- [ ] 서버를 두 번 재기동해도 샘플 데이터가 중복되지 않는다
+- [ ] 서버 기동 시 빈 이름 충돌(`ConflictingBeanDefinitionException`)이 없다 (관리자 쪽 `AdminMenuController`와 공존)
 - [ ] `GET /api/v1/menus` → 200, 공개(visible) 메뉴만 **배열**로 응답
 - [ ] `GET /api/v1/menus?category=1` → 해당 카테고리 메뉴만 응답
 - [ ] `GET /api/v1/menus?sort=price` → 가격순으로 정렬
 - [ ] `GET /api/v1/menus/categories` → 카테고리 목록과 공개 메뉴 수(`count`)
 - [ ] `GET /api/v1/menus/1` → 200, 상세 응답
 - [ ] `GET /api/v1/menus/999` → 404 (`message` 포함)
+- [ ] 관리자 API로 `visible=false`로 만든 메뉴가 `GET /api/v1/menus`에는 안 보이고 admin 목록에는 보인다
 - [ ] 프론트엔드가 호출하는 경로 `/api/v1/menus`, `/api/v1/menus/categories`와 일치한다
-
-### 단계 5. 관리자 메뉴 관리 (admin)
-
-만들 것
-- `dto/admin/menu`: `MenuCreateRequestDto`, `MenuUpdateRequestDto`, `AdminMenuResponseDto`
-- `service/admin`: `AdminMenuService`, `DfAdminMenuService`
-- `controller/admin`: `AdminMenuController`
-
-완료 확인
-- [ ] 서버 기동 시 빈 이름 충돌(`ConflictingBeanDefinitionException`)이 없다
-- [ ] `GET /api/v1/admin/menus` → 200, **body 없이** 호출돼도 비공개 포함 전체 목록 응답
-- [ ] `POST /api/v1/admin/menus` (JSON body) → 201, 생성된 메뉴 응답
-- [ ] 방금 만든 메뉴가 `GET /api/v1/admin/menus/{id}`로 조회된다
-- [ ] `PUT /api/v1/admin/menus/{id}` → 200, 수정 값이 반영된다
-- [ ] `DELETE /api/v1/admin/menus/{id}` → 204, 이후 같은 id 조회 시 404
-- [ ] 새로 등록한 메뉴의 id가 샘플 데이터 id와 충돌하지 않는다 (시퀀스 정상)
-- [ ] 서버를 재기동해도 등록·수정한 메뉴가 유지된다 (DB에 저장됨)
-- [ ] `visible=false`로 만든 메뉴가 `GET /api/v1/menus`(사용자)에는 안 보이고 admin 목록에는 보인다
 
 ### 단계 6. 회원 장바구니 (member)
 
