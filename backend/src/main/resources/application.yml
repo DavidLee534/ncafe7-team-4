@@ -1,0 +1,24 @@
+spring:
+  config:
+    import: optional:file:./secret.properties
+  # 데이터베이스 연결을 위한 접속 정보를 설정
+  datasource:
+    # 데이터베이스 접속 주소 (호스트, 포트, 데이터베이스 이름)
+    url: jdbc:postgresql://cloud.newlecture.com:5444/ncafedb
+    # 데이터베이스 접속 사용자 이름
+    username: ncafe
+    # 데이터베이스 접속 비밀번호
+    password: ${DB_PASSWORD}
+    # 데이터베이스 드라이버 클래스 이름
+    driver-class-name: org.postgresql.Driver
+  # JPA 프레임워크를 위한 설정 ===============================
+  jpa:
+    hibernate:
+      # 테이블 스키마 자동 생성/갱신 모드
+      ddl-auto: update
+    # 실행되는 SQL 문장을 콘솔에 출력 여부
+    show-sql: true
+    properties:
+      hibernate:
+        # 출력되는 SQL 문장을 가독성 있게 포맷팅 여부
+        format_sql: true
