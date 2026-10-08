@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import "./globals.css";
+import MagicWorkshopShell from "./_components/MagicWorkshopShell";
 
 export const metadata: Metadata = {
   title: { default: "NCafe", template: "%s - NCafe" },
@@ -19,7 +20,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
         />
       </head>
-      <body>{children}</body>
+      <body><MagicWorkshopShell>{children}</MagicWorkshopShell></body>
     </html>
   );
 }
