@@ -2,6 +2,7 @@
 // 관리자 내비 드로어 — 앱 셸(m3-layout)의 layout-drawer 슬롯. 현재 경로에 drawer-item-active.
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import styles from "./AdminNav.module.css";
 
 const SECTIONS = [
   {
@@ -30,12 +31,12 @@ export default function AdminNav() {
     return pathname.startsWith(base) && !pathname.endsWith("/create");
   };
   return (
-    <nav className="m3-nav-drawer layout-drawer" aria-label="관리자 메뉴">
-      <div className="drawer-header">
-        <Link href="/admin" className="drawer-headline">
-          NCafe <span className="color:primary">Admin</span>
-        </Link>
-      </div>
+    <nav className={`m3-nav-drawer layout-drawer ${styles.drawer}`} aria-label="관리자 메뉴">
+      <Link href="/admin" className={styles.brand}>
+        <span className={styles.paw} aria-hidden="true">🐾</span>
+        <span className={styles.name}>MEW &amp; BREW</span>
+        <span className={styles.tagline}>CAT OPERATED CAFE</span>
+      </Link>
       <div className="drawer-content">
         {SECTIONS.map((s) => (
           <div key={s.title}>

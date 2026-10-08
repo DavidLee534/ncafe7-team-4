@@ -1,0 +1,195 @@
+/* 메뉴 캣탈로그 — 카드 격자 + 오른쪽 냥일지. 버튼·배지는 newtil 클래스를 그대로 쓴다 */
+.boss {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1.125rem 0.5rem 0.5rem;
+  border: 1px solid rgba(255, 248, 220, 0.25);
+  border-radius: 1rem;
+  background: rgba(255, 248, 220, 0.12);
+  color: #fff;
+}
+.bossFace {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background: #f5b95c;
+  font-size: 1.375rem;
+}
+.bossName {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.bossMood {
+  font-size: 0.75rem;
+  color: rgba(255, 248, 220, 0.75);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 18rem;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13.5rem, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+  background: var(--color-surface);
+  transition: transform 0.15s;
+}
+.card:hover {
+  transform: translateY(-3px);
+}
+
+.art {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 9.5rem;
+  background: #f6efe8;
+}
+.art img {
+  width: 6.5rem;
+  height: 6.5rem;
+  object-fit: contain;
+}
+.code {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #8a7a70;
+}
+.barista {
+  position: absolute;
+  top: 0.625rem;
+  right: 0.625rem;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: #fff;
+  font-size: 0.9375rem;
+  cursor: help;
+}
+.status {
+  position: absolute;
+  right: 0.625rem;
+  bottom: 0.625rem;
+}
+
+.body {
+  padding: 1rem 1rem 0.75rem;
+}
+.category {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #e8806a;
+}
+.name {
+  margin-top: 0.25rem;
+  font-size: 1.0625rem;
+  font-weight: 700;
+}
+.eng {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+.price {
+  margin-top: 0.75rem;
+  font-size: 1.0625rem;
+  font-weight: 800;
+}
+.note {
+  margin-top: 0.125rem;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+.foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.75rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.empty {
+  padding: 3rem 0;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+/* 오늘의 냥일지 */
+.diaryTitle {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border-subtle);
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+.log {
+  margin: 1.25rem 0 0 0.25rem;
+  border-left: 2px solid var(--color-border-subtle);
+}
+.log li {
+  position: relative;
+  padding: 0 0 1.125rem 1rem;
+}
+.log li::before {
+  content: "";
+  position: absolute;
+  left: -6px;
+  top: 0.3rem;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #e8806a;
+}
+.logDate {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+.logName {
+  display: block;
+  margin: 0.125rem 0;
+  font-weight: 700;
+}
+.logText {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+.quote {
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background: #fff2ec;
+  text-align: center;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: #9a7a6c;
+}
+
+@media (max-width: 900px) {
+  .boss {
+    display: none;
+  }
+}
+
+@media (max-width: 1200px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -1,0 +1,36 @@
+/* 관리자 드로어 — 브랜드 영역과 선택 색만 고양이 카페 톤으로 */
+.drawer {
+  --drawer-background: #fffcf9;
+  --drawer-item-active-background: #fbe5dd;
+  --drawer-item-active-color: #5c3d2e;
+  --drawer-item-active-icon-color: #e8806a;
+}
+
+.brand {
+  display: block;
+  padding: 1.75rem 1rem 1.5rem;
+  text-align: center;
+}
+
+.paw {
+  display: block;
+  font-size: 1.75rem;
+}
+
+.name {
+  display: block;
+  margin-top: 0.25rem;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #5c3d2e;
+}
+
+.tagline {
+  display: block;
+  margin-top: 0.375rem;
+  font-size: 0.6875rem;
+  letter-spacing: 0.2em;
+  color: var(--color-text-muted);
+}

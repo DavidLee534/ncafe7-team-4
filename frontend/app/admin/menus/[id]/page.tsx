@@ -1,52 +1,50 @@
-// 메뉴 상세 — 브레드크럼 · 머리(이름·상태·동작) · 기본 정보/판매 설정 표 · 대표 이미지. 없는 id면 404.
+// 메뉴 상세 — 밤하늘 헤더(이름·상태·동작) · 기본 정보/판매 설정 표 · 대표 이미지. 없는 id면 404.
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import MockActionButton from "../../_components/MockActionButton";
+import NightHero, { heroOverlap } from "../../_components/NightHero";
 import { getCategory, getMenu } from "@/lib/mock";
 import { MENU_STATUS, won } from "@/lib/format";
+import { baristaOf, pawCode } from "@/lib/cat";
 
 export default async function AdminMenuDetailPage(props: PageProps<"/admin/menus/[id]">) {
   const { id } = await props.params;
   const menu = getMenu(Number(id));
   if (!menu) notFound();
   const status = MENU_STATUS[menu.status];
+  const barista = baristaOf(menu);
 
   return (
     <>
-      <nav className="m3-breadcrumb breadcrumb-size:sm" aria-label="현재 위치">
-        <span>메뉴 관리</span>
-        <Link href="/admin/menus/list">메뉴 목록</Link>
-        <span aria-current="page">{menu.korName}</span>
-      </nav>
-
-      <div className="display:flex align-items:flex-end justify-content:space-between flex-wrap:wrap gap:4 margin-bottom:7">
-        <div>
-          <div className="display:flex align-items:center gap:3">
-            <h1 className="font-size:heading-md font-weight:bold letter-spacing:tight">{menu.korName}</h1>
-            <span className={`m3-badge badge:inline badge-color:${status.color}`}>{status.label}</span>
-          </div>
-          <p className="margin-top:2 font-size:body-sm color:text-muted">
-            메뉴 번호 #{menu.id} · {menu.createdAt} 등록 · {menu.updatedAt} 수정
-          </p>
-        </div>
-        <div className="display:flex gap:2">
-          <Link href="/admin/menus/list" className="m3-btn btn:outlined">
-            목록으로
-          </Link>
-          <Link href={`/admin/menus/${menu.id}/edit`} className="m3-btn">
-            수정
-          </Link>
-          <MockActionButton
-            confirmMessage={`'${menu.korName}' 메뉴를 삭제할까요?`}
-            className="m3-btn btn:outlined btn-color:danger"
-          >
-            삭제
-          </MockActionButton>
-        </div>
-      </div>
+      <NightHero
+        crumb={`KITCHEN / ${pawCode(menu.id)}`}
+        title={
+          <>
+            {menu.korName}{" "}
+            <span className={`m3-badge badge:inline badge-color:${status.color} vertical-align:middle`}>{status.label}</span>
+          </>
+        }
+        description={`메뉴 번호 #${menu.id} · ${menu.createdAt} 등록 · ${menu.updatedAt} 수정 · 담당 바리스타 ${barista.icon} ${barista.name}`}
+        actions={
+          <>
+            <Link href="/admin/menus/list" className="m3-btn btn:outlined">
+              목록으로
+            </Link>
+            <Link href={`/admin/menus/${menu.id}/edit`} className="m3-btn">
+              수정
+            </Link>
+            <MockActionButton
+              confirmMessage={`'${menu.korName}' 메뉴를 삭제할까요?`}
+              className="m3-btn btn:outlined btn-color:danger"
+            >
+              삭제
+            </MockActionButton>
+          </>
+        }
+      />
 
       <div
-        className="display:grid grid-template-columns:1 gap:5 md:grid-template-columns:ex align-items:start"
+        className={`display:grid grid-template-columns:1 gap:5 md:grid-template-columns:ex align-items:start ${heroOverlap}`}
         style={{ "--grid-template-columns-ex": "minmax(0, 2fr) minmax(0, 1fr)" }}
       >
         <div className="display:flex flex-direction:column gap:5">
