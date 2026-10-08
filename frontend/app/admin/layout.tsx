@@ -1,4 +1,4 @@
-// 관리자 방 — m3-layout (드로어 + 상단 앱 바 + 본문). 페이지는 layout-content 안만 만든다.
+// 관리자 방 — m3-layout (드로어 + 본문). 상단 제목은 각 페이지의 NightHero(밤하늘 헤더)가 맡는다.
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import AdminNav from "./_components/AdminNav";
@@ -11,9 +11,6 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     <div className="m3-layout layout:fixed-drawer" style={{ "--layout-drawer-width": "16rem" }}>
       <AdminNav />
       <div className="layout-main">
-        <header className="m3-top-app-bar layout-header bar:outlined">
-          <span className="bar-title">관리자</span>
-        </header>
         <main className="layout-content">{children}</main>
       </div>
     </div>

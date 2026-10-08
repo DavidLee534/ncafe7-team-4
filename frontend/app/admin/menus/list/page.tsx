@@ -1,10 +1,13 @@
-// 메뉴 목록 — 브레드크럼 · 머리 · 상태별 통계 · 필터(카테고리/상태/이름) · 표.
+// 메뉴 목록 — 밤하늘 헤더(고양이) · 상태별 통계 · 필터(카테고리/상태/이름) · 메뉴 카드 · 냥일지.
 // 필터는 GET 폼이라 주소의 쿼리(?category=1&status=on&keyword=라떼)로 남는다. 데이터는 목업.
 import Link from "next/link";
 import StatCard, { type Stat } from "../../_components/StatCard";
-import MockActionButton from "../../_components/MockActionButton";
+import NightHero, { heroOverlap } from "../../_components/NightHero";
+import MenuCatalogCard from "../_components/MenuCatalogCard";
+import CatDiary from "../_components/CatDiary";
 import { countMenusByStatus, getCategories, getCategory, getMenus } from "@/lib/mock";
-import { MENU_STATUS, won } from "@/lib/format";
+import { MENU_STATUS } from "@/lib/format";
+import styles from "../_components/MenuCatalog.module.css";
 import type { MenuStatus } from "@/lib/types";
 
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? "";
@@ -31,23 +34,31 @@ export default async function AdminMenuListPage(props: PageProps<"/admin/menus/l
 
   return (
     <>
-      <nav className="m3-breadcrumb breadcrumb-size:sm" aria-label="현재 위치">
-        <span>메뉴 관리</span>
-        <span aria-current="page">메뉴 목록</span>
-      </nav>
+      <NightHero
+        cat
+        crumb="KITCHEN"
+        title="메뉴 목록"
+        description="고양이 바리스타의 특별한 한 잔을 관리하세요."
+        actions={
+          <>
+            <div className={styles.boss}>
+              <span className={styles.bossFace} aria-hidden="true">
+                🐱
+              </span>
+              <div>
+                <span className={styles.bossName}>모찌 점장 출근 중</span>
+                <span className={styles.bossMood}>오늘의 기분: 간식이 필요해요</span>
+              </div>
+            </div>
+            <Link href="/admin/menus/create" className="m3-btn btn-size:md btn-icon:leading">
+              <i className="m3-icon icon:add" aria-hidden="true"></i>
+              메뉴 등록
+            </Link>
+          </>
+        }
+      />
 
-      <div className="display:flex align-items:flex-end justify-content:space-between flex-wrap:wrap gap:4 margin-bottom:7">
-        <div>
-          <h1 className="font-size:heading-md font-weight:bold letter-spacing:tight">메뉴 목록</h1>
-          <p className="margin-top:2 font-size:body-sm color:text-muted">등록된 메뉴를 조회하고 관리합니다.</p>
-        </div>
-        <Link href="/admin/menus/create" className="m3-btn btn-icon:leading">
-          <i className="m3-icon icon:add" aria-hidden="true"></i>
-          메뉴 등록
-        </Link>
-      </div>
-
-      <ul className="m3-grid grid-cols:4 grid-gap:3 margin-bottom:6">
+      <ul className={`m3-grid grid-cols:4 grid-gap:3 margin-bottom:6 ${heroOverlap}`}>
         {stats.map((s) => (
           <StatCard key={s.label} {...s} />
         ))}
@@ -85,76 +96,22 @@ export default async function AdminMenuListPage(props: PageProps<"/admin/menus/l
         </Link>
       </form>
 
-      <section className="m3-card card:outlined" aria-label="메뉴 표">
-        <table className="m3-table">
-          <thead>
-            <tr>
-              <th scope="col">번호</th>
-              <th scope="col">메뉴</th>
-              <th scope="col">카테고리</th>
-              <th scope="col" className="table-align:end">
-                가격
-              </th>
-              <th scope="col">상태</th>
-              <th scope="col">수정일</th>
-              <th scope="col">관리</th>
-            </tr>
-          </thead>
-          <tbody>
-            {menus.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="text-align:center padding-y:8 color:text-muted">
-                  조건에 맞는 메뉴가 없습니다.
-                </td>
-              </tr>
-            ) : (
-              menus.map((m) => (
-                <tr key={m.id}>
-                  <td className="color:text-muted">{m.id}</td>
-                  <td>
-                    <div className="display:flex align-items:center gap:3">
-                      {m.image ? (
-                        <img src={m.image} alt="" className="width:9 height:9 border-radius:2 object-fit:cover" />
-                      ) : (
-                        <span className="width:9 height:9 border-radius:2 background-color:surface-2" aria-hidden="true" />
-                      )}
-                      <div>
-                        <Link href={`/admin/menus/${m.id}`} className="font-weight:semibold">
-                          {m.korName}
-                        </Link>
-                        {m.isNew && <span className="m3-badge badge:inline badge-color:primary margin-left:2">NEW</span>}
-                        <p className="font-size:caption color:text-muted">{m.engName}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td>{getCategory(m.categoryId)?.name ?? "-"}</td>
-                  <td className="table-align:end">{won(m.price)}</td>
-                  <td>
-                    <span className={`m3-badge badge:inline badge-color:${MENU_STATUS[m.status].color}`}>
-                      {MENU_STATUS[m.status].label}
-                    </span>
-                  </td>
-                  <td className="color:text-muted">{m.updatedAt}</td>
-                  <td>
-                    <div className="display:flex gap:1">
-                      <Link href={`/admin/menus/${m.id}/edit`} className="m3-btn btn:text btn-size:xs">
-                        수정
-                      </Link>
-                      <MockActionButton
-                        confirmMessage={`'${m.korName}' 메뉴를 삭제할까요?`}
-                        className="m3-btn btn:text btn-color:danger btn-size:xs"
-                      >
-                        삭제
-                      </MockActionButton>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </section>
-      <p className="margin-top:3 font-size:caption color:text-muted">{menus.length}개 표시</p>
+      <div className={styles.layout}>
+        <section aria-label="메뉴 카드">
+          {menus.length === 0 ? (
+            <p className={`m3-card card:outlined ${styles.empty}`}>😿 조건에 맞는 메뉴가 없습니다.</p>
+          ) : (
+            <ul className={styles.grid}>
+              {menus.map((m) => (
+                <MenuCatalogCard key={m.id} menu={m} categoryName={getCategory(m.categoryId)?.name ?? "-"} />
+              ))}
+            </ul>
+          )}
+          <p className="margin-top:3 font-size:caption color:text-muted">{menus.length}개 표시</p>
+        </section>
+
+        <CatDiary menus={getMenus()} />
+      </div>
     </>
   );
 }

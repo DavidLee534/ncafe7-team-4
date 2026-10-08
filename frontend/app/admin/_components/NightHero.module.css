@@ -1,0 +1,121 @@
+/* 밤하늘 헤더 — layout-content 의 안쪽 여백을 무시하고 본문 폭 끝까지 깐다 */
+.hero {
+  --night: rgba(19, 23, 90, 0.95);
+  --star: #fff8dc;
+  position: relative;
+  overflow: hidden;
+  margin: calc(var(--layout-content-padding) * -1) calc(var(--layout-content-padding) * -1) 0;
+  padding: 2.25rem 2.5rem 6rem;
+  min-height: 15rem;
+  background: var(--night);
+}
+
+/* 고양이가 있는 헤더는 아래 여백을 더 줘서 고양이 얼굴이 보이게 */
+.withCat {
+  padding-bottom: 7.5rem;
+}
+
+.row {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+.crumb {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.125rem;
+  color: #f4a895;
+}
+
+.title {
+  margin-top: 0.5rem;
+  font-size: 2.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #fff;
+}
+
+.desc {
+  margin-top: 0.5rem;
+  font-size: 0.9375rem;
+  color: rgba(255, 248, 220, 0.75);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+/* 어두운 배경 위 newtil 버튼 — 보조(outlined) 버튼을 반투명 유리로 */
+.actions :global(.m3-btn.btn\:outlined) {
+  --btn-background-color: rgba(255, 248, 220, 0.12);
+  --btn-border-color: rgba(255, 248, 220, 0.35);
+  --btn-color: var(--star);
+  color: var(--star);
+}
+.actions :global(.m3-btn.btn\:outlined.btn-color\:danger) {
+  --btn-color: #ffb4a8;
+  color: #ffb4a8;
+}
+
+.star {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--star);
+  box-shadow: 0 0 6px 2px rgba(255, 248, 220, 0.5);
+  pointer-events: none;
+}
+
+.sparkle {
+  position: absolute;
+  width: 1rem;
+  height: 1rem;
+  pointer-events: none;
+}
+.sparkle::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #fffdf3;
+  clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+  filter: drop-shadow(0 0 5px rgba(255, 248, 220, 0.9));
+}
+
+.cat {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  z-index: 1;
+  width: clamp(12rem, 24vw, 20rem);
+  transform: translateX(-50%);
+}
+
+/* 헤더 아래 첫 덩어리(통계 카드 등)를 헤더 위로 살짝 올린다 */
+.overlap {
+  position: relative;
+  z-index: 3;
+  margin-top: -3.75rem;
+}
+
+@media (max-width: 720px) {
+  .hero {
+    padding: 1.75rem 1.25rem 10rem;
+  }
+  .title {
+    font-size: 1.75rem;
+  }
+}
+
+/* 어두운 배경 위 주요(filled) 버튼은 코랄색으로 */
+.actions :global(.m3-btn:not(.btn\:outlined):not(.btn\:text)) {
+  --btn-background-color: #e8806a;
+  --btn-color: #fff;
+  box-shadow: 0 6px 18px rgba(232, 128, 106, 0.4);
+}
