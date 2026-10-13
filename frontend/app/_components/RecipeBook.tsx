@@ -7,15 +7,18 @@ import { MENU_STATUS, won } from "@/lib/format";
 import styles from "./RecipeBook.module.css";
 import RecipeBookControls from "./RecipeBookControls";
 import { CATEGORY_BOOKS } from "./recipeBookConfig";
+import { getMenuLore } from "./menuLore";
 
 export default function RecipeBook({
   menus,
   admin = false,
+  customer = false,
   overview = false,
   categoryId,
 }: {
   menus: Menu[];
   admin?: boolean;
+  customer?: boolean;
   overview?: boolean;
   categoryId?: number;
 }) {
@@ -64,6 +67,7 @@ export default function RecipeBook({
                 {bookPage.map((item, itemIndex) =>
                   (() => {
                     const status = MENU_STATUS[item.status];
+                    const lore = customer ? getMenuLore(item) : undefined;
                     const row = (
                       <>
                         <span className={styles.indexNumber}>
@@ -80,13 +84,14 @@ export default function RecipeBook({
                           <span className={styles.indexPlaceholder}>🍞</span>
                         )}
                         <span className={styles.indexName}>
-                          <b>{item.korName}</b>
-                          <small>{item.engName}</small>
+                          <b>{lore?.magicName ?? item.korName}</b>
+                          <small>{lore ? item.korName : item.engName}</small>
+                          {lore && <em className={styles.magicEffects}>{lore.effects.join(" · ")}</em>}
                         </span>
                         <span
-                          className={`${styles.indexStatus} ${styles[`status${item.status}`]}`}
+                          className={`${styles.indexStatus} ${lore ? styles[`grade${lore.grade}`] : styles[`status${item.status}`]}`}
                         >
-                          {status.label}
+                          {lore?.grade ?? status.label}
                         </span>
                         <strong>{won(item.price)}</strong>
                       </>
