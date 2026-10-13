@@ -1,6 +1,5 @@
+import type { MenuStatusCounts } from "@/lib/types";
 import styles from "./MenuCatalog.module.css";
-
-type Counts = { all: number; on: number; soldout: number; hidden: number };
 
 const summaries = [
   { label: "전체 메뉴", key: "all", tone: "neutral", icon: "✦" },
@@ -9,7 +8,7 @@ const summaries = [
   { label: "비공개", key: "hidden", tone: "muted", icon: "💤" },
 ] as const;
 
-export default function MenuStatusOverview({ counts }: { counts: Counts }) {
+export default function MenuStatusOverview({ counts }: { counts: MenuStatusCounts }) {
   return (
     <section
       className={`${styles.overview} ${styles.storyOverlap}`}

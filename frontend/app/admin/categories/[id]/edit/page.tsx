@@ -18,7 +18,7 @@ export default async function AdminCategoryEditPage(props: PageProps<"/admin/cat
         description={<>카테고리 번호 #{category.id} · 메뉴 {countMenusByCategory(category.id)}개</>}
         actions={
           <>
-            <Link href="/admin/categories/list" className="m3-btn btn:outlined">
+            <Link href="/admin/categories" className="m3-btn btn:outlined">
               목록으로
             </Link>
           </>
@@ -26,7 +26,7 @@ export default async function AdminCategoryEditPage(props: PageProps<"/admin/cat
       />
 
       <div className={heroOverlap}>
-        <CategoryForm mode="edit" initial={category} cancelHref="/admin/categories/list" />
+        <CategoryForm mode="edit" initial={category} cancelHref="/admin/categories" />
       </div>
     </>
   );

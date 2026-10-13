@@ -6,10 +6,15 @@ import styles from "./AdminNav.module.css";
 
 const SECTIONS = [
   {
+    title: "오늘의 공방",
+    mark: "✦",
+    items: [{ href: "/admin", name: "공방 대시보드", icon: "🏮" }],
+  },
+  {
     title: "마법 레시피 보관함",
     mark: "✦",
     items: [
-      { href: "/admin/menus/list", name: "메뉴 카탈로그", icon: "🐾" },
+      { href: "/admin/menus", name: "메뉴 카탈로그", icon: "🐾" },
       { href: "/admin/menus/create", name: "마법 메뉴 등록", icon: "✨" },
     ],
   },
@@ -17,7 +22,7 @@ const SECTIONS = [
     title: "재료 창고",
     mark: "✦",
     items: [
-      { href: "/admin/categories/list", name: "카테고리 관리", icon: "🧺" },
+      { href: "/admin/categories", name: "카테고리 관리", icon: "🧺" },
       { href: "/admin/categories/create", name: "새 재료 분류", icon: "➕" },
     ],
   },
@@ -25,11 +30,12 @@ const SECTIONS = [
 
 export default function AdminNav() {
   const pathname = usePathname();
+  // 목록(/admin/menus)은 그 아래 상세·수정 화면(/admin/menus/1, /admin/menus/1/edit)에서도 켜 둔다.
+  // 등록 화면은 따로 항목이 있으니 제외한다. 대시보드(/admin)는 모든 화면의 상위라서 정확히 같을 때만 켠다.
   const active = (href: string) => {
     if (pathname === href) return true;
-    if (!href.endsWith("/list")) return false;
-    const base = href.slice(0, -"list".length);
-    return pathname.startsWith(base) && !pathname.endsWith("/create");
+    if (href === "/admin") return false;
+    return pathname.startsWith(`${href}/`) && !pathname.endsWith("/create");
   };
 
   return (

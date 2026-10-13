@@ -22,3 +22,12 @@ export function pawCode(id: number): string {
 export function recentlyUpdated(menus: Menu[], limit = 5): Menu[] {
   return [...menus].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, limit);
 }
+
+// 모카 점장의 보고 — 카테고리를 골랐으면 그 카테고리 메뉴만, 아니면 전체 메뉴로 센다.
+export function mokaReport(menus: Menu[], categoryName?: string): string {
+  const available = menus.filter((menu) => menu.status === "on").length;
+  const soldout = menus.filter((menu) => menu.status === "soldout").length;
+  return categoryName
+    ? `${categoryName} 책장에는 판매 가능한 주문이 ${available}개, 품절 메뉴가 ${soldout}개 있다냥.`
+    : `오늘 공방에는 판매 가능한 주문이 ${available}개, 품절 메뉴가 ${soldout}개 있다냥. 어떤 레시피책을 펼쳐 볼까냥?`;
+}

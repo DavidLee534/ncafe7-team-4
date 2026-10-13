@@ -11,6 +11,9 @@ export type Category = {
 
 export type MenuStatus = "on" | "soldout" | "hidden";
 
+// 판매 상태별 메뉴 수 (all 은 전체)
+export type MenuStatusCounts = Record<MenuStatus | "all", number>;
+
 export type Menu = {
   id: number;
   korName: string;

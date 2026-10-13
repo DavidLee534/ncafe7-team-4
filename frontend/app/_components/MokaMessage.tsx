@@ -1,7 +1,7 @@
 "use client";
 
 import { type ReactNode, useState } from "react";
-import styles from "./MenuCatalog.module.css";
+import styles from "./MokaMessage.module.css";
 
 export default function MokaMessage({ message, label = "MOKA'S CATEGORY REPORT", children }: { message: string; label?: string; children?: ReactNode }) {
   const [minimized, setMinimized] = useState(false);

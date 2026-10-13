@@ -1,6 +1,6 @@
 // 메뉴 캣탈로그 카드 — 그림 · 코드 · 담당 바리스타 · 상태 · 이름 · 가격 · 수정/삭제.
 import Link from "next/link";
-import MockActionButton from "../../_components/MockActionButton";
+import MockActionButton from "../../../_components/MockActionButton";
 import { MENU_STATUS, won } from "@/lib/format";
 import { baristaOf, pawCode } from "@/lib/cat";
 import type { Menu } from "@/lib/types";
