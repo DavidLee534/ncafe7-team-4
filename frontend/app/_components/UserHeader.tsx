@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import styles from "./UserHeader.module.css";
 
 const navigation = [
-  { href: "/", label: "공방 이야기" },
   { href: "/menu", label: "메뉴 책장" },
   { href: "/menu/alchemy", label: "연금 공방" },
 ];
@@ -23,7 +22,9 @@ export default function UserHeader() {
         <button type="button" title="준비 중인 기능입니다">오늘의 추천</button>
       </nav>
       <div className={styles.actions}>
-        <button type="button" title="준비 중인 기능입니다">마이페이지</button>
+        <Link href="/mypage">마이페이지</Link>
+        <Link href="/login">로그인</Link>
+        <Link href="/signup" className={styles.signup}>회원가입</Link>
         <button type="button" className={styles.cart} title="장바구니 기능은 준비 중입니다">🛒 <span>장바구니</span> <b>0</b></button>
       </div>
     </header>
