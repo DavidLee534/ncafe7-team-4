@@ -1,2 +1,2 @@
-import AlchemyWorkshop from "../_components/AlchemyWorkshop";
-export default function AlchemyPage() { return <AlchemyWorkshop />; }
+import EmotionAlchemyWorkshop from "../_components/EmotionAlchemyWorkshop";
+export default function AlchemyPage() { return <EmotionAlchemyWorkshop />; }
