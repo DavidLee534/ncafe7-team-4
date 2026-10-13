@@ -2,8 +2,8 @@
 import Link from "next/link";
 import { useState } from "react";
 import { getCategories, getMenus } from "@/lib/mock";
-import MokaMessage from "../../admin/menus/_components/MokaMessage";
-import RecipeBook from "./RecipeBook";
+import MokaMessage from "../../_components/MokaMessage";
+import RecipeBook from "../../_components/RecipeBook";
 import styles from "./UserMenuCatalog.module.css";
 import UserHeader from "../../_components/UserHeader";
 export default function UserMenuCatalog() {
