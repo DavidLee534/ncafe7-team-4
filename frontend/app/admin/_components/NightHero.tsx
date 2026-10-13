@@ -56,7 +56,7 @@ export default function NightHero({
 
       <div className={styles.row}>
         <div>
-          <p className={styles.crumb}>MEW &amp; BREW / {crumb}</p>
+          <p className={styles.crumb}>MIDNIGHT BAKERY / {crumb}</p>
           <h1 className={styles.title}>{title}</h1>
           {description && <p className={styles.desc}>{description}</p>}
         </div>

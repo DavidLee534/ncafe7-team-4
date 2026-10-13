@@ -1,8 +1,8 @@
 // 카테고리 목록 — 밤하늘 헤더 · 표(정렬 순서·이름·메뉴 수·공개 여부). 데이터는 목업.
 // 메뉴가 남아 있는 카테고리는 삭제할 수 없게 버튼을 막는다.
 import Link from "next/link";
-import NightHero, { heroOverlap } from "../../_components/NightHero";
-import MockActionButton from "../../_components/MockActionButton";
+import NightHero, { heroOverlap } from "../_components/NightHero";
+import MockActionButton from "../_components/MockActionButton";
 import { countMenusByCategory, getCategories } from "@/lib/mock";
 
 export default function AdminCategoryListPage() {
@@ -50,7 +50,7 @@ export default function AdminCategoryListPage() {
                       <p className="font-size:caption color:text-muted">{c.engName}</p>
                     </td>
                     <td className="table-align:end">
-                      <Link href={`/admin/menus/list?category=${c.id}`} className="color:link">
+                      <Link href={`/admin/menus?category=${c.id}`} className="color:link">
                         {menuCount}개
                       </Link>
                     </td>

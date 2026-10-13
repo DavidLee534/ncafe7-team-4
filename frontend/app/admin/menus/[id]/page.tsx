@@ -1,17 +1,20 @@
-// 메뉴 상세 — 밤하늘 헤더(이름·상태·동작) · 기본 정보/판매 설정 표 · 대표 이미지. 없는 id면 404.
-import Link from "next/link";
+// 메뉴 상세 — 밤하늘 헤더(이름·상태·동작) · 기본 정보/판매 설정 · 대표 이미지. 없는 id면 404.
+// 페이지는 데이터를 준비해서 배치만 하고, 각 칸은 받은 값을 보여주기만 한다.
 import { notFound } from "next/navigation";
-import MockActionButton from "../../_components/MockActionButton";
 import NightHero, { heroOverlap } from "../../_components/NightHero";
+import MenuBasicInfo from "./_components/MenuBasicInfo";
+import MenuDetailActions from "./_components/MenuDetailActions";
+import MenuImageCard from "./_components/MenuImageCard";
+import MenuSaleSettings from "./_components/MenuSaleSettings";
+import MenuStatusBadge from "../../_components/MenuStatusBadge";
 import { getCategory, getMenu } from "@/lib/mock";
-import { MENU_STATUS, won } from "@/lib/format";
 import { baristaOf, pawCode } from "@/lib/cat";
 
 export default async function AdminMenuDetailPage(props: PageProps<"/admin/menus/[id]">) {
   const { id } = await props.params;
   const menu = getMenu(Number(id));
   if (!menu) notFound();
-  const status = MENU_STATUS[menu.status];
+  const categoryName = getCategory(menu.categoryId)?.name ?? "-";
   const barista = baristaOf(menu);
 
   return (
@@ -20,27 +23,11 @@ export default async function AdminMenuDetailPage(props: PageProps<"/admin/menus
         crumb={`KITCHEN / ${pawCode(menu.id)}`}
         title={
           <>
-            {menu.korName}{" "}
-            <span className={`m3-badge badge:inline badge-color:${status.color} vertical-align:middle`}>{status.label}</span>
+            {menu.korName} <MenuStatusBadge status={menu.status} className="vertical-align:middle" />
           </>
         }
         description={`메뉴 번호 #${menu.id} · ${menu.createdAt} 등록 · ${menu.updatedAt} 수정 · 담당 바리스타 ${barista.icon} ${barista.name}`}
-        actions={
-          <>
-            <Link href="/admin/menus/list" className="m3-btn btn:outlined">
-              목록으로
-            </Link>
-            <Link href={`/admin/menus/${menu.id}/edit`} className="m3-btn">
-              수정
-            </Link>
-            <MockActionButton
-              confirmMessage={`'${menu.korName}' 메뉴를 삭제할까요?`}
-              className="m3-btn btn:outlined btn-color:danger"
-            >
-              삭제
-            </MockActionButton>
-          </>
-        }
+        actions={<MenuDetailActions menu={menu} />}
       />
 
       <div
@@ -48,61 +35,10 @@ export default async function AdminMenuDetailPage(props: PageProps<"/admin/menus
         style={{ "--grid-template-columns-ex": "minmax(0, 2fr) minmax(0, 1fr)" }}
       >
         <div className="display:flex flex-direction:column gap:5">
-          <section className="m3-card card:outlined card-padding:self" aria-labelledby="basic-title">
-            <h2 id="basic-title" className="margin-bottom:4 font-size:body-lg font-weight:semibold">
-              기본 정보
-            </h2>
-            <table className="m3-table table:key-value">
-              <tbody>
-                <tr>
-                  <th scope="row">메뉴명(한글)</th>
-                  <td>{menu.korName}</td>
-                  <th scope="row">메뉴명(영문)</th>
-                  <td>{menu.engName}</td>
-                </tr>
-                <tr>
-                  <th scope="row">카테고리</th>
-                  <td>{getCategory(menu.categoryId)?.name ?? "-"}</td>
-                  <th scope="row">가격</th>
-                  <td className="font-weight:bold">{won(menu.price)}</td>
-                </tr>
-                <tr>
-                  <th scope="row">설명</th>
-                  <td colSpan={3}>{menu.description || "-"}</td>
-                </tr>
-              </tbody>
-            </table>
-          </section>
-
-          <section className="m3-card card:outlined card-padding:self" aria-labelledby="sale-title">
-            <h2 id="sale-title" className="margin-bottom:4 font-size:body-lg font-weight:semibold">
-              판매 설정
-            </h2>
-            <table className="m3-table table:key-value">
-              <tbody>
-                <tr>
-                  <th scope="row">판매 상태</th>
-                  <td>
-                    <span className={`m3-badge badge:inline badge-color:${status.color}`}>{status.label}</span>
-                  </td>
-                  <th scope="row">신메뉴 표시</th>
-                  <td>{menu.isNew ? "예" : "아니오"}</td>
-                </tr>
-              </tbody>
-            </table>
-          </section>
+          <MenuBasicInfo menu={menu} categoryName={categoryName} />
+          <MenuSaleSettings menu={menu} />
         </div>
-
-        <section className="m3-card card:outlined card-padding:self" aria-labelledby="image-title">
-          <h2 id="image-title" className="margin-bottom:4 font-size:body-lg font-weight:semibold">
-            대표 이미지
-          </h2>
-          {menu.image ? (
-            <img src={menu.image} alt={menu.korName} className="width:full border-radius:3 object-fit:cover" />
-          ) : (
-            <p className="color:text-muted">등록된 이미지가 없습니다.</p>
-          )}
-        </section>
+        <MenuImageCard menu={menu} />
       </div>
     </>
   );

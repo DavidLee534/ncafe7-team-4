@@ -15,7 +15,7 @@ export default function AdminCategoryCreatePage() {
         description="새 카테고리를 만듭니다."
         actions={
           <>
-            <Link href="/admin/categories/list" className="m3-btn btn:outlined">
+            <Link href="/admin/categories" className="m3-btn btn:outlined">
               목록으로
             </Link>
           </>
@@ -23,7 +23,7 @@ export default function AdminCategoryCreatePage() {
       />
 
       <div className={heroOverlap}>
-        <CategoryForm mode="create" nextSortOrder={nextSortOrder} cancelHref="/admin/categories/list" />
+        <CategoryForm mode="create" nextSortOrder={nextSortOrder} cancelHref="/admin/categories" />
       </div>
     </>
   );

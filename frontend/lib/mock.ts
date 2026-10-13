@@ -1,5 +1,5 @@
 // 목업 데이터와 조회 함수. 백엔드를 연결할 때 이 함수들의 본문만 API 호출로 바꾸면 페이지는 그대로 쓸 수 있다.
-import type { Category, Menu, MenuStatus } from "./types";
+import type { Category, Menu, MenuStatus, MenuStatusCounts } from "./types";
 
 const CATEGORIES: Category[] = [
   { id: 1, name: "커피", engName: "Coffee", sortOrder: 1, visible: true, createdAt: "2026-08-01" },
@@ -58,7 +58,7 @@ export function getMenu(id: number): Menu | undefined {
   return MENUS.find((m) => m.id === id);
 }
 
-export function countMenusByStatus(): Record<MenuStatus | "all", number> {
+export function countMenusByStatus(): MenuStatusCounts {
   return {
     all: MENUS.length,
     on: MENUS.filter((m) => m.status === "on").length,

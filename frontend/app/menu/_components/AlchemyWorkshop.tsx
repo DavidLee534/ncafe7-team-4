@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import styles from "./AlchemyWorkshop.module.css";
 import UserHeader from "../../_components/UserHeader";
-import MokaMessage from "../../admin/menus/_components/MokaMessage";
+import MokaMessage from "../../_components/MokaMessage";
 
 const shelves = {
   coffee: { label: "커피", spell: "어둠의 물약", icon: "☕", bases: [["다크 로스트", "🌑", 4000], ["라이트 로스트", "🌅", 4000], ["디카페인", "💤", 4000]], extras: [["바닐라", "✨", 500], ["캐러멜", "🟤", 500], ["오트", "🥛", 700], ["휘핑", "☁️", 600]] },
