@@ -4,16 +4,21 @@ import { useMemo, useState } from "react";
 import styles from "./AlchemyWorkshop.module.css";
 import UserHeader from "../../_components/UserHeader";
 import MokaMessage from "../../_components/MokaMessage";
+import { basicMenus, getBasicMenu } from "./alchemyMenus";
+
+// 기반 재료는 기본 메뉴 30종에서 가져온다 — 기반 재료만 고른 가격이 곧 그 기본 메뉴 가격이다 (README "공통 재료 선반").
+const baseIcons: Record<string, string> = { "다크 로스트": "🌑", "라이트 로스트": "🌅", "디카페인": "💤", "초코": "🍫", "말차": "🍵", "고구마": "🍠", "곡물": "🌾", "딸기청": "🍓", "블루베리청": "🫐", "망고청": "🥭", "얼그레이": "🫖", "캐모마일": "🌼", "히비스커스": "🌺", "녹차": "🍃", "딸기": "🍓", "망고": "🥭", "바나나": "🍌", "블루베리": "🫐", "모카": "☕", "쿠키앤크림": "🍪", "카라멜": "🍮", "조각 케이크": "🍰", "와플": "🧇", "크로플": "🥐", "마카롱": "🍪", "크루아상": "🥐", "치아바타": "🥖", "베이글": "🥯", "토스트": "🍞" };
+const basesOf = (category: string) => basicMenus.filter((menu) => menu.category === category).map((menu) => [menu.ingredient, baseIcons[menu.ingredient] ?? "🧪", menu.price] as const);
 
 const shelves = {
-  coffee: { label: "커피", spell: "어둠의 물약", icon: "☕", bases: [["다크 로스트", "🌑", 4000], ["라이트 로스트", "🌅", 4000], ["디카페인", "💤", 4000]], extras: [["바닐라", "✨", 500], ["캐러멜", "🟤", 500], ["오트", "🥛", 700], ["휘핑", "☁️", 600]] },
-  tea: { label: "티", spell: "약초 달임", icon: "🍵", bases: [["얼그레이", "🫖", 4500], ["캐모마일", "🌼", 4500], ["녹차", "🍃", 4500]], extras: [["꿀", "🍯", 500], ["레몬청", "🍋", 600], ["허브", "🌿", 500]] },
-  fruit: { label: "과일 라떼", spell: "열매의 물약", icon: "🍓", bases: [["딸기청", "🍓", 5000], ["블루베리청", "🫐", 5000], ["망고청", "🥭", 5000]], extras: [["우유", "🥛", 500], ["과육", "🍒", 700], ["크림", "☁️", 600]] },
-  smoothie: { label: "스무디", spell: "정령의 진액", icon: "🧋", bases: [["딸기", "🍓", 5500], ["망고", "🥭", 5500], ["바나나", "🍌", 5500]], extras: [["요거트", "🍶", 600], ["우유", "🥛", 500], ["꿀", "🍯", 500]] },
-  noncoffee: { label: "논커피", spell: "대지의 물약", icon: "🍫", bases: [["말차", "🍵", 4500], ["초코", "🍫", 4500], ["고구마", "🍠", 4500]], extras: [["우유", "🥛", 500], ["꿀", "🍯", 500], ["휘핑", "☁️", 600]] },
-  frappe: { label: "프라페", spell: "얼음 결정 엘릭서", icon: "🧊", bases: [["모카", "☕", 5500], ["쿠키앤크림", "🍪", 5500], ["녹차", "🍃", 5500]], extras: [["시럽", "✨", 500], ["휘핑", "☁️", 600], ["초코칩", "🍫", 500]] },
-  dessert: { label: "디저트", spell: "연성 과자", icon: "🧁", bases: [["크로플", "🥐", 4500], ["와플", "🧇", 4500], ["마카롱 쉘", "🍪", 4500]], extras: [["아이스크림", "🍨", 800], ["베리 소스", "🍓", 600], ["생크림", "☁️", 600]] },
-  food: { label: "푸드", spell: "모험가의 식량", icon: "🥯", bases: [["베이글", "🥯", 5500], ["치아바타", "🥖", 5500], ["토스트", "🍞", 5000]], extras: [["크림치즈", "🧀", 700], ["연어", "🐟", 1200], ["에그", "🍳", 800]] },
+  coffee: { label: "커피", spell: "어둠의 물약", icon: "☕", category: "커피", bases: basesOf("커피"), extras: [["바닐라", "✨", 500], ["캐러멜", "🟤", 500], ["오트", "🥛", 700], ["휘핑", "☁️", 600]] },
+  tea: { label: "티", spell: "약초 달임", icon: "🍵", category: "티", bases: basesOf("티"), extras: [["꿀", "🍯", 500], ["레몬청", "🍋", 600], ["허브", "🌿", 500]] },
+  fruit: { label: "과일 라떼", spell: "열매의 물약", icon: "🍓", category: "과일라떼", bases: basesOf("과일라떼"), extras: [["우유", "🥛", 500], ["과육", "🍒", 700], ["크림", "☁️", 600]] },
+  smoothie: { label: "스무디", spell: "정령의 진액", icon: "🧋", category: "스무디", bases: basesOf("스무디"), extras: [["요거트", "🍶", 600], ["우유", "🥛", 500], ["꿀", "🍯", 500]] },
+  noncoffee: { label: "논커피", spell: "대지의 물약", icon: "🍫", category: "논커피", bases: basesOf("논커피"), extras: [["우유", "🥛", 500], ["꿀", "🍯", 500], ["휘핑", "☁️", 600]] },
+  frappe: { label: "프라페", spell: "얼음 결정 엘릭서", icon: "🧊", category: "프라페", bases: basesOf("프라페"), extras: [["시럽", "✨", 500], ["휘핑", "☁️", 600], ["초코칩", "🍫", 500]] },
+  dessert: { label: "디저트", spell: "연성 과자", icon: "🧁", category: "디저트", bases: basesOf("디저트"), extras: [["아이스크림", "🍨", 800], ["베리 소스", "🍓", 600], ["생크림", "☁️", 600]] },
+  food: { label: "푸드", spell: "모험가의 식량", icon: "🥯", category: "푸드", bases: basesOf("푸드"), extras: [["크림치즈", "🧀", 700], ["연어", "🐟", 1200], ["에그", "🍳", 800]] },
 } as const;
 
 type ShelfKey = keyof typeof shelves;
@@ -34,9 +39,18 @@ const tourSteps = [
   { title: "완성된 포션을 담아요", text: "오른쪽에서 포션의 등급과 가격을 확인한 뒤 장바구니에 담을 수 있어요." },
 ];
 
-export default function AlchemyWorkshop() {
-  const [category, setCategory] = useState<ShelfKey>("coffee");
-  const [baseIndex, setBaseIndex] = useState(0);
+// 메뉴 상세에서 "조합하기"로 넘어오면(?menu=번호) 그 메뉴의 계열과 기반 재료를 골라 둔 채로 연다.
+function startingPoint(menuId?: number): { category: ShelfKey; baseIndex: number } {
+  const menu = menuId ? getBasicMenu(menuId) : undefined;
+  const key = menu && (Object.keys(shelves) as ShelfKey[]).find((shelfKey) => shelves[shelfKey].category === menu.category);
+  if (!menu || !key) return { category: "coffee", baseIndex: 0 };
+  return { category: key, baseIndex: Math.max(0, shelves[key].bases.findIndex((base) => base[0] === menu.ingredient)) };
+}
+
+export default function AlchemyWorkshop({ initialMenuId }: { initialMenuId?: number }) {
+  const [start] = useState(() => startingPoint(initialMenuId));
+  const [category, setCategory] = useState<ShelfKey>(start.category);
+  const [baseIndex, setBaseIndex] = useState(start.baseIndex);
   const [extras, setExtras] = useState<number[]>([]);
   const [tourOpen, setTourOpen] = useState(true);
   const [tourStep, setTourStep] = useState(0);

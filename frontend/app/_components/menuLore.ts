@@ -1,4 +1,5 @@
 import type { Menu } from "@/lib/types";
+import { basicMenuEffects, basicMenus } from "../menu/_components/alchemyMenus";
 
 export type MenuLore = { magicName: string; grade: "일반" | "희귀" | "전설"; effects: string[] };
 
@@ -17,4 +18,9 @@ const loreByMenuName: Record<string, MenuLore> = {
   "버터 크루아상": { magicName: "초승달 빵", grade: "일반", effects: ["따뜻함 +2", "든든함 +1"] },
 };
 
-export const getMenuLore = (menu: Menu) => loreByMenuName[menu.korName];
+// 기본 메뉴 30종 — 기본 이름(예: 다크 로스트 커피)으로 찾는다. 효과는 README 재료 마스터의 효과 태그.
+const loreByBasicMenu: Record<string, MenuLore> = Object.fromEntries(
+  basicMenus.map((menu) => [menu.base, { magicName: menu.name, grade: "일반", effects: basicMenuEffects(menu) }]),
+);
+
+export const getMenuLore = (menu: Menu) => loreByBasicMenu[menu.korName] ?? loreByMenuName[menu.korName];
