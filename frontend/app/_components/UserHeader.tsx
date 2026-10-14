@@ -7,6 +7,7 @@ import styles from "./UserHeader.module.css";
 const navigation = [
   { href: "/menu", label: "메뉴 책장" },
   { href: "/menu/alchemy", label: "연금 공방" },
+  { href: "/codex", label: "레시피 도감" },
 ];
 
 export default function UserHeader() {
@@ -18,7 +19,6 @@ export default function UserHeader() {
       </Link>
       <nav className={styles.navigation} aria-label="사용자 메뉴">
         {navigation.map((item) => <Link key={item.href} href={item.href} className={pathname === item.href ? styles.active : ""}>{item.label}</Link>)}
-        <button type="button" title="준비 중인 기능입니다">레시피 도감</button>
         <button type="button" title="준비 중인 기능입니다">오늘의 추천</button>
       </nav>
       <div className={styles.actions}>
