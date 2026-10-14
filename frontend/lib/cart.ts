@@ -1,87 +1,51 @@
-// 장바구니 — 백엔드 주문 API 가 생기기 전까지 브라우저 localStorage 에 보관한다.
-
-import { useSyncExternalStore } from "react";
+// 장바구니 — 브라우저에 저장하고, 헤더 · 공방 · 장바구니 · 결제 페이지가 같은 값을 본다.
+import { createLocalStore } from "./localStore";
 
 export type CartItem = {
-  id: string; // 같은 이름·구성이면 같은 id 로 묶어 수량만 올린다
-  name: string; // 연금술 이름 (예: 빛과 어둠의 균형 포션)
-  detail: string; // 재료 구성 또는 기본 메뉴 이름
-  icon: string;
-  price: number; // 1개 가격
+  key: string; // 같은 포션(이름 + 재료)이면 같은 값 → 수량만 늘린다
+  name: string;
+  options: string[]; // 기반 재료와 추가 재료. 고른 순서 그대로 보여준다
+  unitPrice: number;
   quantity: number;
 };
 
-const STORAGE_KEY = "nyang-cart";
-const EMPTY: CartItem[] = [];
-const listeners = new Set<() => void>();
-let cachedRaw: string | null = null;
-let cachedItems: CartItem[] = EMPTY;
+export const MAX_QUANTITY = 20;
 
-function read(): CartItem[] {
-  let raw: string | null = null;
-  try {
-    raw = window.localStorage.getItem(STORAGE_KEY);
-  } catch {
-    return cachedItems;
-  }
-  if (raw === cachedRaw) return cachedItems;
-  cachedRaw = raw;
-  try {
-    cachedItems = raw ? (JSON.parse(raw) as CartItem[]) : EMPTY;
-  } catch {
-    cachedItems = EMPTY;
-  }
-  return cachedItems;
+const store = createLocalStore<CartItem[]>("ncafe-cart", []);
+
+// 서버에서 그릴 때는 null
+export function useCart(): CartItem[] | null {
+  return store.useValue();
 }
 
-function write(items: CartItem[]) {
-  const raw = JSON.stringify(items);
-  cachedRaw = raw;
-  cachedItems = items;
-  try {
-    window.localStorage.setItem(STORAGE_KEY, raw);
-  } catch {
-    // 저장이 막힌 브라우저에서는 이번 탭에서만 유지한다
-  }
-  listeners.forEach((listener) => listener());
-}
-
-function subscribe(listener: () => void) {
-  listeners.add(listener);
-  const onStorage = (event: StorageEvent) => event.key === STORAGE_KEY && listener();
-  window.addEventListener("storage", onStorage); // 다른 탭에서 바꾼 장바구니도 반영
-  return () => {
-    listeners.delete(listener);
-    window.removeEventListener("storage", onStorage);
-  };
-}
-
-export function useCart(): CartItem[] {
-  return useSyncExternalStore(subscribe, read, () => EMPTY);
-}
-
-export function addToCart(item: Omit<CartItem, "id" | "quantity">, quantity = 1) {
-  const id = `${item.name}|${item.detail}|${item.price}`;
-  const items = read();
-  const existing = items.find((cartItem) => cartItem.id === id);
-  write(
-    existing
-      ? items.map((cartItem) => (cartItem.id === id ? { ...cartItem, quantity: Math.min(cartItem.quantity + quantity, 99) } : cartItem))
-      : [...items, { ...item, id, quantity }],
+export function addToCart(potion: { name: string; options: string[]; unitPrice: number }) {
+  const items = store.get();
+  const key = [potion.name, ...[...potion.options].sort()].join("|");
+  const found = items.find((item) => item.key === key);
+  store.set(
+    found
+      ? items.map((item) => (item.key === key ? { ...item, quantity: Math.min(item.quantity + 1, MAX_QUANTITY) } : item))
+      : [...items, { key, ...potion, quantity: 1 }],
   );
 }
 
-export function setCartQuantity(id: string, quantity: number) {
-  write(quantity <= 0 ? read().filter((item) => item.id !== id) : read().map((item) => (item.id === id ? { ...item, quantity: Math.min(quantity, 99) } : item)));
+export function setQuantity(key: string, quantity: number) {
+  const next = Math.max(1, Math.min(quantity, MAX_QUANTITY));
+  store.set(store.get().map((item) => (item.key === key ? { ...item, quantity: next } : item)));
 }
 
-export function removeFromCart(id: string) {
-  write(read().filter((item) => item.id !== id));
+export function removeFromCart(key: string) {
+  store.set(store.get().filter((item) => item.key !== key));
 }
 
 export function clearCart() {
-  write(EMPTY);
+  store.set([]);
 }
 
-export const cartCount = (items: CartItem[]) => items.reduce((total, item) => total + item.quantity, 0);
-export const cartTotal = (items: CartItem[]) => items.reduce((total, item) => total + item.price * item.quantity, 0);
+export function cartCount(cart: CartItem[]): number {
+  return cart.reduce((sum, item) => sum + item.quantity, 0);
+}
+
+export function cartTotal(cart: CartItem[]): number {
+  return cart.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0);
+}

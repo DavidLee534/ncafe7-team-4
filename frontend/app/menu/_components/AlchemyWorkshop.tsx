@@ -35,7 +35,7 @@ const signaturePotionNames: Record<string, string> = {
 
 const MAX_EXTRAS = 3;
 
-type Potion = { name: string; grade: "일반" | "희귀" | "전설"; icon: string; ingredients: { name: string; price: number }[]; price: number };
+type Potion = { name: string; grade: "일반" | "희귀" | "전설"; ingredients: { name: string; price: number }[]; price: number };
 
 // 고른 재료로 완성될 포션 — 정해 둔 비밀 레시피와 같으면 전설, 추가 재료가 둘 이상이면 희귀.
 function brew(category: ShelfKey, baseIndex: number, extras: number[]): Potion {
@@ -48,7 +48,6 @@ function brew(category: ShelfKey, baseIndex: number, extras: number[]): Potion {
   return {
     name: signature ?? (extraNames.length === 0 ? `${base[0]}의 ${shelf.spell}` : `${extraNames[0]} ${shelf.spell}`),
     grade: signature ? "전설" : extraNames.length >= 2 ? "희귀" : "일반",
-    icon: shelf.icon,
     ingredients,
     price: ingredients.reduce((total, item) => total + item.price, 0),
   };
@@ -84,7 +83,7 @@ export default function AlchemyWorkshop({ initialMenuId }: { initialMenuId?: num
     setPotion(preview);
   };
   const toggleExtra = (index: number) => setExtras((selected) => selected.includes(index) ? selected.filter((value) => value !== index) : selected.length < MAX_EXTRAS ? [...selected, index] : selected);
-  const putInCart = (potion: Potion) => { addToCart({ name: potion.name, detail: potion.ingredients.map((item) => item.name).join(" · "), icon: potion.icon, price: potion.price }); setAddedName(potion.name); };
+  const putInCart = (potion: Potion) => { addToCart({ name: potion.name, options: potion.ingredients.map((item) => item.name), unitPrice: potion.price }); setAddedName(potion.name); };
 
   return <AlchemyModeLayout mode="material" eyebrow="MOKA'S ALCHEMY WORKSHOP" title="재료 연금술" description={<>계열을 고르고 <b>기반 재료</b> 하나에 마음에 드는 <b>추가 재료</b>를 더해 연금솥에 넣으면, 모카 사장님이 세상에 하나뿐인 포션을 완성해 줘요.</>}>
     <section className={styles.workshop} aria-label="재료 연금술 공방">
