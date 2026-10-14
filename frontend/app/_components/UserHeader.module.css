@@ -2,3 +2,4 @@
 .actions a{padding:.62rem .8rem;border-radius:.8rem;color:#c8bdaf;font-size:.82rem;font-weight:800}.actions a:hover{color:#fff4dc}.signup{border:1px solid rgba(239,174,70,.58);color:#f4c66f!important}@media(max-width:900px){.actions a:first-child{display:none}}@media(max-width:600px){.actions a{padding:.55rem .5rem;font-size:.72rem}.actions .signup{display:none}}
 .logout{border:1px solid rgba(239,174,70,.38)!important;color:#f2c56f!important}
 @media(max-width:900px){.actions a:first-child{display:inline-block}.actions a:nth-child(2){display:none}}
+.actions a.cart{display:flex}.actions a.cartActive{border-color:#efae46!important;color:#fff4dc}
