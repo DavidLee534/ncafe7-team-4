@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
 import { addToCart } from "@/lib/cart";
 import styles from "./AlchemyWorkshop.module.css";
@@ -56,7 +55,6 @@ export default function AlchemyWorkshop({ initialMenuId }: { initialMenuId?: num
   const [extras, setExtras] = useState<number[]>([]);
   const [tourOpen, setTourOpen] = useState(true);
   const [tourStep, setTourStep] = useState(0);
-  const [addedName, setAddedName] = useState<string | null>(null);
   const shelf = shelves[category];
   const base = shelf.bases[baseIndex];
   const price = useMemo(() => base[2] + extras.reduce((total, index) => total + shelf.extras[index][2], 0), [base, extras, shelf]);
@@ -68,12 +66,11 @@ export default function AlchemyWorkshop({ initialMenuId }: { initialMenuId?: num
     return `${selectedExtraNames[0]} ${shelf.spell}`;
   }, [base, selectedExtraNames, shelf.spell]);
   const selectCategory = (key: ShelfKey) => { setCategory(key); setBaseIndex(0); setExtras([]); };
-  const putInCart = () => { addToCart({ name: potionName, options: [base[0], ...selectedExtraNames], unitPrice: price }); setAddedName(potionName); };
+  const putInCart = () => addToCart({ name: potionName, options: [base[0], ...selectedExtraNames], unitPrice: price });
   const toggleExtra = (index: number) => setExtras((selected) => selected.includes(index) ? selected.filter((value) => value !== index) : selected.length < 3 ? [...selected, index] : selected);
 
   return <><UserHeader /><main className={styles.page}>
     <header className={styles.hero}><span>MOKA&apos;S ALCHEMY WORKSHOP</span><h1>오늘의 포션을<br /><em>연성해 볼까요?</em></h1><p>기반 재료를 하나 고르고 마음에 드는 촉매를 더해 보세요. 모카 점장이 당신만의 주문을 완성해 드릴게요냥.</p><button type="button" className={styles.tourStart} onClick={() => { setTourStep(0); setTourOpen(true); }}>✦ 조합 방법 보기</button><b aria-hidden="true">🐈‍⬛</b></header>
-    <nav className={styles.modeTabs} aria-label="연금술 방식"><span className={styles.activeMode}>재료 연금술</span><Link href="/menu/alchemy">감정 연금술 <b>NEW</b></Link><Link href="/menu">기본 메뉴 30종</Link></nav>
     <section className={styles.workshop} aria-label="포션 조합 공방">
       <div className={styles.steps}><b>01 계열 선택</b><i /> <b>02 재료 고르기</b><i /> <span>03 포션 완성</span></div>
       <nav className={styles.categories}>{(Object.keys(shelves) as ShelfKey[]).map((key) => <button type="button" key={key} className={key === category ? styles.active : ""} onClick={() => selectCategory(key)}><strong>{shelves[key].icon}</strong>{shelves[key].label}<small>{shelves[key].spell}</small></button>)}</nav>
@@ -91,7 +88,7 @@ export default function AlchemyWorkshop({ initialMenuId }: { initialMenuId?: num
           <h3>솥에 들어간 재료</h3><div className={styles.ingredients}><span>{base[0]} ×</span>{extras.map((index) => <span key={index}>{shelf.extras[index][0]} ×</span>)}</div>
           <button type="button" className={styles.brew}>◌ 조합하기</button>
         </section>
-        <aside className={styles.cauldron}><h2>완성된 포션</h2><div className={styles.result}><span>⚗️</span><em>희귀 등급</em><h3>{potionName}</h3><p>{base[0]} · {selectedExtraNames.join(" · ") || "기본 레시피"}</p><div className={styles.tags}><b>활력 +2</b><b>달콤함 +1</b><b>부드러움 +1</b></div></div><div className={styles.price}><small>예상 가격</small><b>{price.toLocaleString()}원</b></div><button type="button" onClick={putInCart}>장바구니에 담기</button>{addedName && <p className={styles.addedNote} role="status">✓ {addedName}을(를) 담았어요 · <Link href="/cart">장바구니 보기</Link></p>}<div className={styles.secondary}><button type="button">도감에 기록</button><button type="button">레시피 공유</button></div></aside>
+        <aside className={styles.cauldron}><h2>완성된 포션</h2><div className={styles.result}><span>⚗️</span><em>희귀 등급</em><h3>{potionName}</h3><p>{base[0]} · {selectedExtraNames.join(" · ") || "기본 레시피"}</p><div className={styles.tags}><b>활력 +2</b><b>달콤함 +1</b><b>부드러움 +1</b></div></div><div className={styles.price}><small>예상 가격</small><b>{price.toLocaleString()}원</b></div><button type="button" onClick={putInCart}>장바구니에 담기</button><div className={styles.secondary}><button type="button">도감에 기록</button><button type="button">레시피 공유</button></div></aside>
       </div>
     </section>
     <p className={styles.notice}>기반 재료는 필수이며, 추가 재료는 최대 세 가지까지 선택할 수 있어요. 실제 주문 전 알레르기 정보를 확인해 주세요.</p>
