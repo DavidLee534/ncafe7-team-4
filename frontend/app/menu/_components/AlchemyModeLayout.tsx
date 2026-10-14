@@ -8,7 +8,7 @@ export type AlchemyMode = "material" | "emotion" | "basic";
 
 const modes: { key: AlchemyMode; href: string; label: ReactNode }[] = [
   { key: "material", href: "/menu/alchemy", label: "재료 연금술" },
-  { key: "emotion", href: "/menu/alchemy/emotion", label: <>감정 연금술 <b>NEW</b></> },
+  { key: "emotion", href: "/menu/alchemy/emotion", label: "감정 연금술" },
   { key: "basic", href: "/menu/alchemy/basic", label: "기본 메뉴" },
 ];
 

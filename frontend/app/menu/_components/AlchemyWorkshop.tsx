@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { type CSSProperties, type MouseEvent, type PointerEvent, useRef, useState } from "react";
 import { addToCart } from "@/lib/cart";
 import AlchemyModeLayout from "./AlchemyModeLayout";
 import { basicMenus, getBasicMenu } from "./alchemyMenus";
@@ -36,6 +36,7 @@ const signaturePotionNames: Record<string, string> = {
 const MAX_EXTRAS = 3;
 
 type Potion = { name: string; grade: "일반" | "희귀" | "전설"; icon: string; ingredients: { name: string; price: number }[]; price: number };
+type FlyingIngredient = { id: number; label: string; x: number; y: number; dx: number; dy: number };
 
 // 고른 재료로 완성될 포션 — 정해 둔 비밀 레시피와 같으면 전설, 추가 재료가 둘 이상이면 희귀.
 function brew(category: ShelfKey, baseIndex: number, extras: number[]): Potion {
@@ -71,39 +72,68 @@ export default function AlchemyWorkshop({ initialMenuId }: { initialMenuId?: num
   const [extras, setExtras] = useState<number[]>([]);
   const [potion, setPotion] = useState<Potion | null>(null); // 조합하기 전에는 비어 있다
   const [addedName, setAddedName] = useState<string | null>(null);
+  const [isBrewing, setIsBrewing] = useState(false);
+  const [clickPulse, setClickPulse] = useState<{ x: number; y: number } | null>(null);
+  const [flyingIngredients, setFlyingIngredients] = useState<FlyingIngredient[]>([]);
+  const potSceneRef = useRef<HTMLDivElement>(null);
+  const flightIdRef = useRef(0);
   const [missing, setMissing] = useState<"category" | "base" | null>(null); // 필수 선택 없이 조합하기를 누르면 안내
   const shelf = category ? shelves[category] : null;
   const preview = category && baseIndex !== null ? brew(category, baseIndex, extras) : null;
   const recipeOf = (item: Potion) => item.ingredients.map((ingredient) => ingredient.name).join("|");
   const changed = potion !== null && (preview === null || recipeOf(preview) !== recipeOf(potion));
-  const selectCategory = (key: ShelfKey) => { setCategory(key); setBaseIndex(null); setExtras([]); setMissing(null); };
-  const selectBase = (index: number) => { setBaseIndex(index); setMissing(null); };
+  const selectCategory = (key: ShelfKey) => { if (isBrewing) return; setCategory(key); setBaseIndex(null); setExtras([]); setMissing(null); };
+  const flyToCauldron = (event: MouseEvent<HTMLButtonElement>, label: string) => {
+    const origin = event.currentTarget.getBoundingClientRect();
+    const cauldron = potSceneRef.current?.getBoundingClientRect();
+    if (!cauldron || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const id = ++flightIdRef.current;
+    const x = origin.left + origin.width / 2;
+    const y = origin.top + origin.height / 2;
+    setFlyingIngredients((current) => [...current, { id, label, x, y, dx: cauldron.left + cauldron.width / 2 - x, dy: cauldron.top + cauldron.height * .48 - y }]);
+    window.setTimeout(() => setFlyingIngredients((current) => current.filter((item) => item.id !== id)), 720);
+  };
+  const selectBase = (event: MouseEvent<HTMLButtonElement>, index: number, label: string) => { if (isBrewing) return; flyToCauldron(event, label); setBaseIndex(index); setMissing(null); };
   const combine = () => {
     if (!category) return setMissing("category");
     if (!preview) return setMissing("base");
-    setPotion(preview);
+    setIsBrewing(true);
+    window.setTimeout(() => {
+      setPotion(preview);
+      setIsBrewing(false);
+    }, 1450);
   };
-  const toggleExtra = (index: number) => setExtras((selected) => selected.includes(index) ? selected.filter((value) => value !== index) : selected.length < MAX_EXTRAS ? [...selected, index] : selected);
+  const toggleExtra = (event: MouseEvent<HTMLButtonElement>, index: number, label: string) => { if (isBrewing) return; if (!extras.includes(index) && extras.length < MAX_EXTRAS) flyToCauldron(event, label); setExtras((selected) => selected.includes(index) ? selected.filter((value) => value !== index) : selected.length < MAX_EXTRAS ? [...selected, index] : selected); };
   const putInCart = (potion: Potion) => { addToCart({ name: potion.name, options: potion.ingredients.map((item) => item.name), unitPrice: potion.price }); setAddedName(potion.name); };
+  const showClickFeedback = (event: PointerEvent<HTMLElement>) => {
+    if (!(event.target instanceof Element) || !event.target.closest("button, a")) return;
+    setClickPulse({ x: event.clientX, y: event.clientY });
+    window.setTimeout(() => setClickPulse(null), 520);
+  };
 
-  return <AlchemyModeLayout mode="material" eyebrow="MOKA'S ALCHEMY WORKSHOP" title="재료 연금술" description={<>계열을 고르고 <b>기반 재료</b> 하나에 마음에 드는 <b>추가 재료</b>를 더해 연금솥에 넣으면, 모카 사장님이 세상에 하나뿐인 포션을 완성해 줘요.</>}>
-    <section className={styles.workshop} aria-label="재료 연금술 공방">
+  return <AlchemyModeLayout mode="material" eyebrow="MOKA'S MATERIAL ALCHEMY" title="재료 연금술" description={<>계열을 고르고 <b>기반 재료</b> 하나에 마음에 드는 <b>추가 재료</b>를 더해 연금솥에 넣으면, 모카 사장님이 세상에 하나뿐인 포션을 완성해 줘요.</>}>
+    <section className={styles.workshop} aria-label="재료 연금술 공방" onPointerDown={showClickFeedback}>
+      {clickPulse && <span className={own.clickPulse} style={{ left: clickPulse.x, top: clickPulse.y }} aria-hidden="true">✦</span>}
+      {flyingIngredients.map((item) => <span key={item.id} className={own.flyingIngredient} style={{ left: item.x, top: item.y, "--flight-x": `${item.dx}px`, "--flight-y": `${item.dy}px` } as CSSProperties} aria-hidden="true">{item.label}</span>)}
       <section className={styles.shelf}>
         <h2>재료 선반</h2><p>기반 재료는 꼭 1개, 추가 재료는 {MAX_EXTRAS}개까지 고를 수 있어요.</p>
         <div className={`${styles.sectionTitle} ${missing === "category" ? own.missing : ""}`}><b>계열</b><small>{shelf ? shelf.spell : "필수 1개 · 0/1"}</small></div>
         <div className={`${styles.choiceGrid} ${own.categoryGrid}`}>{(Object.keys(shelves) as ShelfKey[]).map((key) => <button type="button" key={key} className={key === category ? styles.selectedEmotion : ""} onClick={() => selectCategory(key)}>{shelves[key].label}</button>)}</div>
         <div className={`${styles.sectionTitle} ${missing === "base" ? own.missing : ""}`}><b>기반 재료</b><small>필수 1개 · {baseIndex === null ? 0 : 1}/1</small></div>
-        {shelf ? <div className={`${styles.choiceGrid} ${own.categoryGrid}`}>{shelf.bases.map((item, index) => <button type="button" key={item[0]} className={index === baseIndex ? styles.selectedEmotion : ""} onClick={() => selectBase(index)}>{item[0]}</button>)}</div> : <p className={own.placeholder}>계열을 먼저 골라 주세요.</p>}
+        {shelf ? <div className={`${styles.choiceGrid} ${own.categoryGrid}`}>{shelf.bases.map((item, index) => <button type="button" key={item[0]} className={index === baseIndex ? styles.selectedEmotion : ""} onClick={(event) => selectBase(event, index, item[0])}>{item[0]}</button>)}</div> : <p className={own.placeholder}>계열을 먼저 골라 주세요.</p>}
         <div className={styles.sectionTitle}><b>추가 재료</b><small>선택 0~{MAX_EXTRAS} · {extras.length}/{MAX_EXTRAS}</small></div>
-        {shelf ? <div className={styles.choiceGrid}>{shelf.extras.map((item, index) => <button type="button" key={item[0]} className={`${own.ingredient} ${extras.includes(index) ? styles.selectedTaste : ""}`} onClick={() => toggleExtra(index)}>{item[0]}<small>+{item[2].toLocaleString()}원</small></button>)}</div> : <p className={own.placeholder}>계열을 먼저 골라 주세요.</p>}
+        {shelf ? <div className={styles.choiceGrid}>{shelf.extras.map((item, index) => <button type="button" key={item[0]} className={`${own.ingredient} ${extras.includes(index) ? styles.selectedTaste : ""}`} onClick={(event) => toggleExtra(event, index, item[0])}>{item[0]}<small>+{item[2].toLocaleString()}원</small></button>)}</div> : <p className={own.placeholder}>계열을 먼저 골라 주세요.</p>}
       </section>
-      <section className={styles.potPanel}>
+      <section className={`${styles.potPanel} ${isBrewing ? own.brewing : ""}`} aria-busy={isBrewing}>
         <h2>연금솥</h2><p>넣은 재료</p>
         <div className={styles.tags}>{(preview?.ingredients ?? []).map((item, index) => <span key={item.name}>{index === 0 ? "기반" : "추가"} · {item.name}</span>)}{!preview && <span>아직 넣은 재료가 없어요</span>}</div>
-        <img src="/images/alchemy-cauldron.png" alt="연금술 솥" />
+        <div className={own.brewScene} ref={potSceneRef}>
+          <span className={own.sparkOne} aria-hidden="true">✦</span><span className={own.sparkTwo} aria-hidden="true">✧</span><span className={own.sparkThree} aria-hidden="true">✦</span>
+          <img src={isBrewing || potion ? "/images/alchemy-cauldron-brewing.png" : "/images/alchemy-cauldron-empty.png"} alt={isBrewing || potion ? "끓고 있는 연금술 솥" : "비어 있는 연금술 솥"} />
+        </div>
         <p className={own.estimate}>예상 가격 <b>{preview ? `${preview.price.toLocaleString()}원` : "—"}</b></p>
         {missing && <p className={own.warning} role="alert">{missing === "category" ? "계열을 먼저 골라 주세요!" : "기반 재료를 하나 골라 주세요!"}</p>}
-        <div className={styles.potActions}><button type="button" onClick={combine}>조합하기</button><button type="button" onClick={() => { setBaseIndex(null); setExtras([]); setPotion(null); setMissing(null); }}>비우기</button></div>
+        <div className={styles.potActions}><button type="button" onClick={combine} disabled={isBrewing}>{isBrewing ? "연성 중..." : "조합하기"}</button><button type="button" disabled={isBrewing} onClick={() => { setBaseIndex(null); setExtras([]); setPotion(null); setMissing(null); }}>비우기</button></div>
       </section>
       <aside className={styles.result}>
         <h2>완성된 포션</h2><p>조합하기를 누르면 솥 속 재료로 포션이 완성돼요.</p>
