@@ -1,5 +1,7 @@
 import Link from "next/link";
 import UserHeader from "../_components/UserHeader";
+import MyOrderHistory from "./_components/MyOrderHistory";
+import OrderCountCard from "./_components/OrderCountCard";
 import styles from "./MyPage.module.css";
 
 const benefits = [
@@ -23,8 +25,9 @@ export default function MyPage() {
     <section className={styles.summary}>
       <article><small>저장된 레시피</small><strong>—</strong><p>로그인 후 저장 가능</p></article>
       <article><small>발견한 비밀 레시피</small><strong>—</strong><p>로그인 후 도감에 기록</p></article>
-      <article><small>주문 내역</small><strong>—</strong><p>비회원 주문은 주문번호로 조회</p></article>
+      <OrderCountCard />
     </section>
+    <MyOrderHistory />
     <section className={styles.unlock}>
       <div><span>✦ MOKA&apos;S NOTE</span><h2>공방의 기록은 계정에 안전하게 보관돼요.</h2><p>회원이 되면 포션 조합 결과, 도감, 주문·모의 결제 내역을 한 장부에서 확인할 수 있어요.</p></div>
       <Link href="/signup">수습생 등록하기</Link>

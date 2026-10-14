@@ -1,0 +1,39 @@
+/* 모의 결제창 — 공방 화면과 달리 밝은 결제사 창처럼 보이게 한다 */
+.dialog{width:min(26rem,calc(100vw - 2rem));max-height:calc(100dvh - 2rem);padding:0;border:0;border-radius:1rem;background:#fff;color:#1f1d26;box-shadow:0 1.5rem 4rem rgba(0,0,0,.45);overflow:auto}
+.dialog::backdrop{background:rgba(10,8,20,.72);backdrop-filter:blur(3px)}
+.bar{display:flex;align-items:center;justify-content:space-between;padding:.85rem 1rem;background:#2b2140;color:#fff4dc;font-size:.85rem}
+.bar button{width:2rem;height:2rem;border:0;border-radius:.5rem;background:transparent;color:#fff4dc;font-size:1rem}
+.bar button:disabled{opacity:.35}
+.amount{display:flex;flex-direction:column;gap:.2rem;padding:1.1rem 1.2rem;border-bottom:1px solid #ece8f2;background:#faf8fc}
+.amount small{color:#6d6578;font-size:.78rem}
+.amount strong{font-size:1.6rem;letter-spacing:-.02em}
+.amount span{color:#7a4fb5;font-size:.75rem;font-weight:800}
+.body{display:flex;flex-direction:column;gap:.9rem;padding:1.2rem}
+.body h2{font-size:.9rem}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem}
+.grid button{padding:.75rem .6rem;border:1px solid #dcd6e4;border-radius:.65rem;background:#fff;color:#2b2533;font-size:.82rem;font-weight:700;text-align:left}
+.grid .picked{border-color:#7a4fb5;background:#f3ecfb;color:#5a3290;box-shadow:inset 0 0 0 1px #7a4fb5}
+.select{display:flex;flex-direction:column;gap:.35rem;font-size:.8rem;font-weight:700}
+.select select{padding:.65rem;border:1px solid #dcd6e4;border-radius:.6rem;background:#fff;color:inherit;font:inherit}
+.select small{color:#8a8296;font-weight:500}
+.easy{display:flex;flex-direction:column;align-items:center;gap:.5rem;padding:.6rem 0;text-align:center}
+.easy>span{font-size:2.6rem}
+.easy p,.hint{color:#6d6578;font-size:.78rem;line-height:1.55}
+.check{display:flex;align-items:flex-start;gap:.5rem;font-size:.8rem;line-height:1.45}
+.check input{margin-top:.15rem;accent-color:#7a4fb5}
+.test{color:#8a8296}
+.pay{padding:.95rem;border:0;border-radius:.7rem;background:#7a4fb5;color:#fff;font-size:.95rem;font-weight:800}
+.pay:disabled{background:#cfc6dc}
+.state{display:flex;flex-direction:column;align-items:center;gap:.5rem;padding:2.2rem 1.2rem;text-align:center}
+.state h2{font-size:1.05rem}
+.state p{color:#6d6578;font-size:.8rem}
+.spinner{width:2.6rem;height:2.6rem;border:.3rem solid #e7e0f0;border-top-color:#7a4fb5;border-radius:50%;animation:spin .8s linear infinite}
+.ok,.fail{display:grid;place-items:center;width:2.8rem;height:2.8rem;border-radius:50%;color:#fff;font-size:1.4rem;font-weight:900}
+.ok{background:#2f9e6a}
+.fail{background:#d0464b}
+.retry{display:flex;gap:.5rem;margin-top:.6rem}
+.retry button{padding:.65rem .9rem;border:1px solid #dcd6e4;border-radius:.6rem;background:#fff;color:#2b2533;font-size:.8rem;font-weight:700}
+.retry button:first-child{border-color:#7a4fb5;background:#7a4fb5;color:#fff}
+.foot{padding:.75rem 1.2rem;border-top:1px solid #ece8f2;background:#faf8fc;color:#8a8296;font-size:.7rem;text-align:center}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.spinner{animation-duration:2.4s}}

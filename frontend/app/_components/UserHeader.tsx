@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { cartCount, useCart } from "@/lib/cart";
 import styles from "./UserHeader.module.css";
 
 const navigation = [
@@ -11,6 +12,7 @@ const navigation = [
 
 export default function UserHeader() {
   const pathname = usePathname();
+  const cart = useCart();
   return (
     <header className={styles.header}>
       <Link href="/" className={styles.brand} aria-label="냥금술 공방 메인으로">
@@ -25,7 +27,7 @@ export default function UserHeader() {
         <Link href="/mypage">마이페이지</Link>
         <Link href="/login">로그인</Link>
         <Link href="/signup" className={styles.signup}>회원가입</Link>
-        <button type="button" className={styles.cart} title="장바구니 기능은 준비 중입니다">🛒 <span>장바구니</span> <b>0</b></button>
+        <Link href="/cart" className={styles.cart} aria-current={pathname === "/cart" ? "page" : undefined}>🛒 <span>장바구니</span> <b>{cart ? cartCount(cart) : 0}</b></Link>
       </div>
     </header>
   );
