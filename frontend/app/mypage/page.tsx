@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { useAuth } from "../_components/AuthContext";
 import UserHeader from "../_components/UserHeader";
 import MyOrderHistory from "./_components/MyOrderHistory";
+import MembershipStatus from "./_components/MembershipStatus";
 import OrderCountCard from "./_components/OrderCountCard";
 import styles from "./MyPage.module.css";
 
@@ -33,7 +34,8 @@ export default function MyPage() {
     </header>
     <section className={styles.profile} aria-label={isMember ? "회원 프로필" : "비회원 프로필"}>
       <div className={styles.avatar}><img src="/images/moka-auth-mascot.png" alt="마법사 모자를 쓴 고양이 점장 모카" /></div>
-      <div><span>{isMember ? "MOONLIGHT APPRENTICE" : "GUEST ALCHEMIST"}</span><h2>{displayName}</h2><p>{isMember ? `${member?.email} · 모카 점장의 공방 수습생` : "로그인하면 나만의 공방 기록을 이어서 보관할 수 있어요."}</p></div>
+      <div><span>MOONLIGHT MEMBER</span><h2>{displayName}</h2><p>{member.email} · 모카 점장의 공방 회원</p></div>
+      <MembershipStatus />
       <div className={styles.profileActions}>{isMember ? <button type="button" onClick={signOut} style={{ padding: ".75rem .9rem", border: "1px solid #65536d", borderRadius: ".75rem", background: "transparent", color: "#f5e8d5", fontSize: ".8rem", fontWeight: 900 }}>로그아웃</button> : <><Link href="/login">로그인</Link><Link href="/signup">회원가입</Link></>}</div>
     </section>
     <section className={styles.summary}>
