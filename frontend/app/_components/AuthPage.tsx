@@ -1,19 +1,30 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
+import { FormEvent } from "react";
+import { useAuth } from "./AuthContext";
 import styles from "./AuthPage.module.css";
 
 type AuthMode = "login" | "signup";
 
 export default function AuthPage({ mode }: { mode: AuthMode }) {
   const isLogin = mode === "login";
-  const [submitted, setSubmitted] = useState(false);
+  const router = useRouter();
+  const { signIn } = useAuth();
   const title = isLogin ? "다시 만났네요, 손님냥" : "모카의 공방에 어서 와요";
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setSubmitted(true);
+    const form = new FormData(event.currentTarget);
+    const email = String(form.get("email") ?? "");
+    const nickname = String(form.get("nickname") ?? "").trim();
+    if (isLogin) {
+      signIn({ name: nickname || email.split("@")[0] || "달빛 손님", email });
+      router.push("/mypage");
+      return;
+    }
+    router.push("/login?signup=complete");
   };
 
   return <main className={styles.page}>
@@ -41,7 +52,7 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
           {!isLogin && <label className={styles.agree}><input type="checkbox" required /> <span>이용 약관과 개인정보 처리방침에 동의해요.</span></label>}
           <button type="submit">{isLogin ? "공방으로 로그인" : "수습생 등록하기"}</button>
         </form>
-        {submitted && <p className={styles.feedback}>인증 기능을 연결하면 이 정보로 {isLogin ? "로그인" : "회원가입"}을 진행해요. 지금은 화면 흐름만 준비되어 있어요냥.</p>}
+        <p className={styles.feedback}>{isLogin ? "수습생 등록을 마쳤다면, 방금 사용한 이메일과 비밀번호로 로그인해 주세요냥." : "등록 후에는 로그인 화면에서 이메일과 비밀번호를 다시 입력해 주세요."}</p>
         <div className={styles.divider}><span>또는</span></div>
         <Link href="/menu" className={styles.guest}>🌙 비회원으로 메뉴 둘러보기</Link>
         <p className={styles.switch}>{isLogin ? "아직 수습생이 아니신가요?" : "이미 공방 계정이 있나요?"} <Link href={isLogin ? "/signup" : "/login"}>{isLogin ? "회원가입" : "로그인"}</Link></p>

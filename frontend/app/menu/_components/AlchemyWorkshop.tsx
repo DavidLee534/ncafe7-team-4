@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import styles from "./AlchemyWorkshop.module.css";
 import UserHeader from "../../_components/UserHeader";
@@ -55,6 +56,7 @@ export default function AlchemyWorkshop() {
 
   return <><UserHeader /><main className={styles.page}>
     <header className={styles.hero}><span>MOKA&apos;S ALCHEMY WORKSHOP</span><h1>오늘의 포션을<br /><em>연성해 볼까요?</em></h1><p>기반 재료를 하나 고르고 마음에 드는 촉매를 더해 보세요. 모카 점장이 당신만의 주문을 완성해 드릴게요냥.</p><button type="button" className={styles.tourStart} onClick={() => { setTourStep(0); setTourOpen(true); }}>✦ 조합 방법 보기</button><b aria-hidden="true">🐈‍⬛</b></header>
+    <nav className={styles.modeTabs} aria-label="연금술 방식"><span className={styles.activeMode}>재료 연금술</span><Link href="/menu/alchemy">감정 연금술 <b>NEW</b></Link><Link href="/menu">기본 메뉴 30종</Link></nav>
     <section className={styles.workshop} aria-label="포션 조합 공방">
       <div className={styles.steps}><b>01 계열 선택</b><i /> <b>02 재료 고르기</b><i /> <span>03 포션 완성</span></div>
       <nav className={styles.categories}>{(Object.keys(shelves) as ShelfKey[]).map((key) => <button type="button" key={key} className={key === category ? styles.active : ""} onClick={() => selectCategory(key)}><strong>{shelves[key].icon}</strong>{shelves[key].label}<small>{shelves[key].spell}</small></button>)}</nav>
