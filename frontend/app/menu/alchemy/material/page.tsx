@@ -1,8 +1,6 @@
-import AlchemyWorkshop from "../../_components/AlchemyWorkshop";
+import { redirect } from "next/navigation";
 
-// ?menu=번호 로 오면 그 메뉴의 계열·기반 재료를 골라 둔 채로 연다.
-export default async function MaterialAlchemyPage(props: PageProps<"/menu/alchemy/material">) {
-  const { menu } = await props.searchParams;
-  const menuId = typeof menu === "string" ? Number(menu) : undefined;
-  return <AlchemyWorkshop key={menuId ?? "new"} initialMenuId={menuId} />;
+// 재료 연금술은 /menu/alchemy 로 옮겼다. 예전 주소로 들어와도 그쪽으로 보낸다.
+export default function MaterialAlchemyPage() {
+  redirect("/menu/alchemy");
 }

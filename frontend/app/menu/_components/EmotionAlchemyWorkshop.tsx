@@ -2,69 +2,69 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import UserHeader from "../../_components/UserHeader";
+import { addToCart } from "@/lib/cart";
+import AlchemyModeLayout from "./AlchemyModeLayout";
+import { basicMenus as menus, emotions, tastes, type BasicMenu, type Emotion, type Taste } from "./alchemyMenus";
 import styles from "./EmotionAlchemyWorkshop.module.css";
+import own from "./AlchemyWorkshop.module.css";
 
-type Emotion = "피곤함" | "열정" | "그리움" | "울적함" | "설렘" | "긴장됨";
-type Taste = "달콤한" | "쌉싸름한" | "상큼한" | "고소한" | "시원한" | "따뜻한";
+const emotionTracks = [
+  { id: "restore", label: "회복의 연금술", emotions: ["피곤함", "긴장됨"] as Emotion[] },
+  { id: "comfort", label: "위로의 연금술", emotions: ["울적함", "그리움"] as Emotion[] },
+  { id: "spark", label: "설렘의 연금술", emotions: ["설렘", "열정"] as Emotion[] },
+] as const;
 
-const emotions: { name: Emotion; color: string }[] = [
-  { name: "피곤함", color: "#91a8ff" }, { name: "열정", color: "#ff7359" }, { name: "그리움", color: "#d9a75c" },
-  { name: "울적함", color: "#6f9fe8" }, { name: "설렘", color: "#ec7cab" }, { name: "긴장됨", color: "#76cf9b" },
-];
-const tastes: Taste[] = ["달콤한", "쌉싸름한", "상큼한", "고소한", "시원한", "따뜻한"];
-
-type Menu = { category: string; name: string; base: string; price: number; emotions: Emotion[]; tastes: Taste[] };
-const menus: Menu[] = [
-  { category: "커피", name: "칠흑 고양이의 물약", base: "다크 로스트 커피", price: 4000, emotions: ["피곤함"], tastes: ["쌉싸름한", "따뜻한"] },
-  { category: "커피", name: "새벽 수염의 물약", base: "라이트 로스트 커피", price: 4000, emotions: ["피곤함", "설렘"], tastes: ["상큼한", "쌉싸름한"] },
-  { category: "커피", name: "잠든 고양이의 물약", base: "디카페인 커피", price: 4300, emotions: ["긴장됨"], tastes: ["쌉싸름한", "따뜻한"] },
-  { category: "논커피", name: "검은 숲의 물약", base: "초코 라떼", price: 5000, emotions: ["울적함"], tastes: ["달콤한", "따뜻한"] },
-  { category: "논커피", name: "숲의 숨결", base: "말차 라떼", price: 5000, emotions: ["긴장됨"], tastes: ["쌉싸름한", "고소한"] },
-  { category: "논커피", name: "노을 뿌리 물약", base: "고구마 라떼", price: 5000, emotions: ["그리움"], tastes: ["고소한", "달콤한", "따뜻한"] },
-  { category: "논커피", name: "들판의 축복", base: "곡물 라떼", price: 5000, emotions: ["그리움"], tastes: ["고소한", "따뜻한"] },
-  { category: "과일라떼", name: "분홍 고양이 포션", base: "딸기 라떼", price: 5500, emotions: ["설렘"], tastes: ["달콤한", "시원한"] },
-  { category: "과일라떼", name: "달빛 열매 포션", base: "블루베리 라떼", price: 5500, emotions: ["설렘", "울적함"], tastes: ["상큼한", "달콤한"] },
-  { category: "과일라떼", name: "황금 열매 포션", base: "망고 라떼", price: 5500, emotions: ["열정"], tastes: ["달콤한", "시원한"] },
-  { category: "티", name: "귀족 고양이의 달임", base: "얼그레이 티", price: 4500, emotions: ["그리움"], tastes: ["쌉싸름한", "따뜻한"] },
-  { category: "티", name: "잠드는 꼬리", base: "캐모마일 티", price: 4500, emotions: ["긴장됨", "피곤함"], tastes: ["따뜻한"] },
-  { category: "티", name: "붉은 마녀의 달임", base: "히비스커스 티", price: 4500, emotions: ["열정"], tastes: ["상큼한", "따뜻한"] },
-  { category: "티", name: "초록 수풀 달임", base: "녹차", price: 4500, emotions: ["긴장됨"], tastes: ["쌉싸름한", "따뜻한"] },
-  { category: "스무디", name: "장미 정령의 진액", base: "딸기 스무디", price: 5800, emotions: ["설렘"], tastes: ["상큼한", "시원한", "달콤한"] },
-  { category: "스무디", name: "태양 정령의 진액", base: "망고 스무디", price: 5800, emotions: ["열정"], tastes: ["달콤한", "시원한"] },
-  { category: "스무디", name: "햇살 꼬리 정령의 진액", base: "바나나 스무디", price: 5800, emotions: ["피곤함", "울적함"], tastes: ["달콤한", "고소한", "시원한"] },
-  { category: "스무디", name: "밤하늘 정령의 진액", base: "블루베리 스무디", price: 5800, emotions: ["울적함"], tastes: ["상큼한", "시원한"] },
-  { category: "프라페", name: "얼어붙은 밤 엘릭서", base: "모카 프라페", price: 6000, emotions: ["피곤함"], tastes: ["달콤한", "쌉싸름한", "시원한"] },
-  { category: "프라페", name: "눈보라 엘릭서", base: "쿠키앤크림 프라페", price: 6000, emotions: ["설렘"], tastes: ["달콤한", "시원한"] },
-  { category: "프라페", name: "서리숲 엘릭서", base: "녹차 프라페", price: 6000, emotions: ["열정"], tastes: ["쌉싸름한", "시원한"] },
-  { category: "프라페", name: "호박빛 빙하 엘릭서", base: "카라멜 프라페", price: 6000, emotions: ["울적함"], tastes: ["달콤한", "시원한"] },
-  { category: "디저트", name: "마법진 케이크", base: "조각 케이크", price: 6500, emotions: ["설렘"], tastes: ["달콤한"] },
-  { category: "디저트", name: "격자 결계 와플", base: "와플", price: 5500, emotions: ["울적함"], tastes: ["달콤한", "따뜻한"] },
-  { category: "디저트", name: "황금 비늘 과자", base: "크로플", price: 5500, emotions: ["그리움", "열정"], tastes: ["달콤한", "고소한"] },
-  { category: "디저트", name: "요정의 동전", base: "마카롱", price: 4000, emotions: ["설렘"], tastes: ["달콤한", "상큼한"] },
-  { category: "푸드", name: "초승달 빵", base: "크루아상", price: 5000, emotions: ["그리움"], tastes: ["고소한"] },
-  { category: "푸드", name: "떠돌이 기사의 빵", base: "치아바타 샌드위치", price: 7000, emotions: ["피곤함", "열정"], tastes: ["고소한"] },
-  { category: "푸드", name: "고리 부적 빵", base: "베이글", price: 4500, emotions: ["긴장됨"], tastes: ["고소한"] },
-  { category: "푸드", name: "모닥불 토스트", base: "토스트", price: 4500, emotions: ["그리움", "울적함"], tastes: ["고소한", "따뜻한", "달콤한"] },
-];
+type EmotionTrack = (typeof emotionTracks)[number];
 
 export default function EmotionAlchemyWorkshop() {
-  const [emotion, setEmotion] = useState<Emotion>("피곤함");
-  const [selectedTastes, setSelectedTastes] = useState<Taste[]>(["고소한", "시원한"]);
-  const [recommended, setRecommended] = useState(menus[16]);
-  const ranked = useMemo(() => [...menus].map((menu, index) => ({ menu, index, score: (menu.emotions.includes(emotion) ? 3 : 0) + selectedTastes.filter((taste) => menu.tastes.includes(taste)).length * 2 })).sort((a, b) => b.score - a.score || a.index - b.index), [emotion, selectedTastes]);
-  const preview = ranked[0].menu;
-  const toggleTaste = (taste: Taste) => setSelectedTastes((current) => current.includes(taste) ? current.filter((item) => item !== taste) : current.length < 2 ? [...current, taste] : current);
-  const selectedTags = [`감정 · ${emotion}`, ...selectedTastes.map((taste) => `맛 · ${taste}`)];
+  const [track, setTrack] = useState<EmotionTrack["id"] | null>(null);
+  const [emotion, setEmotion] = useState<Emotion | null>(null); // 처음에는 아무것도 고르지 않은 상태. 기분은 필수
+  const [selectedTastes, setSelectedTastes] = useState<Taste[]>([]);
+  const [missing, setMissing] = useState(false); // 기분 없이 조합하기를 누르면 안내
+  const [prescription, setPrescription] = useState<{ emotion: Emotion; menus: BasicMenu[] } | null>(null); // 조합하기 전에는 비어 있다. menus[0] 이 처방, 나머지는 다른 후보
+  const [openIndex, setOpenIndex] = useState(0); // 펼쳐 둔 결과 하나
+  const [addedName, setAddedName] = useState<string | null>(null);
+  const [isBrewing, setIsBrewing] = useState(false);
+  const activeTrack = emotionTracks.find((item) => item.id === track);
+  const ranked = useMemo(() => [...menus].map((menu, index) => ({ menu, index, score: (emotion && menu.emotions.includes(emotion) ? 3 : 0) + selectedTastes.filter((taste) => menu.tastes.includes(taste)).length * 2 })).sort((a, b) => b.score - a.score || a.index - b.index), [emotion, selectedTastes]);
+  const flyToCauldron = (label: string) => {
+    const origin = document.activeElement instanceof HTMLElement ? document.activeElement.getBoundingClientRect() : null;
+    const cauldron = document.querySelector(`.${styles.potPanel}`)?.getBoundingClientRect();
+    if (!origin || !cauldron || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const particle = document.createElement("span");
+    particle.className = own.flyingIngredient;
+    particle.textContent = label;
+    particle.style.left = `${origin.left + origin.width / 2}px`;
+    particle.style.top = `${origin.top + origin.height / 2}px`;
+    particle.style.setProperty("--flight-x", `${cauldron.left + cauldron.width / 2 - origin.left - origin.width / 2}px`);
+    particle.style.setProperty("--flight-y", `${cauldron.top + cauldron.height * .48 - origin.top - origin.height / 2}px`);
+    document.body.appendChild(particle);
+    window.setTimeout(() => particle.remove(), 720);
+  };
+  const selectTrack = (nextTrack: EmotionTrack) => { setTrack(nextTrack.id); setEmotion(null); setSelectedTastes([]); setPrescription(null); setMissing(false); };
+  const selectEmotion = (nextEmotion: Emotion) => { flyToCauldron(nextEmotion); setEmotion(nextEmotion); setPrescription(null); setMissing(false); };
+  const toggleTaste = (taste: Taste) => { if (!selectedTastes.includes(taste) && selectedTastes.length < 2) flyToCauldron(taste); setSelectedTastes((current) => current.includes(taste) ? current.filter((item) => item !== taste) : current.length < 2 ? [...current, taste] : current); setPrescription(null); };
+  const selectedTags = [...(emotion ? [`감정 · ${emotion}`] : []), ...selectedTastes.map((taste) => `맛 · ${taste}`)];
+  const combine = () => {
+    if (!track || !emotion) return setMissing(true);
+    setIsBrewing(true);
+    window.setTimeout(() => {
+      setPrescription({ emotion, menus: ranked.slice(0, 4).map(({ menu }) => menu) });
+      setOpenIndex(0);
+      setIsBrewing(false);
+    }, 1450);
+  };
+  const cauldronImage = isBrewing || prescription ? "/images/alchemy-cauldron-brewing.png" : "/images/alchemy-cauldron-empty.png";
 
-  return <><UserHeader /><main className={styles.page}>
-    <header className={styles.hero}><span>NEW &amp; BREW · 기획 시안</span><h1>감정 연금술</h1><p>오늘 뭘 먹고 싶은지 모르겠을 때, 지금 <b>기분</b>과 끌리는 <b>맛</b>을 연금솥에 넣으면 고양이 사장이 기분과 어울리는 메뉴를 골라줘요. 재료 연금술은 그대로 두고, 옆에서 가볍고 빠르게 즐기는 구조예요.</p></header>
-    <nav className={styles.modeTabs} aria-label="연금술 방식"><Link href="/menu/alchemy/material">재료 연금술</Link><span className={styles.active}>감정 연금술 <b>NEW</b></span><Link href="/menu">기본 메뉴 30종</Link></nav>
+  return <AlchemyModeLayout mode="emotion" eyebrow="MOKA'S EMOTION ALCHEMY" title="감정 연금술" description={<>오늘 뭘 먹고 싶은지 모르겠을 때, 지금 <b>기분</b>과 끌리는 <b>맛</b>을 연금솥에 넣으면 고양이 사장이 기분과 어울리는 메뉴를 골라줘요.</>}>
     <section className={styles.workshop} aria-label="감정 연금술 공방">
-      <section className={styles.shelf}><h2>감정 선반</h2><p>감정은 꼭 1개, 맛은 2개까지 고를 수 있어요.</p><div className={styles.sectionTitle}><b>오늘의 기분</b><small>필수 1개 · 1/1</small></div><div className={styles.choiceGrid}>{emotions.map((item) => <button type="button" key={item.name} className={emotion === item.name ? styles.selectedEmotion : ""} onClick={() => setEmotion(item.name)}><i style={{ background: item.color }} />{item.name}</button>)}</div><div className={styles.sectionTitle}><b>끌리는 맛</b><small>선택 0~2 · {selectedTastes.length}/2</small></div><div className={styles.choiceGrid}>{tastes.map((taste) => <button type="button" key={taste} className={selectedTastes.includes(taste) ? styles.selectedTaste : ""} onClick={() => toggleTaste(taste)}><i />{taste}</button>)}</div></section>
-      <section className={styles.potPanel}><h2>연금솥</h2><p>넣은 재료</p><div className={styles.tags}>{selectedTags.map((tag) => <span key={tag}>{tag}</span>)}</div><img src="/images/alchemy-cauldron.png" alt="연금술 솥" /><div className={styles.potActions}><button type="button" onClick={() => setRecommended(preview)}>끓이기</button><button type="button" onClick={() => { setEmotion("피곤함"); setSelectedTastes([]); }}>비우기</button></div></section>
-      <aside className={styles.result}><h2>사장님의 처방</h2><p>미리 정해 둔 메뉴 30종 중에서 골라요.</p><div className={styles.speech}><b>모카 사장님</b><span>오늘은 {emotion} 마음이군요. 지금 딱 어울리는 한 잔을 골라봤다냥.</span></div><article className={styles.recommend}><span>오늘의 처방 조합</span><h3>{recommended.name}</h3><p>{recommended.base} · {recommended.price.toLocaleString()}원</p><div>{recommended.emotions.map((item) => <b key={item}>✓ {item}</b>)}{recommended.tastes.map((item) => <b key={item}>✓ {item}</b>)}</div></article><div className={styles.otherList}>{ranked.slice(1, 4).map(({ menu }) => <article key={menu.name}><span>다른 후보</span><b>{menu.name}</b><small>{menu.base} · {menu.price.toLocaleString()}원</small></article>)}</div></aside>
+      <section className={styles.shelf}><h2>감정 선반</h2><p>재료 연금술처럼 계열부터 고른 뒤, 기반 감정과 맛을 솥에 넣어 조합해요.</p><div className={`${styles.sectionTitle} ${missing && !track ? styles.missing : ""}`}><b>① 감정 계열</b><small>필수 1개 · {track ? 1 : 0}/1</small></div><div className={`${styles.choiceGrid} ${own.categoryGrid}`}>{emotionTracks.map((item) => <button type="button" key={item.id} className={track === item.id ? styles.selectedEmotion : ""} onClick={() => selectTrack(item)}>{item.label}</button>)}</div><div className={`${styles.sectionTitle} ${missing && track && !emotion ? styles.missing : ""}`}><b>② 기반 감정</b><small>필수 1개 · {emotion ? 1 : 0}/1</small></div>{activeTrack ? <div className={`${styles.choiceGrid} ${own.categoryGrid}`}>{emotions.filter((item) => (activeTrack.emotions as readonly Emotion[]).includes(item.name)).map((item) => <button type="button" key={item.name} className={emotion === item.name ? styles.selectedEmotion : ""} onClick={() => selectEmotion(item.name)}><i style={{ background: item.color }} />{item.name}</button>)}</div> : <p className={own.placeholder}>감정 계열을 먼저 골라 주세요.</p>}<div className={styles.sectionTitle}><b>③ 끌리는 맛</b><small>선택 0~2 · {selectedTastes.length}/2</small></div>{activeTrack ? <div className={`${styles.choiceGrid} ${own.categoryGrid}`}>{tastes.map((taste) => <button type="button" key={taste} className={`${own.ingredient} ${selectedTastes.includes(taste) ? styles.selectedTaste : ""}`} onClick={() => toggleTaste(taste)}><i />{taste}</button>)}</div> : <p className={own.placeholder}>감정 계열을 먼저 골라 주세요.</p>}</section>
+      <section className={`${styles.potPanel} ${isBrewing ? own.brewing : ""}`} aria-busy={isBrewing}><h2>연금솥</h2><p>넣은 재료</p><div className={styles.tags}>{selectedTags.map((tag) => <span key={tag}>{tag}</span>)}{selectedTags.length === 0 && <span>아직 넣은 재료가 없어요</span>}</div><div className={own.brewScene}><div className={styles.fallingIngredients} aria-hidden="true">{selectedTags.map((tag) => <span key={tag}>{tag}</span>)}</div><span className={own.sparkOne} aria-hidden="true">✦</span><span className={own.sparkTwo} aria-hidden="true">✧</span><span className={own.sparkThree} aria-hidden="true">✦</span><img src={cauldronImage} alt={prescription || isBrewing ? "끓고 있는 연금술 솥" : "비어 있는 연금술 솥"} /></div>{missing && <p className={styles.warning} role="alert">{track ? "기반 감정을 하나 골라 주세요!" : "감정 계열을 먼저 골라 주세요!"}</p>}<div className={styles.potActions}><button type="button" onClick={combine} disabled={isBrewing}>{isBrewing ? "연성 중..." : "조합하기"}</button><button type="button" disabled={isBrewing} onClick={() => { setTrack(null); setEmotion(null); setSelectedTastes([]); setPrescription(null); setMissing(false); }}>비우기</button></div></section>
+      <aside className={styles.result}><h2>사장님의 처방</h2><p>미리 정해 둔 메뉴 30종 중에서 골라요.</p>{prescription ? <><div className={styles.speech}><b>모카 사장님</b><span>오늘은 {prescription.emotion} 마음이군요. 지금 딱 어울리는 한 잔을 골라봤다냥.</span></div><div className={styles.candidates}>{prescription.menus.map((menu, index) => { const open = index === openIndex; return <article key={menu.name} className={`${styles.candidate} ${open ? styles.candidateOpen : ""}`}>
+        <button type="button" className={styles.candidateHead} onClick={() => setOpenIndex(index)} aria-expanded={open}><span>{index === 0 ? "오늘의 처방 조합" : "다른 후보"}</span><b>{menu.name}</b><small>{menu.base} · {menu.price.toLocaleString()}원</small></button>
+        {open && <div className={styles.candidateBody}><div className={styles.candidateTags}>{menu.emotions.map((item) => <b key={item}>✓ {item}</b>)}{menu.tastes.map((item) => <b key={item}>✓ {item}</b>)}</div><button type="button" className={styles.addCart} onClick={() => { addToCart({ name: menu.name, options: [menu.base], unitPrice: menu.price }); setAddedName(menu.name); }}>🛒 장바구니에 담기</button>{addedName === menu.name && <p className={styles.added} role="status">담았어요! <Link href="/cart">장바구니 보기 →</Link></p>}</div>}
+      </article>; })}</div></> : <div className={styles.emptyResult}><p>아직 처방이 없어요.<br />기분과 맛을 넣고 조합하기를 눌러 주세요.</p></div>}</aside>
     </section>
     <section className={styles.how}><h2>이렇게 동작해요</h2><div><article><b>1단계 · 손님</b><h3>감정 1개 + 맛 0~2개 선택</h3><p>메뉴를 몰라도 지금 상태만 고르면 돼요. 감정 키워드는 팀 투표로 정한 6개예요.</p></article><article><b>2단계 · 서버</b><h3>메뉴마다 붙인 태그와 비교</h3><p>감정이 맞으면 3점, 맛이 하나 맞을 때마다 2점. 가장 높은 메뉴 한 가지를 골라요.</p></article><article><b>3단계 · 결과</b><h3>정해진 메뉴를 바로 주문</h3><p>결과는 항상 기본 메뉴 30종 중 하나라서 가격·재고·주문 흐름을 그대로 써요.</p></article></div></section>
-  </main></>;
+  </AlchemyModeLayout>;
 }
