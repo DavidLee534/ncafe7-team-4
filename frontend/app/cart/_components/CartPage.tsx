@@ -55,7 +55,7 @@ export default function CartPage() {
         <span aria-hidden="true">🧺</span>
         <h2>바구니가 아직 비어 있어요</h2>
         <p>연금 공방에서 포션을 조합하거나 감정 연금술로 처방을 받아 담아 보세요부엉.</p>
-        <div><Link href="/menu/alchemy/material">재료 연금술</Link><Link href="/menu/alchemy">감정 연금술</Link><Link href="/menu">메뉴 책장</Link></div>
+        <div><Link href="/menu/alchemy">재료 연금술</Link><Link href="/menu/alchemy/emotion">감정 연금술</Link><Link href="/menu">메뉴 책장</Link></div>
       </section>
     ) : (
       <div className={styles.layout}>

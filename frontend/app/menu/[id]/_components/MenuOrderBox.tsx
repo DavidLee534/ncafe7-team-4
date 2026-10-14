@@ -22,7 +22,7 @@ export default function MenuOrderBox({ menuId, name, base, icon, price }: { menu
     </div>
     <div className={styles.actions}>
       <button type="button" className={styles.addCart} onClick={putInCart}>🛒 장바구니에 담기</button>
-      <Link href={`/menu/alchemy/material?menu=${menuId}`} className={styles.combine} aria-describedby="combine-tip">🪄 조합하기<span id="combine-tip" role="tooltip" className={styles.tooltip}>이 물약을 기반으로 직접 조합하러 가기</span></Link>
+      <Link href={`/menu/alchemy?menu=${menuId}`} className={styles.combine} aria-describedby="combine-tip">🪄 조합하기<span id="combine-tip" role="tooltip" className={styles.tooltip}>이 물약을 기반으로 직접 조합하러 가기</span></Link>
     </div>
     {added && <p className={styles.added} role="status">담았어요! <Link href="/cart">장바구니 보기 →</Link></p>}
   </div>;
