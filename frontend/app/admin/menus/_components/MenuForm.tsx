@@ -102,6 +102,20 @@ export default function MenuForm({ mode, initial, categories, cancelHref }: Menu
               <span className="switch-label">신메뉴(NEW)로 표시</span>
             </label>
           </div>
+          <div className="form-group">
+            <label className="m3-switch">
+              <input type="checkbox" name="isRecommended" defaultChecked={initial?.isRecommended} />
+              <span className="switch-label">사장 추천 메뉴로 표시</span>
+            </label>
+            <p className="font-size:caption color:text-muted">메뉴 카탈로그 위쪽의 추천 메뉴 칸에 모여요.</p>
+          </div>
+          <div className="form-group">
+            <label className="m3-switch">
+              <input type="checkbox" name="isSecret" defaultChecked={initial?.isSecret} />
+              <span className="switch-label">비밀 레시피로 등록</span>
+            </label>
+            <p className="font-size:caption color:text-muted">메뉴 카탈로그 목록에 ✦ 비밀 표시가 붙어요.</p>
+          </div>
         </div>
       </section>
 

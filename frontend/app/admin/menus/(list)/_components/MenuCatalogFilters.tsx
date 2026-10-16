@@ -1,7 +1,7 @@
-import type { Category } from "@/lib/types";
+import type { Category, Menu } from "@/lib/types";
 import CategoryRail from "./CategoryRail";
 import MenuSearchForm from "./MenuSearchForm";
-import SignatureShelf from "./SignatureShelf";
+import RecommendShelf from "./RecommendShelf";
 import styles from "./MenuCatalog.module.css";
 
 type Props = {
@@ -12,9 +12,11 @@ type Props = {
   status: string;
   keyword: string;
   menuCount: number; // 조건에 맞는 메뉴 수
+  recommendedMenus: Menu[]; // 사장 추천 메뉴
+  categoryNames: Record<number, string>; // 카테고리 id → 이름
 };
 
-// 메뉴 카탈로그 조작 패널 — 제목 · 시그니처 안내 · 카테고리 칩 · 검색 폼을 묶는다.
+// 메뉴 카탈로그 조작 패널 — 제목 · 사장 추천 메뉴 · 카테고리 칩 · 검색 폼을 묶는다.
 export default function MenuCatalogFilters({
   categories,
   totalCount,
@@ -23,6 +25,8 @@ export default function MenuCatalogFilters({
   status,
   keyword,
   menuCount,
+  recommendedMenus,
+  categoryNames,
 }: Props) {
   return (
     <section className={styles.controlPanel} aria-labelledby="catalog-title">
@@ -36,7 +40,7 @@ export default function MenuCatalogFilters({
         </p>
       </div>
 
-      <SignatureShelf />
+      <RecommendShelf menus={recommendedMenus} categoryNames={categoryNames} />
       <CategoryRail
         categories={categories}
         totalCount={totalCount}

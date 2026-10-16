@@ -24,6 +24,8 @@ export type Menu = {
   image: string | null; // public/ 아래 경로. 없으면 null
   status: MenuStatus;
   isNew: boolean; // 사용자 화면에 NEW 표시
+  isSecret: boolean; // 비밀 레시피 — 관리자 목록에 ✦ 비밀 표시
+  isRecommended: boolean; // 사장 추천 메뉴 — 관리자 메뉴 카탈로그 위쪽 추천 칸에 모인다 (백엔드 ownerRecommended)
   createdAt: string;
   updatedAt: string;
 };

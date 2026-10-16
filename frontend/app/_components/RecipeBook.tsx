@@ -84,7 +84,10 @@ export default function RecipeBook({
                           <span className={styles.indexPlaceholder}>🍞</span>
                         )}
                         <span className={styles.indexName}>
-                          <b>{lore?.magicName ?? item.korName}</b>
+                          <b>
+                            {admin && item.isSecret && <span className={styles.secretMark}>✦ 비밀</span>}
+                            {lore?.magicName ?? item.korName}
+                          </b>
                           <small>{lore ? item.korName : item.engName}</small>
                           {lore && <em className={styles.magicEffects}>{lore.effects.join(" · ")}</em>}
                         </span>
