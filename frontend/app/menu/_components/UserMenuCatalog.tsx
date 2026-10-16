@@ -21,6 +21,8 @@ const BASIC_MENUS: Menu[] = basicMenus.map((menu, index) => ({
   image: basicMenuImage(index + 1),
   status: "on",
   isNew: false,
+  isSecret: false,
+  isRecommended: false,
   createdAt: "",
   updatedAt: "",
 }));

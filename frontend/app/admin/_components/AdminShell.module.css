@@ -1,0 +1,14 @@
+/* 관리자 화면 틀 — 좁은 화면에서만 위쪽 바와 모달 메뉴를 쓴다 */
+.topBar,.scrim{display:none}
+
+@media (max-width:1024px){
+  /* 본문 왼쪽 여백을 없앤다. 디자인 시스템의 고정 드로어 규칙(.m3-layout.layout:fixed-drawer)보다 앞서도록 클래스 셋으로 고른다 */
+  :global(.m3-layout.layout\:fixed-drawer).shell{--layout-main-margin-left:0}
+
+  .topBar{position:sticky;top:0;z-index:calc(var(--z-fixed) - 2);display:flex;align-items:center;gap:.6rem;min-height:3.5rem;padding:0 .75rem;background:rgba(23,24,67,.94);box-shadow:0 .3rem 1rem rgba(8,8,34,.25);color:#f9f1db;backdrop-filter:blur(8px)}
+  .menuButton{display:grid;place-items:center;width:2.6rem;height:2.6rem;border:1px solid rgba(255,232,177,.25);border-radius:.75rem;background:rgba(255,255,255,.08);color:#fff6dc}
+  .menuButton:focus-visible{outline:2px solid #ffd98e;outline-offset:2px}
+  .title{font-size:.9rem;font-weight:800;letter-spacing:-.02em}
+
+  .scrim{position:fixed;inset:0;z-index:calc(var(--z-fixed) - 1);display:block;background:rgba(8,6,24,.6);backdrop-filter:blur(2px)}
+}
