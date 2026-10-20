@@ -1,5 +1,6 @@
 "use client";
-
+// 관리자 왼쪽 메뉴 — 대시보드 · 메뉴 · 카테고리 링크. 지금 주소에 맞는 항목을 켠다.
+// 좁은 화면에서는 AdminShell 이 모달처럼 여닫는다.
 import type { Ref } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";

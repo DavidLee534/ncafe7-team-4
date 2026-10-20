@@ -1,4 +1,4 @@
-// 관리자 화면이 다루는 데이터 모양. 지금은 lib/mock.ts 가 채우고, 나중에 백엔드 API 응답으로 바꾼다.
+// 관리자 화면이 다루는 데이터 모양. lib/adminApi.ts 가 백엔드 응답을 이 모양으로 바꿔 채운다.
 
 export type Category = {
   id: number;

@@ -47,11 +47,18 @@ public class Category {
     this.engName = engName;
     this.sortOrder = sortOrder;
     this.visible = visible;
+    // 수정일은 여기서 바로 기록한다. @PreUpdate 는 트랜잭션이 끝날 때 실행돼서
+    // 그 전에 만드는 수정 응답(CategoryUpdatedResponseDto)에 새 시각이 들어가지 못한다
+    this.updatedAt = LocalDateTime.now();
   }
 
-  // 목록의 "순서 변경"으로 순서만 바꿀 때
+  // 목록의 "순서 변경"으로 순서만 바꿀 때. 순서가 그대로면 수정일도 건드리지 않는다
   public void changeSortOrder(Integer sortOrder) {
+    if (sortOrder.equals(this.sortOrder)) {
+      return;
+    }
     this.sortOrder = sortOrder;
+    this.updatedAt = LocalDateTime.now();
   }
 
   @PrePersist
@@ -59,10 +66,5 @@ public class Category {
     LocalDateTime now = LocalDateTime.now();
     this.createdAt = now;
     this.updatedAt = now;
-  }
-
-  @PreUpdate
-  private void onUpdate() {
-    this.updatedAt = LocalDateTime.now();
   }
 }

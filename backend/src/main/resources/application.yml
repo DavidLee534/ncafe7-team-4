@@ -4,7 +4,7 @@ spring:
   # 데이터베이스 연결을 위한 접속 정보를 설정
   datasource:
     # 데이터베이스 접속 주소 (호스트, 포트, 데이터베이스 이름)
-    url: ${DB URL}
+    url: ${DB_URL}
     # 데이터베이스 접속 사용자 이름
     username: ncafe
     # 데이터베이스 접속 비밀번호

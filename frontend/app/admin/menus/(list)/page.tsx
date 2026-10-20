@@ -1,22 +1,17 @@
 // 메뉴 목록 — 데이터를 준비해서 화면 조각에 나눠 준다. 조각은 받은 값을 보여주기만 한다.
-// 필터는 주소의 쿼리(?category=1&status=on&keyword=라떼)로 받는다. 데이터는 목업.
-import {
-  countMenusByCategory,
-  countMenusByStatus,
-  getCategories,
-  getMenus,
-} from "@/lib/mock";
+// 필터는 주소의 쿼리(?category=1&status=on&keyword=라떼)로 받는다. 데이터는 백엔드에서 받는다.
+import { countMenusByStatus, filterMenus, getCategories, getMenus } from "@/lib/adminApi";
 import { mokaReport } from "@/lib/cat";
 import { MENU_STATUS } from "@/lib/format";
 import type { MenuStatus } from "@/lib/types";
-import CatDiary from "./_components/CatDiary";
-import EmptyMenus from "./_components/EmptyMenus";
-import MenuCatalogFilters from "./_components/MenuCatalogFilters";
-import MenuStatusOverview from "./_components/MenuStatusOverview";
-import MenuStoryHero from "./_components/MenuStoryHero";
+import MenuListRecent from "./_components/MenuListRecent";
+import MenuListEmpty from "./_components/MenuListEmpty";
+import MenuListFilters from "./_components/MenuListFilters";
+import MenuListSummary from "./_components/MenuListSummary";
+import MenuListHero from "./_components/MenuListHero";
 import MokaMessage from "../../../_components/MokaMessage";
 import RecipeBook from "../../../_components/RecipeBook";
-import styles from "./_components/MenuCatalog.module.css";
+import styles from "./_components/MenuList.module.css";
 
 const one = (value: string | string[] | undefined) =>
   (Array.isArray(value) ? value[0] : value) ?? "";
@@ -31,16 +26,15 @@ export default async function AdminMenuListPage(
   const keyword = one(searchParams.keyword);
 
   // 2. 화면에 필요한 데이터
-  const categories = getCategories();
-  const counts = countMenusByStatus();
+  const [categories, allMenus] = await Promise.all([getCategories(), getMenus()]);
+  const counts = countMenusByStatus(allMenus);
   const menuCounts = Object.fromEntries(
-    categories.map((item) => [item.id, countMenusByCategory(item.id)]),
+    categories.map((item) => [item.id, item.menuCount]),
   );
   const selectedCategory = categories.find(
     (item) => String(item.id) === category,
   );
-  const allMenus = getMenus();
-  const menus = getMenus({
+  const menus = filterMenus(allMenus, {
     categoryId: Number(category) || undefined,
     status: status in MENU_STATUS ? (status as MenuStatus) : undefined,
     keyword,
@@ -49,7 +43,7 @@ export default async function AdminMenuListPage(
   const categoryNames = Object.fromEntries(categories.map((item) => [item.id, item.name]));
   const report = selectedCategory
     ? mokaReport(
-        getMenus({ categoryId: selectedCategory.id }),
+        filterMenus(allMenus, { categoryId: selectedCategory.id }),
         selectedCategory.name,
       )
     : mokaReport(allMenus);
@@ -57,9 +51,9 @@ export default async function AdminMenuListPage(
   // 3. 배치
   return (
     <>
-      <MenuStoryHero />
-      <MenuStatusOverview counts={counts} />
-      <MenuCatalogFilters
+      <MenuListHero />
+      <MenuListSummary counts={counts} />
+      <MenuListFilters
         categories={categories}
         totalCount={counts.all}
         menuCounts={menuCounts}
@@ -74,7 +68,7 @@ export default async function AdminMenuListPage(
       <div className={styles.layout}>
         <section aria-label="메뉴 레시피북">
           {menus.length === 0 ? (
-            <EmptyMenus />
+            <MenuListEmpty />
           ) : (
             <RecipeBook
               key={`${category || "all"}-${status}-${keyword}`}
@@ -85,7 +79,7 @@ export default async function AdminMenuListPage(
             />
           )}
         </section>
-        <CatDiary menus={allMenus} />
+        <MenuListRecent menus={allMenus} />
       </div>
     </>
   );

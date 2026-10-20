@@ -1,9 +1,12 @@
 "use client";
-// 메뉴 등록·수정 공용 폼. 목업 단계라 제출하면 입력값을 확인하는 안내만 띄운다.
-import type { FormEvent } from "react";
+// 메뉴 등록·수정 공용 폼. 제출하면 백엔드에 POST(등록) / PUT(수정)을 보내고 상세 화면으로 간다.
+// 대표 이미지 · 신메뉴(NEW) · 비밀 레시피는 백엔드에 아직 칸이 없어 저장되지 않는다.
+import { useState, type FormEvent } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { Category, Menu } from "@/lib/types";
 import { MENU_STATUS } from "@/lib/format";
+import { apiSend } from "@/lib/apiClient";
 
 type MenuFormProps =
   | { mode: "create"; initial?: undefined; categories: Category[]; cancelHref: string }
@@ -14,10 +17,34 @@ function Required() {
 }
 
 export default function MenuForm({ mode, initial, categories, cancelHref }: MenuFormProps) {
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  const router = useRouter();
+  const [pending, setPending] = useState(false);
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const data = Object.fromEntries(new FormData(e.currentTarget));
-    window.alert(`목업 화면이라 저장되지 않습니다.\n\n${JSON.stringify(data, null, 2)}`);
+    const form = new FormData(e.currentTarget);
+    const body = {
+      korName: String(form.get("korName")).trim(),
+      engName: String(form.get("engName")).trim(),
+      price: Number(form.get("price")),
+      categoryId: Number(form.get("categoryId")),
+      description: String(form.get("description") ?? ""),
+      status: String(form.get("status") ?? "on"),
+      ownerRecommended: form.get("isRecommended") === "on",
+    };
+
+    setPending(true);
+    try {
+      const saved =
+        mode === "create"
+          ? await apiSend<{ id: number }>("POST", "/api/v1/admin/menus", body)
+          : await apiSend<{ id: number }>("PUT", `/api/v1/admin/menus/${initial.id}`, body);
+      router.push(`/admin/menus/${saved.id}`);
+      router.refresh();
+    } catch (error) {
+      window.alert((error as Error).message);
+      setPending(false);
+    }
   }
 
   return (
@@ -123,8 +150,8 @@ export default function MenuForm({ mode, initial, categories, cancelHref }: Menu
         <Link href={cancelHref} className="m3-btn btn:outlined">
           취소
         </Link>
-        <button type="submit" className="m3-btn">
-          {mode === "create" ? "등록하기" : "저장하기"}
+        <button type="submit" className="m3-btn" disabled={pending}>
+          {pending ? "저장 중…" : mode === "create" ? "등록하기" : "저장하기"}
         </button>
       </div>
     </form>

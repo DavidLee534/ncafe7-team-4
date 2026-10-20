@@ -1,19 +1,18 @@
-// 관리자 홈(대시보드) — 밤하늘 헤더 · 현황 숫자 · 손봐야 할 메뉴 · 카테고리별 메뉴 · 최근 수정. 데이터는 목업.
+// 관리자 홈(대시보드) — 밤하늘 헤더 · 현황 숫자 · 손봐야 할 메뉴 · 카테고리별 메뉴 · 최근 수정. 데이터는 백엔드에서 받는다.
 // (dashboard) 는 주소에 안 들어가는 폴더라 이 페이지의 주소는 /admin 이다.
 import Link from "next/link";
-import NightHero, { heroOverlap } from "../_components/NightHero";
+import AdminPageHeader, { headerOverlap } from "../_components/AdminPageHeader";
 import StatCard, { type Stat } from "../_components/StatCard";
 import MokaMessage from "../../_components/MokaMessage";
-import AttentionMenus from "./_components/AttentionMenus";
-import CategoryShelf from "./_components/CategoryShelf";
-import RecentMenus from "./_components/RecentMenus";
-import { countMenusByCategory, countMenusByStatus, getCategories, getMenus } from "@/lib/mock";
+import DashboardAttention from "./_components/DashboardAttention";
+import DashboardCategories from "./_components/DashboardCategories";
+import DashboardRecent from "./_components/DashboardRecent";
+import { countMenusByStatus, getCategories, getMenus } from "@/lib/adminApi";
 import { mokaReport, recentlyUpdated } from "@/lib/cat";
 
-export default function AdminDashboardPage() {
-  const menus = getMenus();
-  const categories = getCategories();
-  const counts = countMenusByStatus();
+export default async function AdminDashboardPage() {
+  const [menus, categories] = await Promise.all([getMenus(), getCategories()]);
+  const counts = countMenusByStatus(menus);
   const visibleCategories = categories.filter((item) => item.visible).length;
 
   const stats: Stat[] = [
@@ -23,11 +22,11 @@ export default function AdminDashboardPage() {
     { label: "공개 카테고리", value: `${visibleCategories} / ${categories.length}` },
   ];
   const attention = menus.filter((menu) => menu.status !== "on");
-  const shelf = categories.map((category) => ({ category, count: countMenusByCategory(category.id) }));
+  const shelf = categories.map((category) => ({ category, count: category.menuCount }));
 
   return (
     <>
-      <NightHero
+      <AdminPageHeader
         cat
         crumb="DASHBOARD"
         title="오늘의 공방"
@@ -45,7 +44,7 @@ export default function AdminDashboardPage() {
         }
       />
 
-      <ul className={`m3-grid grid-cols:4 grid-gap:3 margin-bottom:6 ${heroOverlap}`}>
+      <ul className={`m3-grid grid-cols:4 grid-gap:3 margin-bottom:6 ${headerOverlap}`}>
         {stats.map((stat) => (
           <StatCard key={stat.label} {...stat} />
         ))}
@@ -56,10 +55,10 @@ export default function AdminDashboardPage() {
         style={{ "--grid-template-columns-ex": "minmax(0, 3fr) minmax(0, 2fr)" }}
       >
         <div className="display:flex flex-direction:column gap:5">
-          <AttentionMenus menus={attention} />
-          <CategoryShelf rows={shelf} />
+          <DashboardAttention menus={attention} />
+          <DashboardCategories rows={shelf} />
         </div>
-        <RecentMenus menus={recentlyUpdated(menus)} />
+        <DashboardRecent menus={recentlyUpdated(menus)} />
       </div>
 
       <MokaMessage message={mokaReport(menus)} label="MOKA'S NIGHT REPORT" />
