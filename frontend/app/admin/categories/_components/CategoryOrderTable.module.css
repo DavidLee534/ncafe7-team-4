@@ -1,0 +1,14 @@
+/* 카테고리 순서 변경 — 표 위 도구 줄(평소: 순서 변경 버튼 / 변경 중: 취소 · 저장), 손잡이 · 번호 · 위아래 버튼 */
+.toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; padding: .7rem 1rem; border-bottom: 1px solid var(--color-border-subtle); color: var(--color-text-muted); font-size: .82rem; }
+.toolbar span { flex: 1; min-width: 12rem; }
+.toolbarEditing { background: var(--color-primary-subtle); color: var(--color-text); }
+.row { transition: background .15s ease; }
+.dragging { background: var(--color-primary-subtle); opacity: .7; }
+.order { display: flex; align-items: center; gap: .25rem; white-space: nowrap; }
+.handle { display: grid; place-items: center; width: 1.4rem; height: 1.8rem; border-radius: .4rem; color: var(--color-text-muted); font-size: 1rem; cursor: grab; user-select: none; }
+.handle:active { cursor: grabbing; }
+.number { min-width: 1.3rem; color: var(--color-text-muted); font-weight: 700; text-align: center; }
+.arrow { display: grid; place-items: center; width: 1.7rem; height: 1.7rem; border: 1px solid var(--color-border); border-radius: .45rem; background: transparent; color: var(--color-text); font-size: .62rem; cursor: pointer; }
+.arrow:hover:not(:disabled) { background: var(--color-primary-subtle); }
+.arrow:disabled { opacity: .3; cursor: default; }
+.arrow:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 1px; }

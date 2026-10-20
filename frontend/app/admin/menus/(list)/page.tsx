@@ -11,7 +11,6 @@ import { MENU_STATUS } from "@/lib/format";
 import type { MenuStatus } from "@/lib/types";
 import CatDiary from "./_components/CatDiary";
 import EmptyMenus from "./_components/EmptyMenus";
-import MagicLore from "./_components/MagicLore";
 import MenuCatalogFilters from "./_components/MenuCatalogFilters";
 import MenuStatusOverview from "./_components/MenuStatusOverview";
 import MenuStoryHero from "./_components/MenuStoryHero";
@@ -46,6 +45,8 @@ export default async function AdminMenuListPage(
     status: status in MENU_STATUS ? (status as MenuStatus) : undefined,
     keyword,
   });
+  const recommendedMenus = allMenus.filter((item) => item.isRecommended);
+  const categoryNames = Object.fromEntries(categories.map((item) => [item.id, item.name]));
   const report = selectedCategory
     ? mokaReport(
         getMenus({ categoryId: selectedCategory.id }),
@@ -66,6 +67,8 @@ export default async function AdminMenuListPage(
         status={status}
         keyword={keyword}
         menuCount={menus.length}
+        recommendedMenus={recommendedMenus}
+        categoryNames={categoryNames}
       />
       <MokaMessage message={report} />
       <div className={styles.layout}>
@@ -84,7 +87,6 @@ export default async function AdminMenuListPage(
         </section>
         <CatDiary menus={allMenus} />
       </div>
-      <MagicLore />
     </>
   );
 }

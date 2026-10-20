@@ -1,5 +1,6 @@
 "use client";
 
+import type { Ref } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import styles from "./AdminNav.module.css";
@@ -28,7 +29,15 @@ const SECTIONS = [
   },
 ];
 
-export default function AdminNav() {
+type Props = {
+  ref?: Ref<HTMLElement>;
+  id?: string;
+  open?: boolean; // 좁은 화면에서 모달 메뉴가 열려 있는지
+  closed?: boolean; // 좁은 화면에서 닫혀 있어 보이지 않는지. 이때는 Tab 포커스가 들어오지 않게 막는다
+  onNavigate?: () => void; // 메뉴 링크를 누르면 (모달 메뉴 닫기)
+};
+
+export default function AdminNav({ ref, id, open = false, closed = false, onNavigate }: Props) {
   const pathname = usePathname();
   // 목록(/admin/menus)은 그 아래 상세·수정 화면(/admin/menus/1, /admin/menus/1/edit)에서도 켜 둔다.
   // 등록 화면은 따로 항목이 있으니 제외한다. 대시보드(/admin)는 모든 화면의 상위라서 정확히 같을 때만 켠다.
@@ -39,7 +48,16 @@ export default function AdminNav() {
   };
 
   return (
-    <nav className={`m3-nav-drawer layout-drawer ${styles.drawer}`} aria-label="냥이 발자국 빵집 관리자 메뉴">
+    <nav
+      ref={ref}
+      id={id}
+      className={`m3-nav-drawer layout-drawer ${styles.drawer} ${open ? styles.open : ""}`}
+      aria-label="냥이 발자국 빵집 관리자 메뉴"
+      inert={closed}
+      onClick={(e) => {
+        if ((e.target as HTMLElement).closest("a[href]")) onNavigate?.();
+      }}
+    >
       <Link href="/admin" className={styles.brand}>
         <span className={styles.brandMoon} aria-hidden="true">🌙</span>
         <span className={styles.name}>냥이 발자국 빵집</span>
