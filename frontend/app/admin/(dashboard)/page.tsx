@@ -61,7 +61,7 @@ export default async function AdminDashboardPage() {
         <DashboardRecent menus={recentlyUpdated(menus)} />
       </div>
 
-      <MokaMessage message={mokaReport(menus)} label="MOKA'S NIGHT REPORT" />
+      <MokaMessage message={mokaReport(counts)} label="MOKA'S NIGHT REPORT" />
     </>
   );
 }

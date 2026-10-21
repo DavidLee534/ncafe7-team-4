@@ -1,11 +1,10 @@
 import Link from "next/link";
-import type { Category } from "@/lib/types";
+import type { MenuCategory } from "@/lib/types";
 import styles from "./MenuList.module.css";
 
 type Props = {
-  categories: Category[];
+  categories: MenuCategory[]; // 카테고리별 메뉴 수(menuCount) 포함
   totalCount: number;
-  menuCounts: Record<number, number>; // 카테고리 id → 메뉴 수
   category: string; // 선택된 카테고리 id (없으면 "")
 };
 
@@ -13,7 +12,6 @@ type Props = {
 export default function MenuListCategories({
   categories,
   totalCount,
-  menuCounts,
   category,
 }: Props) {
   const chipClass = (active: boolean) =>
@@ -30,7 +28,7 @@ export default function MenuListCategories({
           href={`/admin/menus?category=${item.id}`}
           className={chipClass(String(item.id) === category)}
         >
-          {item.name} <span>{menuCounts[item.id] ?? 0}</span>
+          {item.name} <span>{item.menuCount}</span>
         </Link>
       ))}
     </nav>

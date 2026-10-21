@@ -3,13 +3,12 @@ import MenuListCard from "./MenuListCard";
 import styles from "./MenuList.module.css";
 
 type Props = {
-  menus: Menu[]; // 사장 추천 메뉴
-  categoryNames: Record<number, string>; // 카테고리 id → 이름 (카드 위쪽 분류 표시)
+  menus: Menu[]; // 사장 추천 메뉴 (백엔드 ?ownerRecommended=true)
 };
 
 // 사장 추천 메뉴 — 카테고리 칩 위에 추천 메뉴를 메뉴 카드(MenuListCard) 모양으로 모아 보여준다.
 // 추천 지정은 메뉴 등록 · 수정 폼의 "사장 추천 메뉴로 표시"에서 한다.
-export default function MenuListRecommended({ menus, categoryNames }: Props) {
+export default function MenuListRecommended({ menus }: Props) {
   return (
     <section className={styles.recommendShelf} aria-labelledby="recommend-title">
       <div className={styles.recommendHead}>
@@ -26,7 +25,7 @@ export default function MenuListRecommended({ menus, categoryNames }: Props) {
             <MenuListCard
               key={menu.id}
               menu={menu}
-              categoryName={categoryNames[menu.categoryId] ?? "-"}
+              categoryName={menu.categoryName ?? "-"}
               showActions={false}
             />
           ))}

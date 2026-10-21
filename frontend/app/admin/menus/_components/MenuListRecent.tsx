@@ -1,6 +1,6 @@
 // 최근 수정 메뉴 — 모카 점장의 발자국. 최근에 등록 · 수정된 메뉴를 날짜와 함께 보여준다.
+// 정렬과 개수는 백엔드가 한다 (?sort=updatedAt&size=5). 받은 순서 그대로 보여준다.
 import Link from "next/link";
-import { recentlyUpdated } from "@/lib/cat";
 import type { Menu } from "@/lib/types";
 import styles from "./MenuList.module.css";
 
@@ -16,7 +16,7 @@ export default function MenuListRecent({ menus }: { menus: Menu[] }) {
       </div>
       <p className={styles.diaryLead}>“메뉴는 매일 새로 확인해야 해요. 간식만큼 중요하니까요!”</p>
       <ul className={styles.log}>
-        {recentlyUpdated(menus).map((menu) => (
+        {menus.map((menu) => (
           <li key={menu.id}>
             <span className={styles.logDate}>{menu.updatedAt}</span>
             <Link href={`/admin/menus/${menu.id}`} className={styles.logName}>{menu.korName}</Link>

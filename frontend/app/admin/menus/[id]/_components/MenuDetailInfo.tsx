@@ -1,7 +1,7 @@
 // 메뉴 상세 · 기본 정보 — 이름(한글/영문) · 카테고리 · 가격 · 설명
 import { won } from "@/lib/format";
 import type { Menu } from "@/lib/types";
-import DetailCard from "../../../../_components/DetailCard";
+import DetailCard from "../../../_components/DetailCard";
 
 export default function MenuDetailInfo({ menu, categoryName }: { menu: Menu; categoryName: string }) {
   return (

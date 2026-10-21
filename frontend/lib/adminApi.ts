@@ -1,7 +1,7 @@
 // 관리자 화면의 조회 함수 — 백엔드(/api/v1/admin/...)에서 받아 화면용 모양(lib/types)으로 바꾼다.
 // 서버 컴포넌트(페이지)에서만 부른다. 등록·수정·삭제처럼 브라우저에서 보내는 요청은 lib/apiClient.ts.
 import { connection } from "next/server";
-import type { Category, Menu, MenuStatus, MenuStatusCounts } from "./types";
+import type { Category, Menu, MenuCategory, MenuStatus, MenuStatusCounts } from "./types";
 
 // 서버에서 부르므로 백엔드 주소로 바로 보낸다 (브라우저 요청은 next.config 의 rewrites 를 거친다)
 const API_URL = process.env.API_URL ?? "http://localhost:8080";
@@ -56,6 +56,7 @@ function toMenu(dto: MenuResponse): Menu {
     korName: dto.korName,
     engName: dto.engName,
     categoryId: dto.categoryId ?? 0,
+    categoryName: dto.categoryName ?? undefined,
     price: dto.price,
     description: dto.description ?? "",
     image: dto.imageUrl,
@@ -84,8 +85,27 @@ export async function getCategory(id: number): Promise<CategoryWithCount | undef
 
 // ===== 메뉴 =====
 
-export async function getMenus(): Promise<Menu[]> {
-  const list = await get<MenuResponse[]>("/api/v1/admin/menus");
+// 거르기·정렬·개수 제한은 백엔드가 한다. 비운 조건은 보내지 않고, 조건이 없으면 전체 목록(등록순)
+// sort: "updatedAt" 이면 최근 수정순
+export type MenuFilter = {
+  categoryId?: number;
+  status?: MenuStatus;
+  keyword?: string;
+  ownerRecommended?: boolean;
+  sort?: "updatedAt";
+  size?: number;
+};
+
+export async function getMenus(filter: MenuFilter = {}): Promise<Menu[]> {
+  const query = new URLSearchParams();
+  if (filter.categoryId) query.set("categoryId", String(filter.categoryId));
+  if (filter.status) query.set("status", filter.status);
+  if (filter.keyword?.trim()) query.set("keyword", filter.keyword.trim());
+  if (filter.ownerRecommended !== undefined) query.set("ownerRecommended", String(filter.ownerRecommended));
+  if (filter.sort) query.set("sort", filter.sort);
+  if (filter.size) query.set("size", String(filter.size));
+  const qs = query.size > 0 ? `?${query}` : "";
+  const list = await get<MenuResponse[]>(`/api/v1/admin/menus${qs}`);
   return (list ?? []).map(toMenu);
 }
 
@@ -95,20 +115,18 @@ export async function getMenu(id: number): Promise<Menu | undefined> {
   return dto && toMenu(dto);
 }
 
-// ===== 받은 목록을 화면에서 거르고 세기 =====
-// 백엔드에 검색 조건(?categoryId=&status=&keyword=)이 생기면 getMenus 에서 쿼리로 보내도록 바꾼다
-
-export type MenuFilter = { categoryId?: number; status?: MenuStatus; keyword?: string };
-
-export function filterMenus(menus: Menu[], filter: MenuFilter = {}): Menu[] {
-  const keyword = filter.keyword?.trim().toLowerCase();
-  return menus
-    .filter((m) => !filter.categoryId || m.categoryId === filter.categoryId)
-    .filter((m) => !filter.status || m.status === filter.status)
-    .filter(
-      (m) => !keyword || m.korName.toLowerCase().includes(keyword) || m.engName.toLowerCase().includes(keyword),
-    );
+// 메뉴 화면의 카테고리 칩·선택 상자. 화면 순서대로, 카테고리별 메뉴 수 포함
+export async function getMenuCategories(): Promise<MenuCategory[]> {
+  return (await get<MenuCategory[]>("/api/v1/admin/menus/categories")) ?? [];
 }
+
+// 상태별 메뉴 수. 검색 조건과 상관없이 세고, categoryId 를 주면 그 카테고리 안에서만 센다
+export async function getMenuSummary(categoryId?: number): Promise<MenuStatusCounts> {
+  const qs = categoryId ? `?categoryId=${categoryId}` : "";
+  return (await get<MenuStatusCounts>(`/api/v1/admin/menus/summary${qs}`)) ?? { all: 0, on: 0, soldout: 0, hidden: 0 };
+}
+
+// ===== 받은 목록을 화면에서 세기 (대시보드) =====
 
 export function countMenusByStatus(menus: Menu[]): MenuStatusCounts {
   return {
