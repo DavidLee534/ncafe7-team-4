@@ -1,8 +1,11 @@
 "use client";
-// 카테고리 등록·수정 공용 폼. 목업 단계라 제출하면 입력값을 확인하는 안내만 띄운다.
-import type { FormEvent } from "react";
+// 카테고리 등록·수정 공용 폼. 제출하면 백엔드에 POST(등록) / PUT(수정)을 보내고 목록으로 간다.
+// 이름이 겹치면 백엔드가 409 로 거절하고, 그 메시지를 알림으로 띄운다.
+import { useState, type FormEvent } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { Category } from "@/lib/types";
+import { apiSend } from "@/lib/apiClient";
 
 type CategoryFormProps =
   | { mode: "create"; initial?: undefined; nextSortOrder: number; cancelHref: string }
@@ -13,10 +16,29 @@ function Required() {
 }
 
 export default function CategoryForm({ mode, initial, nextSortOrder, cancelHref }: CategoryFormProps) {
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  const router = useRouter();
+  const [pending, setPending] = useState(false);
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const data = Object.fromEntries(new FormData(e.currentTarget));
-    window.alert(`목업 화면이라 저장되지 않습니다.\n\n${JSON.stringify(data, null, 2)}`);
+    const form = new FormData(e.currentTarget);
+    const body = {
+      name: String(form.get("name")).trim(),
+      engName: String(form.get("engName")).trim(),
+      sortOrder: Number(form.get("sortOrder")),
+      visible: form.get("visible") === "on",
+    };
+
+    setPending(true);
+    try {
+      if (mode === "create") await apiSend("POST", "/api/v1/admin/categories", body);
+      else await apiSend("PUT", `/api/v1/admin/categories/${initial.id}`, body);
+      router.push("/admin/categories");
+      router.refresh();
+    } catch (error) {
+      window.alert((error as Error).message);
+      setPending(false);
+    }
   }
 
   return (
@@ -62,8 +84,8 @@ export default function CategoryForm({ mode, initial, nextSortOrder, cancelHref 
         <Link href={cancelHref} className="m3-btn btn:outlined">
           취소
         </Link>
-        <button type="submit" className="m3-btn">
-          {mode === "create" ? "등록하기" : "저장하기"}
+        <button type="submit" className="m3-btn" disabled={pending}>
+          {pending ? "저장 중…" : mode === "create" ? "등록하기" : "저장하기"}
         </button>
       </div>
     </form>

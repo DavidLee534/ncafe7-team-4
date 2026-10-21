@@ -1,15 +1,16 @@
 // 카테고리 등록 — 밤하늘 헤더 · CategoryForm. 정렬 순서는 맨 뒤 번호를 기본값으로 둔다.
 import Link from "next/link";
-import NightHero, { heroOverlap } from "../../_components/NightHero";
+import AdminPageHeader, { headerOverlap } from "../../_components/AdminPageHeader";
 import CategoryForm from "../_components/CategoryForm";
-import { getCategories } from "@/lib/mock";
+import { getCategories } from "@/lib/adminApi";
 
-export default function AdminCategoryCreatePage() {
-  const nextSortOrder = Math.max(0, ...getCategories().map((c) => c.sortOrder)) + 1;
+export default async function AdminCategoryCreatePage() {
+  const categories = await getCategories();
+  const nextSortOrder = Math.max(0, ...categories.map((c) => c.sortOrder)) + 1;
 
   return (
     <>
-      <NightHero
+      <AdminPageHeader
         crumb="CATEGORY / NEW"
         title="카테고리 등록"
         description="새 카테고리를 만듭니다."
@@ -22,7 +23,7 @@ export default function AdminCategoryCreatePage() {
         }
       />
 
-      <div className={heroOverlap}>
+      <div className={headerOverlap}>
         <CategoryForm mode="create" nextSortOrder={nextSortOrder} cancelHref="/admin/categories" />
       </div>
     </>
