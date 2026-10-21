@@ -1,6 +1,6 @@
 // 메뉴 상세 · 대표 이미지
 import type { Menu } from "@/lib/types";
-import DetailCard from "../../../../_components/DetailCard";
+import DetailCard from "../../../_components/DetailCard";
 
 export default function MenuDetailImage({ menu }: { menu: Menu }) {
   return (

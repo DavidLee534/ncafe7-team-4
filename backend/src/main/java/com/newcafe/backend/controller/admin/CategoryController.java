@@ -8,6 +8,7 @@ import com.newcafe.backend.dto.admin.category.CategoryOrderRequestDto;
 import com.newcafe.backend.dto.admin.category.CategoryUpdateRequestDto;
 import com.newcafe.backend.dto.admin.category.CategoryUpdatedResponseDto;
 import com.newcafe.backend.service.admin.CategoryService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +25,7 @@ public class CategoryController {
   // 카테고리 생성. 성공하면 201과 저장된 카테고리. 같은 이름이 있으면 409
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public CategoryCreatedResponseDto create(@RequestBody CategoryCreateRequestDto request) {
+  public CategoryCreatedResponseDto create(@Valid @RequestBody CategoryCreateRequestDto request) {
     return categoryService.create(request);
   }
 
@@ -42,13 +43,13 @@ public class CategoryController {
 
   // 카테고리 수정. id는 경로에서 받고, 본문의 값으로 덮어쓴다
   @PutMapping("/{id}")
-  public CategoryUpdatedResponseDto update(@PathVariable Long id, @RequestBody CategoryUpdateRequestDto request) {
+  public CategoryUpdatedResponseDto update(@PathVariable Long id, @Valid @RequestBody CategoryUpdateRequestDto request) {
     return categoryService.update(id, request);
   }
 
   // 목록의 "순서 저장". 바뀐 순서의 전체 목록을 돌려준다
   @PatchMapping("/order")
-  public List<CategoryListResponseDto> changeOrder(@RequestBody CategoryOrderRequestDto request) {
+  public List<CategoryListResponseDto> changeOrder(@Valid @RequestBody CategoryOrderRequestDto request) {
     return categoryService.changeOrder(request);
   }
 

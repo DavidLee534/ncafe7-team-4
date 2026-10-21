@@ -1,8 +1,8 @@
 // 메뉴 상세 헤더의 버튼 — 목록으로 · 수정 · 비밀 레시피 등록/해제(목업, 백엔드에 아직 칸 없음) · 삭제
 import Link from "next/link";
 import type { Menu } from "@/lib/types";
-import DeleteButton from "../../../../_components/DeleteButton";
-import MockActionButton from "../../../../_components/MockActionButton";
+import DeleteButton from "../../../_components/DeleteButton";
+import MockActionButton from "../../../_components/MockActionButton";
 
 export default function MenuDetailActions({ menu }: { menu: Pick<Menu, "id" | "korName" | "isSecret"> }) {
   return (

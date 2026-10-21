@@ -1,7 +1,7 @@
 // 메뉴 카드 — 그림 · 코드 · 담당 바리스타 · 상태 · 이름 · 가격 · 수정/삭제.
 // showActions={false} 이면 수정/삭제 줄을 뺀다 (예: 사장 추천 메뉴 칸).
 import Link from "next/link";
-import DeleteButton from "../../../_components/DeleteButton";
+import DeleteButton from "../../_components/DeleteButton";
 import { MENU_STATUS, won } from "@/lib/format";
 import { baristaOf, pawCode } from "@/lib/cat";
 import type { Menu } from "@/lib/types";

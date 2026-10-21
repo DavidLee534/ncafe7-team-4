@@ -1,9 +1,12 @@
 package com.newcafe.backend.service.admin;
 
+import com.newcafe.backend.dto.admin.menu.MenuCategoryListResponseDto;
 import com.newcafe.backend.dto.admin.menu.MenuCreateRequestDto;
 import com.newcafe.backend.dto.admin.menu.MenuCreatedResponseDto;
 import com.newcafe.backend.dto.admin.menu.MenuDetailResponseDto;
+import com.newcafe.backend.dto.admin.menu.MenuListRequestDto;
 import com.newcafe.backend.dto.admin.menu.MenuListResponseDto;
+import com.newcafe.backend.dto.admin.menu.MenuSummaryResponseDto;
 import com.newcafe.backend.dto.admin.menu.MenuUpdateRequestDto;
 import com.newcafe.backend.dto.admin.menu.MenuUpdatedResponseDto;
 
@@ -16,9 +19,13 @@ public interface MenuService {
 
   MenuCreatedResponseDto create(MenuCreateRequestDto request);
 
-  List<MenuListResponseDto> getList();
+  List<MenuListResponseDto> getList(MenuListRequestDto request);
 
   MenuDetailResponseDto getDetail(Long id);
+
+  List<MenuCategoryListResponseDto> getCategories();
+
+  MenuSummaryResponseDto getSummary(Long categoryId);
 
   MenuUpdatedResponseDto update(Long id, MenuUpdateRequestDto request);
 

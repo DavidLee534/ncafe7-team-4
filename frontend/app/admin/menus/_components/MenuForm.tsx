@@ -4,13 +4,13 @@
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { Category, Menu } from "@/lib/types";
+import type { Menu, MenuCategory } from "@/lib/types";
 import { MENU_STATUS } from "@/lib/format";
 import { apiSend } from "@/lib/apiClient";
 
 type MenuFormProps =
-  | { mode: "create"; initial?: undefined; categories: Category[]; cancelHref: string }
-  | { mode: "edit"; initial: Menu; categories: Category[]; cancelHref: string };
+  | { mode: "create"; initial?: undefined; categories: MenuCategory[]; cancelHref: string }
+  | { mode: "edit"; initial: Menu; categories: MenuCategory[]; cancelHref: string };
 
 function Required() {
   return <span className="color:danger">*</span>;
@@ -57,13 +57,13 @@ export default function MenuForm({ mode, initial, categories, cancelHref }: Menu
               <label htmlFor="korName">
                 메뉴명(한글) <Required />
               </label>
-              <input id="korName" name="korName" type="text" placeholder="예) 카페라떼" defaultValue={initial?.korName} required />
+              <input id="korName" name="korName" type="text" placeholder="예) 카페라떼" defaultValue={initial?.korName} maxLength={50} required />
             </div>
             <div className="m3-text-field field:outlined field-label:top">
               <label htmlFor="engName">
                 메뉴명(영문) <Required />
               </label>
-              <input id="engName" name="engName" type="text" placeholder="예) Caffe Latte" defaultValue={initial?.engName} required />
+              <input id="engName" name="engName" type="text" placeholder="예) Caffe Latte" defaultValue={initial?.engName} maxLength={50} required />
             </div>
           </div>
 
@@ -93,7 +93,7 @@ export default function MenuForm({ mode, initial, categories, cancelHref }: Menu
 
           <div className="m3-text-field field:outlined field-label:top">
             <label htmlFor="description">설명</label>
-            <textarea id="description" name="description" rows={4} placeholder="사용자 화면의 메뉴 상세에 보이는 설명" defaultValue={initial?.description} />
+            <textarea id="description" name="description" rows={4} placeholder="사용자 화면의 메뉴 상세에 보이는 설명" defaultValue={initial?.description} maxLength={1000} />
           </div>
 
           <div className="m3-text-field field:outlined field-label:top">

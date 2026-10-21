@@ -2,10 +2,10 @@
 import Link from "next/link";
 import AdminPageHeader, { headerOverlap } from "../../_components/AdminPageHeader";
 import MenuForm from "../_components/MenuForm";
-import { getCategories } from "@/lib/adminApi";
+import { getMenuCategories } from "@/lib/adminApi";
 
 export default async function AdminMenuCreatePage() {
-  const categories = await getCategories();
+  const categories = await getMenuCategories();
 
   return (
     <>

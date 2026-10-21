@@ -1,13 +1,13 @@
 // 메뉴 수정 — 밤하늘 헤더 · MenuForm(기존 값). 없는 id면 404.
 import Link from "next/link";
-import AdminPageHeader, { headerOverlap } from "../../../../_components/AdminPageHeader";
+import AdminPageHeader, { headerOverlap } from "../../../_components/AdminPageHeader";
 import { notFound } from "next/navigation";
-import MenuForm from "../../../_components/MenuForm";
-import { getCategories, getMenu } from "@/lib/adminApi";
+import MenuForm from "../../_components/MenuForm";
+import { getMenu, getMenuCategories } from "@/lib/adminApi";
 
 export default async function AdminMenuEditPage(props: PageProps<"/admin/menus/[id]/edit">) {
   const { id } = await props.params;
-  const [menu, categories] = await Promise.all([getMenu(Number(id)), getCategories()]);
+  const [menu, categories] = await Promise.all([getMenu(Number(id)), getMenuCategories()]);
   if (!menu) notFound();
   const detailHref = `/admin/menus/${menu.id}`;
 

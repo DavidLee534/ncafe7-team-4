@@ -50,13 +50,13 @@ export default function CategoryForm({ mode, initial, nextSortOrder, cancelHref 
             <label htmlFor="name">
               카테고리명 <Required />
             </label>
-            <input id="name" name="name" type="text" placeholder="예) 커피" defaultValue={initial?.name} required />
+            <input id="name" name="name" type="text" placeholder="예) 커피" defaultValue={initial?.name} maxLength={30} required />
           </div>
           <div className="m3-text-field field:outlined field-label:top">
             <label htmlFor="engName">
               영문명 <Required />
             </label>
-            <input id="engName" name="engName" type="text" placeholder="예) Coffee" defaultValue={initial?.engName} required />
+            <input id="engName" name="engName" type="text" placeholder="예) Coffee" defaultValue={initial?.engName} maxLength={30} required />
           </div>
           <div className="m3-text-field field:outlined field-label:top">
             <label htmlFor="sortOrder">

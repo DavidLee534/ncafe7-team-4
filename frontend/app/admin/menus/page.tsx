@@ -1,6 +1,9 @@
 // 메뉴 목록 — 데이터를 준비해서 화면 조각에 나눠 준다. 조각은 받은 값을 보여주기만 한다.
-// 필터는 주소의 쿼리(?category=1&status=on&keyword=라떼)로 받는다. 데이터는 백엔드에서 받는다.
-import { countMenusByStatus, filterMenus, getCategories, getMenus } from "@/lib/adminApi";
+// 필터는 주소의 쿼리(?category=1&status=on&keyword=라떼)로 받아 백엔드 검색 조건으로 넘긴다.
+// 거르기·세기·정렬은 백엔드가 하고, 페이지는 필요한 만큼만 받아 나눠 준다.
+//   상단 개수·모카 메시지 → summary (카테고리를 골랐으면 그 카테고리 summary)
+//   카테고리 칩 → menus/categories, 사장 추천 → ?ownerRecommended=true, 최근 수정 → ?sort=updatedAt&size=5
+import { getMenuCategories, getMenus, getMenuSummary } from "@/lib/adminApi";
 import { mokaReport } from "@/lib/cat";
 import { MENU_STATUS } from "@/lib/format";
 import type { MenuStatus } from "@/lib/types";
@@ -9,8 +12,8 @@ import MenuListEmpty from "./_components/MenuListEmpty";
 import MenuListFilters from "./_components/MenuListFilters";
 import MenuListSummary from "./_components/MenuListSummary";
 import MenuListHero from "./_components/MenuListHero";
-import MokaMessage from "../../../_components/MokaMessage";
-import RecipeBook from "../../../_components/RecipeBook";
+import MokaMessage from "../../_components/MokaMessage";
+import RecipeBook from "../../_components/RecipeBook";
 import styles from "./_components/MenuList.module.css";
 
 const one = (value: string | string[] | undefined) =>
@@ -26,27 +29,24 @@ export default async function AdminMenuListPage(
   const keyword = one(searchParams.keyword);
 
   // 2. 화면에 필요한 데이터
-  const [categories, allMenus] = await Promise.all([getCategories(), getMenus()]);
-  const counts = countMenusByStatus(allMenus);
-  const menuCounts = Object.fromEntries(
-    categories.map((item) => [item.id, item.menuCount]),
-  );
-  const selectedCategory = categories.find(
-    (item) => String(item.id) === category,
-  );
-  const menus = filterMenus(allMenus, {
-    categoryId: Number(category) || undefined,
-    status: status in MENU_STATUS ? (status as MenuStatus) : undefined,
-    keyword,
-  });
-  const recommendedMenus = allMenus.filter((item) => item.isRecommended);
-  const categoryNames = Object.fromEntries(categories.map((item) => [item.id, item.name]));
-  const report = selectedCategory
-    ? mokaReport(
-        filterMenus(allMenus, { categoryId: selectedCategory.id }),
-        selectedCategory.name,
-      )
-    : mokaReport(allMenus);
+  const categoryId = Number(category) || undefined;
+  const [categories, counts, categoryCounts, menus, recommendedMenus, recentMenus] = await Promise.all([
+    getMenuCategories(),
+    getMenuSummary(),
+    categoryId ? getMenuSummary(categoryId) : undefined,
+    getMenus({
+      categoryId,
+      status: status in MENU_STATUS ? (status as MenuStatus) : undefined,
+      keyword,
+    }),
+    getMenus({ ownerRecommended: true }),
+    getMenus({ sort: "updatedAt", size: 5 }),
+  ]);
+  const selectedCategory = categories.find((item) => item.id === categoryId);
+  const report =
+    selectedCategory && categoryCounts
+      ? mokaReport(categoryCounts, selectedCategory.name)
+      : mokaReport(counts);
 
   // 3. 배치
   return (
@@ -56,13 +56,11 @@ export default async function AdminMenuListPage(
       <MenuListFilters
         categories={categories}
         totalCount={counts.all}
-        menuCounts={menuCounts}
         category={category}
         status={status}
         keyword={keyword}
         menuCount={menus.length}
         recommendedMenus={recommendedMenus}
-        categoryNames={categoryNames}
       />
       <MokaMessage message={report} />
       <div className={styles.layout}>
@@ -79,7 +77,7 @@ export default async function AdminMenuListPage(
             />
           )}
         </section>
-        <MenuListRecent menus={allMenus} />
+        <MenuListRecent menus={recentMenus} />
       </div>
     </>
   );

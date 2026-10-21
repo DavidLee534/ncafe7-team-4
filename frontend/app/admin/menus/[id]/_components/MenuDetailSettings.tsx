@@ -1,7 +1,7 @@
 // 메뉴 상세 · 판매 설정 — 판매 상태 · 신메뉴 표시 · 사장 추천 · 비밀 레시피
 import type { Menu } from "@/lib/types";
-import DetailCard from "../../../../_components/DetailCard";
-import MenuStatusBadge from "../../../../_components/MenuStatusBadge";
+import DetailCard from "../../../_components/DetailCard";
+import MenuStatusBadge from "../../../_components/MenuStatusBadge";
 
 export default function MenuDetailSettings({ menu }: { menu: Menu }) {
   return (

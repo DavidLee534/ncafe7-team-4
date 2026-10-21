@@ -14,11 +14,15 @@ export type MenuStatus = "on" | "soldout" | "hidden";
 // 판매 상태별 메뉴 수 (all 은 전체)
 export type MenuStatusCounts = Record<MenuStatus | "all", number>;
 
+// 메뉴 화면의 카테고리 칩·선택 상자에 쓰는 카테고리 (백엔드 /admin/menus/categories)
+export type MenuCategory = Pick<Category, "id" | "name"> & { menuCount: number };
+
 export type Menu = {
   id: number;
   korName: string;
   engName: string;
   categoryId: number;
+  categoryName?: string; // 백엔드 응답에 함께 온다. 카테고리가 없으면 비어 있음
   price: number;
   description: string;
   image: string | null; // public/ 아래 경로. 없으면 null
