@@ -1,7 +1,16 @@
 // 관리자 화면의 조회 함수 — 백엔드(/api/v1/admin/...)에서 받아 화면용 모양(lib/types)으로 바꾼다.
 // 서버 컴포넌트(페이지)에서만 부른다. 등록·수정·삭제처럼 브라우저에서 보내는 요청은 lib/apiClient.ts.
 import { connection } from "next/server";
-import type { Category, Menu, MenuCategory, MenuStatus, MenuStatusCounts } from "./types";
+import type {
+  Category,
+  Ingredient,
+  IngredientType,
+  IngredientTypeCounts,
+  Menu,
+  MenuCategory,
+  MenuStatus,
+  MenuStatusCounts,
+} from "./types";
 
 // 서버에서 부르므로 백엔드 주소로 바로 보낸다 (브라우저 요청은 next.config 의 rewrites 를 거친다)
 const API_URL = process.env.API_URL ?? "http://localhost:8080";
@@ -29,6 +38,21 @@ type MenuResponse = {
   imageUrl: string | null;
   status: string;
   ownerRecommended: boolean;
+  createdAt: string | null;
+  updatedAt: string | null;
+};
+
+type IngredientResponse = {
+  id: number;
+  name: string;
+  type: string;
+  shelf: string;
+  price: number;
+  color: string;
+  effectTags: string[];
+  modifier: string | null;
+  modifierPriority: number | null;
+  visible: boolean;
   createdAt: string | null;
   updatedAt: string | null;
 };
@@ -64,6 +88,16 @@ function toMenu(dto: MenuResponse): Menu {
     isNew: false, // 백엔드에 아직 없음
     isSecret: false, // 백엔드에 아직 없음
     isRecommended: dto.ownerRecommended,
+    createdAt: day(dto.createdAt),
+    updatedAt: day(dto.updatedAt),
+  };
+}
+
+function toIngredient(dto: IngredientResponse): Ingredient {
+  return {
+    ...dto,
+    type: dto.type === "base" ? "base" : "extra",
+    modifier: dto.modifier ?? "",
     createdAt: day(dto.createdAt),
     updatedAt: day(dto.updatedAt),
   };
@@ -126,7 +160,40 @@ export async function getMenuSummary(categoryId?: number): Promise<MenuStatusCou
   return (await get<MenuStatusCounts>(`/api/v1/admin/menus/summary${qs}`)) ?? { all: 0, on: 0, soldout: 0, hidden: 0 };
 }
 
-// ===== 받은 목록을 화면에서 세기 (대시보드) =====
+// ===== 재료 =====
+
+// 거르기는 백엔드가 한다. 비운 조건은 보내지 않고, 조건이 없으면 전체 목록 (기반 재료 먼저, 계열·선반 이름순)
+export type IngredientFilter = {
+  type?: IngredientType;
+  shelf?: string;
+  keyword?: string;
+};
+
+export async function getIngredients(filter: IngredientFilter = {}): Promise<Ingredient[]> {
+  const query = new URLSearchParams();
+  if (filter.type) query.set("type", filter.type);
+  if (filter.shelf) query.set("shelf", filter.shelf);
+  if (filter.keyword?.trim()) query.set("keyword", filter.keyword.trim());
+  const qs = query.size > 0 ? `?${query}` : "";
+  const list = await get<IngredientResponse[]>(`/api/v1/admin/ingredients${qs}`);
+  return (list ?? []).map(toIngredient);
+}
+
+export async function getIngredient(id: number): Promise<Ingredient | undefined> {
+  if (!Number.isInteger(id)) return undefined;
+  const dto = await get<IngredientResponse>(`/api/v1/admin/ingredients/${id}`);
+  return dto && toIngredient(dto);
+}
+
+// ===== 받은 목록을 화면에서 세기 (대시보드 · 재료 목록) =====
+
+export function countIngredientsByType(ingredients: Ingredient[]): IngredientTypeCounts {
+  return {
+    all: ingredients.length,
+    base: ingredients.filter((i) => i.type === "base").length,
+    extra: ingredients.filter((i) => i.type === "extra").length,
+  };
+}
 
 export function countMenusByStatus(menus: Menu[]): MenuStatusCounts {
   return {
