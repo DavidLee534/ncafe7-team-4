@@ -23,6 +23,9 @@ export type Menu = {
   engName: string;
   categoryId: number;
   categoryName?: string; // 백엔드 응답에 함께 온다. 카테고리가 없으면 비어 있음
+  slug?: string; // 사용자 메뉴 상세 주소(/menus/{slug}). 상세 응답에만 온다
+  emotionTags?: string[]; // 감정 연금술 추천 태그. 상세 응답에만 온다
+  tasteTags?: string[];
   price: number;
   description: string;
   image: string | null; // public/ 아래 경로. 없으면 null
