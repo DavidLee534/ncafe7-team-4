@@ -24,6 +24,16 @@ export default function MenuDetailInfo({ menu, categoryName }: { menu: Menu; cat
             <th scope="row">설명</th>
             <td colSpan={3}>{menu.description || "-"}</td>
           </tr>
+          <tr>
+            <th scope="row">사용자 주소</th>
+            <td colSpan={3}>{menu.slug ? `/menus/${menu.slug}` : "없음 (손님 메뉴판에 나오지 않음)"}</td>
+          </tr>
+          <tr>
+            <th scope="row">감정 태그</th>
+            <td>{menu.emotionTags?.length ? menu.emotionTags.join(", ") : "-"}</td>
+            <th scope="row">맛 태그</th>
+            <td>{menu.tasteTags?.length ? menu.tasteTags.join(", ") : "-"}</td>
+          </tr>
         </tbody>
       </table>
     </DetailCard>

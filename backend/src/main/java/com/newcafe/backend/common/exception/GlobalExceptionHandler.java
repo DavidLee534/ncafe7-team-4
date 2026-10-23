@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -28,6 +29,14 @@ public class GlobalExceptionHandler {
         String message = Objects.requireNonNullElse(e.getMessage(), "요청을 처리할 수 없는 상태입니다.");
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(Map.of("message", message));
+    }
+
+    // DB 제약 위반 (다른 데이터가 참조 중인 행 삭제, 중복 값 등) → 409
+    // 서비스에서 미리 막지 못한 경우를 위한 안전장치. 원래 메시지에는 테이블·컬럼 이름이 있어서 그대로 보내지 않는다
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<Map<String, String>> handleDataIntegrity(DataIntegrityViolationException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Map.of("message", "다른 데이터에서 사용 중이거나 이미 있는 값이라 처리할 수 없습니다."));
     }
 
     // 요청 본문 검증(@Valid) 실패 → 400

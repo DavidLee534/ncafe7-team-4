@@ -29,6 +29,9 @@ type MenuResponse = {
   imageUrl: string | null;
   status: string;
   ownerRecommended: boolean;
+  slug?: string | null; // 상세 응답에만 있음
+  emotionTags?: string[];
+  tasteTags?: string[];
   createdAt: string | null;
   updatedAt: string | null;
 };
@@ -57,6 +60,9 @@ function toMenu(dto: MenuResponse): Menu {
     engName: dto.engName,
     categoryId: dto.categoryId ?? 0,
     categoryName: dto.categoryName ?? undefined,
+    slug: dto.slug ?? undefined,
+    emotionTags: dto.emotionTags,
+    tasteTags: dto.tasteTags,
     price: dto.price,
     description: dto.description ?? "",
     image: dto.imageUrl,

@@ -12,8 +12,10 @@ import com.newcafe.backend.dto.admin.menu.MenuUpdateRequestDto;
 import com.newcafe.backend.dto.admin.menu.MenuUpdatedResponseDto;
 import com.newcafe.backend.entity.Category;
 import com.newcafe.backend.entity.Menu;
+import com.newcafe.backend.repository.CartItemRepository;
 import com.newcafe.backend.repository.CategoryRepository;
 import com.newcafe.backend.repository.MenuRepository;
+import com.newcafe.backend.repository.RecipeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,11 +32,16 @@ public class DfMenuService implements MenuService {
 
   private final MenuRepository menuRepository;
   private final CategoryRepository categoryRepository;
+  private final RecipeRepository recipeRepository;
+  private final CartItemRepository cartItemRepository;
 
   @Override
   @Transactional
   public MenuCreatedResponseDto create(MenuCreateRequestDto request) {
     Category category = findCategory(request.categoryId());
+    if (request.slug() != null && menuRepository.existsBySlug(request.slug())) {
+      throw new IllegalStateException("이미 쓰고 있는 slug입니다: " + request.slug());
+    }
     Menu saved = menuRepository.save(request.toEntity(category));
     return MenuCreatedResponseDto.from(saved);
   }
@@ -99,6 +106,10 @@ public class DfMenuService implements MenuService {
   public MenuUpdatedResponseDto update(Long id, MenuUpdateRequestDto request) {
     Menu menu = findMenu(id);
     Category category = findCategory(request.categoryId());
+    String slug = request.slug() != null ? request.slug() : menu.getSlug();
+    if (slug != null && menuRepository.existsBySlugAndIdNot(slug, id)) {
+      throw new IllegalStateException("이미 쓰고 있는 slug입니다: " + slug);
+    }
     menu.update(
         request.korName(),
         request.engName(),
@@ -106,14 +117,24 @@ public class DfMenuService implements MenuService {
         category,
         request.status() != null ? request.status() : menu.getStatus(),
         request.ownerRecommended() != null ? request.ownerRecommended() : menu.isOwnerRecommended(),
-        request.description());
+        request.description(),
+        slug,
+        request.emotionTagsOr(menu.getEmotionTags()),
+        request.tasteTagsOr(menu.getTasteTags()));
     return MenuUpdatedResponseDto.from(menu);
   }
 
+  // 회원이 만든 포션의 기반 메뉴면 지울 수 없다(409) → 대신 숨김(hidden)으로 바꾼다
+  // 장바구니에 담긴 줄은 임시 데이터라 메뉴와 함께 지운다. 지난 주문(OrderItem)은 메뉴를 참조하지 않아 영향 없음
   @Override
   @Transactional
   public void delete(Long id) {
-    menuRepository.delete(findMenu(id));
+    Menu menu = findMenu(id);
+    if (recipeRepository.existsByBaseMenuId(id)) {
+      throw new IllegalStateException("회원이 만든 포션에 쓰인 메뉴는 삭제할 수 없습니다. 판매 상태를 숨김으로 바꾸세요: " + menu.getKorName());
+    }
+    cartItemRepository.deleteAllByMenuId(id);
+    menuRepository.delete(menu);
   }
 
   // 없는 id면 NotFoundException(404)

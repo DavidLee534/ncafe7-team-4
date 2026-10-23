@@ -5,7 +5,7 @@ import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { Menu, MenuCategory } from "@/lib/types";
-import { MENU_STATUS } from "@/lib/format";
+import { MENU_EMOTION_TAGS, MENU_STATUS, MENU_TASTE_TAGS } from "@/lib/format";
 import { apiSend } from "@/lib/apiClient";
 
 type MenuFormProps =
@@ -31,6 +31,9 @@ export default function MenuForm({ mode, initial, categories, cancelHref }: Menu
       description: String(form.get("description") ?? ""),
       status: String(form.get("status") ?? "on"),
       ownerRecommended: form.get("isRecommended") === "on",
+      slug: String(form.get("slug") ?? "").trim() || null,
+      emotionTags: form.getAll("emotionTags").map(String),
+      tasteTags: form.getAll("tasteTags").map(String),
     };
 
     setPending(true);
@@ -92,6 +95,23 @@ export default function MenuForm({ mode, initial, categories, cancelHref }: Menu
           </div>
 
           <div className="m3-text-field field:outlined field-label:top">
+            <label htmlFor="slug">사용자 화면 주소(slug)</label>
+            <input
+              id="slug"
+              name="slug"
+              type="text"
+              placeholder="예) caffe-latte"
+              defaultValue={initial?.slug}
+              maxLength={60}
+              pattern="[a-z0-9]+(-[a-z0-9]+)*"
+              title="영문 소문자, 숫자, 하이픈(-)만 쓸 수 있어요."
+            />
+            <p className="font-size:caption color:text-muted">
+              손님 메뉴 상세 주소 /menus/{"{slug}"} 에 쓰여요. 비워 두면 손님 메뉴판에 나오지 않아요.
+            </p>
+          </div>
+
+          <div className="m3-text-field field:outlined field-label:top">
             <label htmlFor="description">설명</label>
             <textarea id="description" name="description" rows={4} placeholder="사용자 화면의 메뉴 상세에 보이는 설명" defaultValue={initial?.description} maxLength={1000} />
           </div>
@@ -143,6 +163,35 @@ export default function MenuForm({ mode, initial, categories, cancelHref }: Menu
             </label>
             <p className="font-size:caption color:text-muted">메뉴 카탈로그 목록에 ✦ 비밀 표시가 붙어요.</p>
           </div>
+        </div>
+      </section>
+
+      <section className="m3-section section:card">
+        <h2 className="section-title">감정 연금술 추천</h2>
+        <div className="form-fields">
+          <fieldset className="form-group">
+            <legend className="form-group-label">어울리는 감정 (3개까지)</legend>
+            <div className="form-group-choices">
+              {MENU_EMOTION_TAGS.map((tag) => (
+                <label key={tag} className="m3-checkbox">
+                  <input type="checkbox" name="emotionTags" value={tag} defaultChecked={initial?.emotionTags?.includes(tag)} />
+                  <span>{tag}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          <fieldset className="form-group">
+            <legend className="form-group-label">맛 (3개까지)</legend>
+            <div className="form-group-choices">
+              {MENU_TASTE_TAGS.map((tag) => (
+                <label key={tag} className="m3-checkbox">
+                  <input type="checkbox" name="tasteTags" value={tag} defaultChecked={initial?.tasteTags?.includes(tag)} />
+                  <span>{tag}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+          <p className="font-size:caption color:text-muted">손님이 감정 연금술에서 고른 기분·맛과 겹칠수록 이 메뉴를 먼저 추천해요.</p>
         </div>
       </section>
 
