@@ -13,6 +13,8 @@ spring:
     driver-class-name: org.postgresql.Driver
   # JPA 프레임워크를 위한 설정 ===============================
   jpa:
+    # 테이블을 만든 뒤에 data.sql(시작 데이터)을 넣는다. data.sql 은 H2 같은 내장 DB 에서만 실행된다
+    defer-datasource-initialization: true
     hibernate:
       # 테이블 스키마 자동 생성/갱신 모드
       ddl-auto: update
