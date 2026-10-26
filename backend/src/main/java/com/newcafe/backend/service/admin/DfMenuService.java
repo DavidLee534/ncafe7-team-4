@@ -39,10 +39,7 @@ public class DfMenuService implements MenuService {
   @Transactional
   public MenuCreatedResponseDto create(MenuCreateRequestDto request) {
     Category category = findCategory(request.categoryId());
-    if (request.slug() != null && menuRepository.existsBySlug(request.slug())) {
-      throw new IllegalStateException("이미 쓰고 있는 slug입니다: " + request.slug());
-    }
-    Menu saved = menuRepository.save(request.toEntity(category));
+    Menu saved = menuRepository.save(request.toEntity(category, newSlug(request.engName())));
     return MenuCreatedResponseDto.from(saved);
   }
 
@@ -106,10 +103,8 @@ public class DfMenuService implements MenuService {
   public MenuUpdatedResponseDto update(Long id, MenuUpdateRequestDto request) {
     Menu menu = findMenu(id);
     Category category = findCategory(request.categoryId());
-    String slug = request.slug() != null ? request.slug() : menu.getSlug();
-    if (slug != null && menuRepository.existsBySlugAndIdNot(slug, id)) {
-      throw new IllegalStateException("이미 쓰고 있는 slug입니다: " + slug);
-    }
+    // 이미 있는 slug는 그대로 둔다. 예전 메뉴처럼 비어 있으면 이번에 만든다
+    String slug = menu.getSlug() != null ? menu.getSlug() : newSlug(request.engName());
     menu.update(
         request.korName(),
         request.engName(),
@@ -141,6 +136,23 @@ public class DfMenuService implements MenuService {
   private Menu findMenu(Long id) {
     return menuRepository.findById(id)
         .orElseThrow(() -> new NotFoundException("메뉴를 찾을 수 없습니다: " + id));
+  }
+
+  // 영문 이름으로 사용자 메뉴 주소(slug)를 만든다. "Caffe Latte" → "caffe-latte"
+  // 영문·숫자 말고는 하이픈으로 바꾸고, 다른 메뉴가 이미 쓰고 있으면 뒤에 -2, -3 ... 을 붙인다
+  private String newSlug(String engName) {
+    String base = engName.toLowerCase().replaceAll("[^a-z0-9]+", "-").replaceAll("^-|-$", "");
+    if (base.isEmpty()) {
+      base = "menu";
+    }
+    if (base.length() > 50) {
+      base = base.substring(0, 50).replaceAll("-$", "");
+    }
+    String slug = base;
+    for (int n = 2; menuRepository.existsBySlug(slug); n++) {
+      slug = base + "-" + n;
+    }
+    return slug;
   }
 
   private String blankToNull(String value) {

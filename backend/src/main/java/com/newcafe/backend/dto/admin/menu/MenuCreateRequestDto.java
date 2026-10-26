@@ -12,7 +12,7 @@ import java.util.List;
 // POST /api/v1/admin/menus 요청 본문. id는 DB가 정하므로 받지 않는다
 // categoryId는 서비스에서 Category로 찾아 넘긴다
 // status를 비우면 "on"(판매중), ownerRecommended를 비우면 false
-// slug는 사용자 메뉴 상세 주소(/menus/{slug}). 비우면 사용자 메뉴판에 나오지 않는다. 같은 slug가 있으면 409
+// slug(사용자 메뉴 상세 주소 /menus/{slug})는 관리자가 입력하지 않고 서비스가 영문 이름으로 만든다
 // emotionTags · tasteTags는 감정 연금술 추천에 쓴다. 각각 3개까지
 // 검증에 실패하면 400 (컨트롤러의 @Valid)
 public record MenuCreateRequestDto(
@@ -39,17 +39,13 @@ public record MenuCreateRequestDto(
 
     Boolean ownerRecommended,
 
-    @Size(max = 60, message = "slug는 60자 이하로 입력하세요.")
-    @Pattern(regexp = MenuTagRules.SLUG, message = "slug는 영문 소문자, 숫자, 하이픈(-)으로 입력하세요. (예: caffe-latte)")
-    String slug,
-
     @Size(max = 3, message = "감정 태그는 3개까지 고를 수 있습니다.")
     List<@Pattern(regexp = MenuTagRules.EMOTIONS, message = "알 수 없는 감정 태그입니다.") String> emotionTags,
 
     @Size(max = 3, message = "맛 태그는 3개까지 고를 수 있습니다.")
     List<@Pattern(regexp = MenuTagRules.TASTES, message = "알 수 없는 맛 태그입니다.") String> tasteTags
 ) {
-  public Menu toEntity(Category category) {
+  public Menu toEntity(Category category, String slug) {
     return Menu.builder()
         .korName(korName)
         .engName(engName)
