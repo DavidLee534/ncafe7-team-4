@@ -1,8 +1,11 @@
 package com.newcafe.backend.repository;
 
 import com.newcafe.backend.entity.Payment;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-// 조회 메서드는 이 엔티티를 쓰는 시스템을 만들 때 필요한 것만 추가한다
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
+
+  // 주문의 결제 기록. 주문 하나에 결제 하나. 결제 전 주문이면 비어 있다
+  Optional<Payment> findByOrderId(Long orderId);
 }

@@ -36,3 +36,57 @@ export type Menu = {
   createdAt: string;
   updatedAt: string;
 };
+
+// ===== 주문 =====
+
+// paid(결제완료) → brewing(제조중) → ready(제조완료) → done(수령완료). paid 에서만 cancelled(취소)
+export type OrderStatus = "paid" | "brewing" | "ready" | "done" | "cancelled";
+
+// 상태별 주문 수 (all 은 전체) + 오늘 매출
+export type OrderSummary = Record<OrderStatus | "all", number> & { todaySales: number };
+
+// 주문 목록의 한 줄
+export type Order = {
+  id: number;
+  orderNumber: string; // 화면에 보이는 주문번호 (예: NC261020-0001)
+  status: OrderStatus;
+  pickupName: string; // 포션이 나오면 불러 줄 이름
+  pickupType: string; // dine-in(매장) / takeout(포장)
+  itemCount: number; // 주문한 잔 수
+  totalPrice: number;
+  createdAt: string; // "2026-10-26 13:29"
+};
+
+// 주문 상세 — 목록 + 회원 · 요청 사항 · 항목 · 결제
+export type OrderDetail = Omit<Order, "itemCount"> & {
+  memberNickname: string;
+  request: string;
+  items: { itemType: string; name: string; options: string | null; unitPrice: number; quantity: number }[];
+  payment: { method: string; detail: string | null; amount: number; approvalCode: string; paidAt: string } | null;
+  updatedAt: string;
+};
+
+// ===== 회원 =====
+
+export type MemberStatus = "active" | "suspended";
+export type MemberRole = "member" | "admin";
+
+// 상태별 회원 수 (all 은 전체)
+export type MemberSummary = Record<MemberStatus | "all", number>;
+
+// 회원 목록의 한 줄. 비밀번호는 백엔드가 보내지 않는다
+export type Member = {
+  id: number;
+  email: string;
+  nickname: string;
+  role: MemberRole;
+  status: MemberStatus;
+  createdAt: string;
+};
+
+// 회원 상세 — 목록 + 주문 수 · 포션 수
+export type MemberDetail = Member & {
+  orderCount: number;
+  recipeCount: number;
+  updatedAt: string;
+};
