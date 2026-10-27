@@ -132,6 +132,72 @@ export async function getMenuSummary(categoryId?: number): Promise<MenuStatusCou
   return (await get<MenuStatusCounts>(`/api/v1/admin/menus/summary${qs}`)) ?? { all: 0, on: 0, soldout: 0, hidden: 0 };
 }
 
+// ===== 비밀 레시피 =====
+
+export type SecretRecipeGrade = "rare" | "legend";
+
+export type SecretRecipeRow = {
+  id: number;
+  name: string;
+  grade: SecretRecipeGrade;
+  categoryId: number | null;
+  categoryName: string | null;
+  color: string; // #RRGGBB
+  visible: boolean;
+  discoveryCount: number; // 이 레시피를 발견한 회원 수
+  createdAt: string; // 2026-10-27
+  updatedAt: string;
+};
+
+export type SecretRecipeDetail = SecretRecipeRow & {
+  description: string | null;
+  riddle: string | null;
+};
+
+export type SecretRecipeSummary = { all: number; rare: number; legend: number; discoveries: number };
+export type SecretRecipeDiscovery = { memberId: number; nickname: string; discoveredAt: string };
+
+export type SecretRecipeFilter = { grade?: SecretRecipeGrade; categoryId?: number; keyword?: string };
+
+const toSecretRecipe = <T extends { createdAt: string | null; updatedAt: string | null }>(dto: T) => ({
+  ...dto,
+  createdAt: day(dto.createdAt),
+  updatedAt: day(dto.updatedAt),
+});
+
+// 비운 조건은 보내지 않는다. 조건이 없으면 전체 목록(등록순)
+export async function getSecretRecipes(filter: SecretRecipeFilter = {}): Promise<SecretRecipeRow[]> {
+  const query = new URLSearchParams();
+  if (filter.grade) query.set("grade", filter.grade);
+  if (filter.categoryId) query.set("categoryId", String(filter.categoryId));
+  if (filter.keyword?.trim()) query.set("keyword", filter.keyword.trim());
+  const qs = query.size > 0 ? `?${query}` : "";
+  const list = await get<SecretRecipeRow[]>(`/api/v1/admin/secret-recipes${qs}`);
+  return (list ?? []).map(toSecretRecipe);
+}
+
+export async function getSecretRecipe(id: number): Promise<SecretRecipeDetail | undefined> {
+  if (!Number.isInteger(id)) return undefined;
+  const dto = await get<SecretRecipeDetail>(`/api/v1/admin/secret-recipes/${id}`);
+  return dto && toSecretRecipe(dto);
+}
+
+// 전체·희귀·전설 레시피 수와 모든 발견 기록 수
+export async function getSecretRecipeSummary(): Promise<SecretRecipeSummary> {
+  return (await get<SecretRecipeSummary>("/api/v1/admin/secret-recipes/summary")) ?? { all: 0, rare: 0, legend: 0, discoveries: 0 };
+}
+
+// 등록·수정 화면의 계열 선택 상자
+export async function getSecretRecipeCategories(): Promise<{ id: number; name: string }[]> {
+  return (await get<{ id: number; name: string }[]>("/api/v1/admin/secret-recipes/categories")) ?? [];
+}
+
+// 이 레시피를 발견한 회원 (최근 발견순)
+export async function getSecretRecipeDiscoveries(id: number): Promise<SecretRecipeDiscovery[]> {
+  const list = await get<SecretRecipeDiscovery[]>(`/api/v1/admin/secret-recipes/${id}/discoveries`);
+  return (list ?? []).map((d) => ({ ...d, discoveredAt: day(d.discoveredAt) }));
+}
+
 // ===== 받은 목록을 화면에서 세기 (대시보드) =====
 
 export function countMenusByStatus(menus: Menu[]): MenuStatusCounts {

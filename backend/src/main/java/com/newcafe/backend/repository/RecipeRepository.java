@@ -8,4 +8,7 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
 
   // 이 메뉴를 기반으로 만든 포션이 있는지. 있으면 관리자가 메뉴를 지울 수 없다
   boolean existsByBaseMenuId(Long menuId);
+
+  // 이 비밀 레시피를 맞혀서 만든 포션이 있는지. 있으면 관리자가 비밀 레시피를 지울 수 없다
+  boolean existsBySecretRecipeId(Long secretRecipeId);
 }

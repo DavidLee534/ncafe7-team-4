@@ -18,6 +18,7 @@ const SECTIONS = [
     items: [
       { href: "/admin/menus", name: "메뉴 카탈로그", icon: "🐾" },
       { href: "/admin/menus/create", name: "마법 메뉴 등록", icon: "✨" },
+      { href: "/admin/secret-recipes", name: "비밀 레시피", icon: "🔮" },
     ],
   },
   {
