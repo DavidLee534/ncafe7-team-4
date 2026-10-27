@@ -176,7 +176,18 @@ export default function ServerCartView() {
             <h2>주문 금액</h2>
             <p>총 {data.totalQuantity}잔</p>
             <strong className={styles.total}>{won(data.totalPrice)}</strong>
-            <p>주문·결제 기능은 별도 브랜치에서 연결됩니다.</p>
+            {data.items.length > 0 &&
+            data.items.every((item) => item.available) &&
+            !busy &&
+            !loadError ? (
+              <Link className={styles.primary} href="/orders/new">
+                주문·모의 결제하기
+              </Link>
+            ) : (
+              <button className={styles.primary} disabled>
+                주문·모의 결제하기
+              </button>
+            )}
           </aside>
         </div>
       )}
