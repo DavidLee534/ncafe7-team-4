@@ -30,4 +30,10 @@ public interface IngredientRepository extends JpaRepository<Ingredient, Long> {
 
   // 수정할 때 자기 자신을 뺀 다른 재료에 같은 이름이 있는지 확인
   boolean existsByNameAndIdNot(String name, Long id);
+
+  // 종류(base, extra)별 재료 수. 관리자 메인의 재료 현황에 쓴다
+  long countByType(String type);
+
+  // 손님 화면에서 숨긴 재료 수 (재고 없음 등)
+  long countByVisibleFalse();
 }

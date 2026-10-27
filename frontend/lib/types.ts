@@ -57,3 +57,25 @@ export type Ingredient = {
   createdAt: string;
   updatedAt: string;
 };
+
+// 관리자 메인의 "처리할 주문" 한 줄 (결제 완료 상태)
+export type AdminMainOrder = {
+  id: number;
+  orderNumber: string;
+  pickupName: string;
+  pickupType: string; // dine-in(매장) / takeout(포장)
+  totalPrice: number;
+  createdAt: string; // "2026-10-27 14:05"
+};
+
+// 관리자 메인 화면 데이터 (백엔드 GET /api/v1/admin)
+export type AdminMain = {
+  menus: MenuStatusCounts;
+  ingredients: IngredientTypeCounts & { hidden: number };
+  orders: { paid: number; brewing: number; ready: number; todayCount: number; todaySales: number };
+  members: { all: number; active: number; suspended: number };
+  categories: MenuCategory[];
+  attentionMenus: Menu[]; // 품절 · 숨김 메뉴
+  recentMenus: Menu[]; // 최근 수정 메뉴 5개
+  pendingOrders: AdminMainOrder[]; // 오래 기다린 주문부터 5개
+};
