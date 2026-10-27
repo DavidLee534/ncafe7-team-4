@@ -1,41 +1,48 @@
 "use client";
-// 재료로 레시피 만들기 — 왼쪽 재료 선반(계열 → 필수 재료 → 추가 재료)에서 고르고, 오른쪽 연금솥에서 조합한다.
+// 재료로 레시피 만들기 — 왼쪽 재료 선반(계열 → 기반 재료 → 추가 재료 선반)에서 고르고, 오른쪽 연금솥에서 조합한다.
+// 추가 재료는 계열에 열린 선반마다 정해진 개수(min~max)만큼, 티 블렌딩의 과일청 · 허브는 묶음마다 하나까지 고른다.
 // 조합하기를 누르면 POST /api/v1/recipes 로 포션을 만들어 도감에 저장하고, 결과 카드에서 장바구니에 담는다.
-// 이름 · 등급 · 가격은 서버가 정한다 (비밀 레시피를 맞히면 전설 등급). 화면은 예상 가격만 미리 더해 보여준다.
+// 이름 · 등급 · 색 · 가격은 서버가 정한다 (같은 규칙을 서버가 다시 검사한다). 화면은 예상 가격만 미리 더해 보여준다.
 import { useState } from "react";
 import { apiSend } from "@/lib/apiClient";
 import { RECIPE_GRADE, won } from "@/lib/format";
-import type { CreatedRecipe, IngredientShelf } from "@/lib/userApi";
+import type { CreatedRecipe, IngredientExtra, IngredientShelf } from "@/lib/userApi";
 import AddToCartButton from "../../../_components/AddToCartButton";
 import catalog from "../../../_components/Catalog.module.css";
 import styles from "./RecipeNew.module.css";
 
-const MAX_EXTRAS = 3;
+type ExtraShelf = IngredientShelf["shelves"][number];
 
-// 메뉴 상세의 "조합하기"(?menuId=)로 오면 그 메뉴가 든 계열과 그 메뉴의 필수 재료를 골라 둔다
-function startingPoint(shelves: IngredientShelf[], menuId?: number) {
-  const shelf = menuId ? shelves.find((item) => item.bases.some((base) => base.menuId === menuId)) : undefined;
-  return { categoryId: shelf?.categoryId ?? null, baseId: shelf ? menuId! : null };
+// 메뉴 상세의 "조합하기"(?menuId=)로 오면 그 메뉴가 든 계열과 그 메뉴의 기반 재료를 골라 둔다
+function startingPoint(lines: IngredientShelf[], menuId?: number) {
+  const line = menuId ? lines.find((item) => item.bases.some((base) => base.menuId === menuId)) : undefined;
+  return { categoryId: line?.categoryId ?? null, baseId: line ? menuId! : null };
 }
 
-export default function IngredientWorkshop({ shelves, initialMenuId }: { shelves: IngredientShelf[]; initialMenuId?: number }) {
-  const [start] = useState(() => startingPoint(shelves, initialMenuId));
+export default function IngredientWorkshop({ shelves: lines, initialMenuId }: { shelves: IngredientShelf[]; initialMenuId?: number }) {
+  const [start] = useState(() => startingPoint(lines, initialMenuId));
   const [categoryId, setCategoryId] = useState<number | null>(start.categoryId);
   const [baseId, setBaseId] = useState<number | null>(start.baseId);
-  const [extras, setExtras] = useState<string[]>([]);
-  const [missing, setMissing] = useState<"category" | "base" | null>(null);
+  const [extraIds, setExtraIds] = useState<number[]>([]);
+  const [missing, setMissing] = useState<string | null>(null);
   const [brewing, setBrewing] = useState(false);
   const [potion, setPotion] = useState<CreatedRecipe | null>(null);
 
-  const shelf = shelves.find((item) => item.categoryId === categoryId) ?? null;
-  const base = shelf?.bases.find((item) => item.menuId === baseId) ?? null;
-  const chosenExtras = shelf ? shelf.extras.filter((item) => extras.includes(item.name)) : [];
-  const estimate = base ? base.price + chosenExtras.reduce((sum, item) => sum + item.price, 0) : null;
+  const line = lines.find((item) => item.categoryId === categoryId) ?? null;
+  const base = line?.bases.find((item) => item.menuId === baseId) ?? null;
+  const chosen = line ? line.shelves.flatMap((shelf) => shelf.extras.filter((extra) => extraIds.includes(extra.id)).map((extra) => ({ shelf, extra }))) : [];
+  const estimate = base ? base.price + chosen.reduce((sum, item) => sum + item.extra.price, 0) : null;
+
+  const countIn = (shelf: ExtraShelf) => shelf.extras.filter((extra) => extraIds.includes(extra.id)).length;
+  // 선반이 가득 찼거나, 같은 묶음(과일청 · 허브)에서 이미 하나를 골랐으면 더 고를 수 없다
+  const blocked = (shelf: ExtraShelf, extra: IngredientExtra) =>
+    countIn(shelf) >= shelf.max ||
+    (extra.group !== null && shelf.extras.some((other) => other.group === extra.group && other.id !== extra.id && extraIds.includes(other.id)));
 
   function selectCategory(id: number) {
     setCategoryId(id);
     setBaseId(null);
-    setExtras([]);
+    setExtraIds([]);
     setMissing(null);
     setPotion(null);
   }
@@ -46,26 +53,29 @@ export default function IngredientWorkshop({ shelves, initialMenuId }: { shelves
     setPotion(null);
   }
 
-  function toggleExtra(name: string) {
-    setExtras((current) =>
-      current.includes(name) ? current.filter((item) => item !== name) : current.length < MAX_EXTRAS ? [...current, name] : current,
+  function toggleExtra(shelf: ExtraShelf, extra: IngredientExtra) {
+    setExtraIds((current) =>
+      current.includes(extra.id) ? current.filter((id) => id !== extra.id) : blocked(shelf, extra) ? current : [...current, extra.id],
     );
+    setMissing(null);
     setPotion(null);
   }
 
   function clear() {
     setBaseId(null);
-    setExtras([]);
+    setExtraIds([]);
     setMissing(null);
     setPotion(null);
   }
 
   async function brew() {
-    if (!shelf) return setMissing("category");
-    if (!base) return setMissing("base");
+    if (!line) return setMissing("계열을 먼저 골라 주세요!");
+    if (!base) return setMissing("기반 재료를 하나 골라 주세요!");
+    const short = line.shelves.find((shelf) => countIn(shelf) < shelf.min);
+    if (short) return setMissing(`${short.name}를 ${short.min}개 이상 골라 주세요!`);
     setBrewing(true);
     try {
-      setPotion(await apiSend<CreatedRecipe>("POST", "/api/v1/recipes", { baseMenuId: base.menuId, extras }));
+      setPotion(await apiSend<CreatedRecipe>("POST", "/api/v1/recipes", { baseMenuId: base.menuId, extraIds }));
     } catch (error) {
       window.alert((error as Error).message);
     } finally {
@@ -84,15 +94,15 @@ export default function IngredientWorkshop({ shelves, initialMenuId }: { shelves
             <h2 id="shelf-title">재료 선반</h2>
           </div>
           <p>
-            필수 재료 <strong>1</strong>개에 추가 재료를 <strong>{MAX_EXTRAS}</strong>개까지 더해요.
+            기반 재료 <strong>1</strong>개에 선반마다 정해진 만큼 추가 재료를 더해요.
           </p>
         </div>
 
-        <p className={`${catalog.groupLabel} ${missing === "category" ? catalog.groupLabelMissing : ""}`}>
-          ① 계열 <small>필수 · {shelf ? shelf.spell : "하나를 골라 주세요"}</small>
+        <p className={`${catalog.groupLabel} ${missing && !line ? catalog.groupLabelMissing : ""}`}>
+          ① 계열 <small>필수 · {line ? line.spell : "하나를 골라 주세요"}</small>
         </p>
         <div className={catalog.categoryRail} role="group" aria-label="계열">
-          {shelves.map((item) => (
+          {lines.map((item) => (
             <button
               key={item.categoryId}
               type="button"
@@ -105,20 +115,20 @@ export default function IngredientWorkshop({ shelves, initialMenuId }: { shelves
           ))}
         </div>
 
-        {/* 계열을 고른 뒤에만 그 계열의 필수 재료 · 추가 재료를 보여준다 */}
-        {shelf && (
+        {/* 계열을 고른 뒤에만 그 계열의 기반 재료 · 추가 재료 선반을 보여준다 */}
+        {line && (
           <>
-            <p className={`${catalog.groupLabel} ${missing === "base" ? catalog.groupLabelMissing : ""}`}>
-              ② 필수 재료 <small>필수 1개 · {base ? 1 : 0}/1</small>
+            <p className={`${catalog.groupLabel} ${missing && line && !base ? catalog.groupLabelMissing : ""}`}>
+              ② 기반 재료 <small>필수 1개 · {base ? 1 : 0}/1</small>
             </p>
-            <div className={catalog.categoryRail} role="group" aria-label="필수 재료">
-              {shelf.bases.map((item) => (
+            <div className={catalog.categoryRail} role="group" aria-label="기반 재료">
+              {line.bases.map((item) => (
                 <button
                   key={item.menuId}
                   type="button"
                   className={chipClass(item.menuId === baseId)}
                   aria-pressed={item.menuId === baseId}
-                  title={item.menuName}
+                  title={`${item.menuName} · ${item.alchemyName}`}
                   onClick={() => selectBase(item.menuId)}
                 >
                   {item.ingredientName} <small className={styles.extraPrice}>{won(item.price)}</small>
@@ -126,29 +136,38 @@ export default function IngredientWorkshop({ shelves, initialMenuId }: { shelves
               ))}
             </div>
 
-            <p className={catalog.groupLabel}>
-              ③ 추가 재료{" "}
-              <small>
-                선택 · {extras.length}/{MAX_EXTRAS}
-              </small>
-            </p>
-            <div className={catalog.categoryRail} role="group" aria-label="추가 재료">
-              {shelf.extras.map((item) => {
-                const active = extras.includes(item.name);
-                return (
-                  <button
-                    key={item.name}
-                    type="button"
-                    className={chipClass(active)}
-                    aria-pressed={active}
-                    disabled={!active && extras.length >= MAX_EXTRAS}
-                    onClick={() => toggleExtra(item.name)}
-                  >
-                    {item.icon} {item.name} <small className={styles.extraPrice}>+{won(item.price)}</small>
-                  </button>
-                );
-              })}
-            </div>
+            {line.shelves.map((shelf, index) => {
+              const count = countIn(shelf);
+              return (
+                <div key={shelf.name}>
+                  <p className={`${catalog.groupLabel} ${missing && count < shelf.min ? catalog.groupLabelMissing : ""}`}>
+                    {String.fromCharCode(0x2462 + index)} {shelf.icon} {shelf.name}{" "}
+                    <small>
+                      {shelf.min > 0 ? `필수 ${shelf.min}~${shelf.max}개` : `선택 · ${shelf.max}개까지`} · {count}/{shelf.max}
+                      {shelf.extras.some((extra) => extra.group) && " · 과일청 1 + 허브 1"}
+                    </small>
+                  </p>
+                  <div className={catalog.categoryRail} role="group" aria-label={shelf.name}>
+                    {shelf.extras.map((extra) => {
+                      const active = extraIds.includes(extra.id);
+                      return (
+                        <button
+                          key={extra.id}
+                          type="button"
+                          className={chipClass(active)}
+                          aria-pressed={active}
+                          title={extra.modifier ?? undefined}
+                          disabled={!active && blocked(shelf, extra)}
+                          onClick={() => toggleExtra(shelf, extra)}
+                        >
+                          {extra.name} <small className={styles.extraPrice}>+{won(extra.price)}</small>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
           </>
         )}
       </section>
@@ -175,17 +194,17 @@ export default function IngredientWorkshop({ shelves, initialMenuId }: { shelves
         {base && (
           <ul className={catalog.log}>
             <li>
-              <span className={catalog.logDate}>필수</span>
+              <span className={catalog.logDate}>기반</span>
               <span className={catalog.logName}>{base.ingredientName}</span>
               <span className={catalog.logText}>{won(base.price)}</span>
             </li>
-            {chosenExtras.map((item) => (
-              <li key={item.name}>
+            {chosen.map(({ shelf, extra }) => (
+              <li key={extra.id}>
                 <span className={catalog.logDate}>추가</span>
                 <span className={catalog.logName}>
-                  {item.icon} {item.name}
+                  {shelf.icon} {extra.name}
                 </span>
-                <span className={catalog.logText}>+{won(item.price)}</span>
+                <span className={catalog.logText}>+{won(extra.price)}</span>
               </li>
             ))}
           </ul>
@@ -196,7 +215,7 @@ export default function IngredientWorkshop({ shelves, initialMenuId }: { shelves
         </p>
         {missing && (
           <p className={styles.warning} role="alert">
-            {missing === "category" ? "계열을 먼저 골라 주세요!" : "필수 재료를 하나 골라 주세요!"}
+            {missing}
           </p>
         )}
         <div className={styles.actions}>

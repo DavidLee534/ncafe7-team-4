@@ -136,13 +136,42 @@ insert into ingredients (name, type, shelf, price, color, effect_tags, modifier,
   ('스리라차 마요', 'extra', '푸드 소스', 500, '#F08A4B', '활력', '불꽃 숨긴', 10, true, current_timestamp, current_timestamp),
   ('발사믹 글레이즈', 'extra', '푸드 소스', 500, '#3B1F2B', '상큼함', '검은 보석 흐르는', 10, true, current_timestamp, current_timestamp);
 
--- ===== 비밀 레시피 (도감 목업 frontend/lib/codex.ts 의 앞 4개) =====
--- 재료 조합(secret_recipe_ingredients)은 재료 관리가 머지된 뒤 추가한다
+-- ===== 비밀 레시피 (README "비밀 레시피 목록(안)" 8개) =====
 insert into secret_recipes (name, grade, category_id, color, description, riddle, visible, created_at, updated_at) values
-  ('대연금술사의 황금 꼬리', 'legend', (select id from categories where name = '커피'), '#d9a03c', '은퇴한 대연금술사 모카 사장님이 처음 완성한 포션이에요.', '가장 진한 원두에 달콤한 것 둘, 곡식의 우유 하나. 내가 처음 빚은 맛이다냥.', true, current_timestamp, current_timestamp),
-  ('빛과 어둠의 균형 포션',  'rare',   (select id from categories where name = '커피'), '#8a6a4f', '빛과 어둠이 한 잔 안에서 균형을 이루는 포션이에요.',     '검은 원두에 하얀 꽃의 향 하나면 된다냥.',                                     true, current_timestamp, current_timestamp),
-  ('바다 사냥꾼 식량',       'rare',   (select id from categories where name = '푸드'), '#e48b6a', '바다를 건너는 고양이 사냥꾼의 든든한 식량이에요.',       '고리 부적 빵에 바다의 분홍 살, 하얀 치즈를 바르라냥.',                        true, current_timestamp, current_timestamp),
-  ('백 년 잠의 자장가',      'rare',   (select id from categories where name = '티'),   '#a990d6', '한 모금이면 백 년 동안 잠들 것 같은 포근함이에요.',      '잠드는 꽃잎에 벌의 선물, 보랏빛 들꽃 한 줌이다냥.',                           true, current_timestamp, current_timestamp);
+  ('대연금술사의 황금 꼬리', 'legend', (select id from categories where name = '커피'),   '#d9a03c', '은퇴한 대연금술사 모카 사장님이 처음 완성한 포션이에요.', '가장 진한 원두에 황금 시럽, 곡식의 우유, 말랑한 구름 하나. 내가 처음 빚은 맛이다냥.', true, current_timestamp, current_timestamp),
+  ('빛과 어둠의 균형 포션',  'rare',   (select id from categories where name = '커피'),   '#8a6a4f', '빛과 어둠이 한 잔 안에서 균형을 이루는 포션이에요.',     '검은 원두에 하얀 꽃의 향 하나면 된다냥.',                                     true, current_timestamp, current_timestamp),
+  ('바다 사냥꾼 식량',       'rare',   (select id from categories where name = '푸드'),   '#e48b6a', '바다를 건너는 고양이 사냥꾼의 든든한 식량이에요.',       '고리 부적 빵에 바다의 분홍 살, 하얀 치즈를 바르라냥.',                        true, current_timestamp, current_timestamp),
+  ('백 년 잠의 자장가',      'rare',   (select id from categories where name = '티'),     '#a990d6', '한 모금이면 백 년 동안 잠들 것 같은 포근함이에요.',      '잠드는 꽃잎에 벌의 선물, 보랏빛 들꽃 한 줌이다냥.',                           true, current_timestamp, current_timestamp),
+  ('붉은 마녀의 비밀 서약',  'rare',   (select id from categories where name = '티'),     '#b3263e', '붉은 마녀가 숲 기사와 몰래 맺은 서약의 차예요.',         '붉은 꽃잎 차에 노을빛 열매, 숲 기사의 잎 하나를 띄우라냥.',                   true, current_timestamp, current_timestamp),
+  ('별을 삼킨 밤의 정령',    'rare',   (select id from categories where name = '스무디'), '#3d3a8c', '밤하늘의 별을 한입에 삼킨 정령의 진액이에요.',           '밤빛 열매를 얼려 갈고, 새콤한 구름과 벌의 선물을 더하라냥.',                 true, current_timestamp, current_timestamp),
+  ('다람쥐 왕의 보물 상자',  'rare',   (select id from categories where name = '디저트'), '#b8732e', '숲속 다람쥐 왕이 숨겨 둔 달콤한 보물 상자예요.',         '격자 과자 위에 눈꽃, 호박꿀, 그리고 다람쥐가 숨긴 열매를 올리라냥.',          true, current_timestamp, current_timestamp),
+  ('용 사냥꾼의 보급품',     'legend', (select id from categories where name = '푸드'),   '#5e8c3a', '용을 잡으러 떠나는 기사만 받을 수 있는 보급품이에요.',   '기사의 빵에 초록 버터와 해돋이, 불꽃을 숨긴 소스를 바르라냥.',                true, current_timestamp, current_timestamp);
+
+-- 비밀 레시피의 재료 조합: 기반 재료와, 기반 재료를 포함한 재료 id 를 작은 순으로 쉼표로 이은 값 (연금 공방에서 이 값과 비교한다)
+update secret_recipes set base_ingredient_id = (select id from ingredients where name = '다크 로스트'),
+  ingredient_combo = (select listagg(cast(id as varchar), ',') within group (order by id) from ingredients where name in ('다크 로스트', '캐러멜', '오트', '마시멜로'))
+  where name = '대연금술사의 황금 꼬리';
+update secret_recipes set base_ingredient_id = (select id from ingredients where name = '다크 로스트'),
+  ingredient_combo = (select listagg(cast(id as varchar), ',') within group (order by id) from ingredients where name in ('다크 로스트', '바닐라'))
+  where name = '빛과 어둠의 균형 포션';
+update secret_recipes set base_ingredient_id = (select id from ingredients where name = '베이글'),
+  ingredient_combo = (select listagg(cast(id as varchar), ',') within group (order by id) from ingredients where name in ('베이글', '연어', '크림치즈'))
+  where name = '바다 사냥꾼 식량';
+update secret_recipes set base_ingredient_id = (select id from ingredients where name = '캐모마일'),
+  ingredient_combo = (select listagg(cast(id as varchar), ',') within group (order by id) from ingredients where name in ('캐모마일', '꿀', '라벤더'))
+  where name = '백 년 잠의 자장가';
+update secret_recipes set base_ingredient_id = (select id from ingredients where name = '히비스커스'),
+  ingredient_combo = (select listagg(cast(id as varchar), ',') within group (order by id) from ingredients where name in ('히비스커스', '자몽청', '로즈마리'))
+  where name = '붉은 마녀의 비밀 서약';
+update secret_recipes set base_ingredient_id = (select id from ingredients where name = '블루베리'),
+  ingredient_combo = (select listagg(cast(id as varchar), ',') within group (order by id) from ingredients where name in ('블루베리', '요거트', '꿀'))
+  where name = '별을 삼킨 밤의 정령';
+update secret_recipes set base_ingredient_id = (select id from ingredients where name = '와플'),
+  ingredient_combo = (select listagg(cast(id as varchar), ',') within group (order by id) from ingredients where name in ('와플', '아이스크림', '캐러멜 소스', '견과류'))
+  where name = '다람쥐 왕의 보물 상자';
+update secret_recipes set base_ingredient_id = (select id from ingredients where name = '치아바타'),
+  ingredient_combo = (select listagg(cast(id as varchar), ',') within group (order by id) from ingredients where name in ('치아바타', '아보카도', '에그', '스리라차 마요'))
+  where name = '용 사냥꾼의 보급품';
 
 -- 모카손님(1번)은 비밀 레시피 2개를 발견했다
 insert into secret_recipe_discoveries (member_id, secret_recipe_id, discovered_at) values
@@ -153,9 +182,18 @@ insert into secret_recipe_discoveries (member_id, secret_recipe_id, discovered_a
 -- ===== 회원이 만든 포션 (도감) =====
 insert into recipes (member_id, base_menu_id, secret_recipe_id, name, grade, price, color, created_at) values
   ((select id from members where email = 'moka@ncafe.dev'),   (select id from menus where slug = 'dark-roast-coffee'), null, '칠흑 고양이의 물약',           'normal', 4000, '#3B2416', current_timestamp),
-  ((select id from members where email = 'moka@ncafe.dev'),   (select id from menus where slug = 'dark-roast-coffee'), (select id from secret_recipes where name = '빛과 어둠의 균형 포션'), '빛과 어둠의 균형 포션', 'legend', 4500, '#8a6a4f', current_timestamp),
-  ((select id from members where email = 'moka@ncafe.dev'),   (select id from menus where slug = 'strawberry-latte'),  null, '구름을 얹은 분홍 고양이 포션', 'rare',   6500, '#F4A6B7', current_timestamp),
+  ((select id from members where email = 'moka@ncafe.dev'),   (select id from menus where slug = 'dark-roast-coffee'), (select id from secret_recipes where name = '빛과 어둠의 균형 포션'), '빛과 어둠의 균형 포션', 'rare', 4500, '#8a6a4f', current_timestamp),
+  ((select id from members where email = 'moka@ncafe.dev'),   (select id from menus where slug = 'strawberry-latte'),  null, '구름을 얹은 분홍 고양이 포션', 'normal', 6000, '#F8CAD4', current_timestamp),
   ((select id from members where email = 'cheese@ncafe.dev'), (select id from menus where slug = 'chamomile-tea'),     null, '잠드는 꼬리',                  'normal', 4500, '#E9D27A', current_timestamp);
+
+-- 포션에 들어간 재료 (기반 재료 + 추가 재료)
+insert into recipe_ingredients (recipe_id, ingredient_id) values
+  ((select id from recipes where name = '칠흑 고양이의 물약'),           (select id from ingredients where name = '다크 로스트')),
+  ((select id from recipes where name = '빛과 어둠의 균형 포션'),        (select id from ingredients where name = '다크 로스트')),
+  ((select id from recipes where name = '빛과 어둠의 균형 포션'),        (select id from ingredients where name = '바닐라')),
+  ((select id from recipes where name = '구름을 얹은 분홍 고양이 포션'), (select id from ingredients where name = '딸기청')),
+  ((select id from recipes where name = '구름을 얹은 분홍 고양이 포션'), (select id from ingredients where name = '휘핑')),
+  ((select id from recipes where name = '잠드는 꼬리'),                  (select id from ingredients where name = '캐모마일'));
 
 -- ===== 장바구니 (모카손님) =====
 insert into cart_items (member_id, menu_id, recipe_id, quantity, created_at) values

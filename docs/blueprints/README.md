@@ -41,13 +41,15 @@ Member ─┬─< Recipe >── Menu(baseMenu)          Recipe >── SecretRe
 | Recipe | grade | `normal`, `rare`, `legend` |
 | Menu | status | `on`, `soldout`, `hidden` |
 
-## 재료 관리가 머지된 뒤 할 일
+## 재료 연결 (완료)
 
-박준하 님 `feat/admin-ingredient`(Ingredient 엔티티)가 develop 에 들어오면 아래를 추가합니다.
+박준하 님 `feat/admin-ingredient`(Ingredient 엔티티)가 머지된 뒤 연금 공방을 재료 테이블로 옮겼습니다.
 
-- `SecretRecipeIngredient` (비밀 레시피 ↔ 재료), `RecipeIngredient` (회원 포션 ↔ 재료) 연결 엔티티
-- 재료 삭제 막기: 비밀 레시피·포션에 쓰인 재료는 409
-- `GET /api/v1/admin/secret-recipes/ingredients`, `GET /api/v1/recipes/ingredients`
+- 회원 포션 ↔ 재료: `RecipeIngredient` (`recipe_ingredients`). 기반 재료와 추가 재료를 한 줄씩 저장
+- 비밀 레시피 ↔ 재료: 별도 테이블 대신 `SecretRecipe.baseIngredient` + `ingredientCombo`(기반 재료를 포함한 재료 id 를 작은 순으로 쉼표로 이은 값). 관리자 등록·수정에서 `baseIngredientId`, `ingredientIds` 로 정한다
+- 재료 삭제 막기: 포션이나 비밀 레시피 조합에 쓰인 재료는 409
+- `GET /api/v1/recipes/ingredients`: 계열마다 기반 재료와 열린 추가 재료 선반(개수 min~max, 티 블렌딩 묶음). 관리자 폼은 `GET /api/v1/admin/ingredients` 를 쓴다
+- 테이블에 없는 규칙(메뉴 ↔ 기반 재료 · 기본 연금술 이름, 계열별 선반 · 제외 재료, 선반별 개수, 수식어 · 효과 칭호 이름 짓기, 색 섞기)은 `service/AlchemyRules.java`
 
 ## 모든 시스템 공통 규칙
 

@@ -11,10 +11,14 @@ const API_URL = process.env.API_URL ?? "http://localhost:8080";
 export type IngredientShelf = {
   categoryId: number;
   categoryName: string;
-  spell: string; // 포션 이름 뒷부분 (예: 어둠의 물약)
-  bases: { menuId: number; ingredientName: string; menuName: string; price: number }[]; // 필수 재료 (메뉴 하나에 재료 하나, 가격은 메뉴 가격)
-  extras: { name: string; icon: string; price: number }[];
+  spell: string; // 계열 주문 (예: 어둠의 물약)
+  // 기반 재료 (메뉴 하나에 재료 하나, 가격은 메뉴 가격). alchemyName 은 추가 재료 없이 만들 때의 포션 이름
+  bases: { menuId: number; ingredientId: number | null; ingredientName: string; menuName: string; alchemyName: string; price: number }[];
+  // 이 계열에 열리는 추가 재료 선반. 선반마다 min~max 개, group 이 같은 재료(티 블렌딩의 과일청 · 허브)는 하나까지
+  shelves: { name: string; icon: string; min: number; max: number; extras: IngredientExtra[] }[];
 };
+
+export type IngredientExtra = { id: number; name: string; price: number; color: string; modifier: string | null; group: string | null };
 
 export type RecipeEmotions = {
   emotions: { name: string; color: string }[];
