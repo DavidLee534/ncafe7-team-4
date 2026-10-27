@@ -93,8 +93,7 @@ export default async function FromMenuPage(props: PageProps<"/recipes/new/from-m
                       </Link>
                       <AddToCartButton
                         name={menu.korName}
-                        options={[menu.engName]}
-                        unitPrice={menu.price}
+                        menuId={menu.menuId}
                         disabled={menu.status !== "on"}
                         disabledLabel="품절"
                       />

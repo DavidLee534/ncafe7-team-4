@@ -157,7 +157,7 @@ export default function EmotionWorkshop({ emotions, tastes }: RecipeEmotions) {
                               메뉴 자세히
                             </Link>
                           )}
-                          <AddToCartButton name={menu.korName} options={[menu.engName]} unitPrice={menu.price} />
+                          <AddToCartButton name={menu.korName} menuId={menu.menuId} />
                         </div>
                       </div>
                     )}

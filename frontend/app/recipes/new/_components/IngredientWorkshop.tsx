@@ -228,7 +228,7 @@ export default function IngredientWorkshop({ shelves, initialMenuId }: { shelves
               </p>
             )}
             <p>도감에 기록했어요.</p>
-            <AddToCartButton name={potion.name} options={[potion.baseIngredientName, ...potion.extras]} unitPrice={potion.price} />
+            <AddToCartButton name={potion.name} recipeId={potion.id} />
           </article>
         )}
       </aside>

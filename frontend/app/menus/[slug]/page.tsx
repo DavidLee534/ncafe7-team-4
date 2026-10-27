@@ -42,7 +42,7 @@ export default async function MenuDetailPage(props: PageProps<"/menus/[slug]">) 
           description={menu.description || `${menu.engName} — 모카 점장이 정성껏 준비한 메뉴예요.`}
           actions={
             <>
-              <AddToCartButton name={menu.korName} options={[menu.engName]} unitPrice={menu.price} disabled={soldOut} disabledLabel="지금은 품절이에요" />
+              <AddToCartButton name={menu.korName} menuId={menu.id} disabled={soldOut} disabledLabel="지금은 품절이에요" />
               <Link href={`/recipes/new?menuId=${menu.id}`} className="m3-btn btn:outlined btn-size:md">
                 ⚗️ 이 메뉴로 포션 만들기
               </Link>

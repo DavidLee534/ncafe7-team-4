@@ -75,8 +75,7 @@ function MenuCard({ menu }: { menu: PublicMenu }) {
       </Link>
       <AddToCartButton
         name={menu.korName}
-        options={[menu.engName]}
-        unitPrice={menu.price}
+        menuId={menu.id}
         disabled={menu.status !== "on"}
         disabledLabel="품절"
       />
