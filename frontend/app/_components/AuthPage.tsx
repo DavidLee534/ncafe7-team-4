@@ -8,6 +8,7 @@ import { memberApi, type Account } from "@/lib/memberApi";
 import styles from "./AuthPage.module.css";
 
 type AuthMode = "login" | "signup";
+type LoginAccount = Account & { role: "member" | "admin" };
 
 export default function AuthPage({ mode }: { mode: AuthMode }) {
   const isLogin = mode === "login";
@@ -27,9 +28,9 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
     setError("");
     try {
       if (isLogin) {
-        const account = await memberApi<Account>("/auth/login", { method: "POST", body: JSON.stringify({ email, password }) });
-        signIn({ name: account.nickname, email: account.email });
-        router.push("/my");
+        const account = await memberApi<LoginAccount>("/auth/login", { method: "POST", body: JSON.stringify({ email, password }) });
+        signIn({ name: account.nickname, email: account.email, role: account.role });
+        router.push(account.role === "admin" ? "/admin" : "/my");
       } else {
         await memberApi<Account>("/auth/signup", { method: "POST", body: JSON.stringify({ email, password, nickname }) });
         router.push("/login?signup=complete");

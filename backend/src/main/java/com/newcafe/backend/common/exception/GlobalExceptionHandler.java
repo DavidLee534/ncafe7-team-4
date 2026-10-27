@@ -8,6 +8,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -30,6 +31,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<Map<String, String>> handleNotFound(NotFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("message", e.getMessage()));
+    }
+
+    // 로그인 실패(이메일·비밀번호 틀림, 정지 회원), 로그인하지 않고 CurrentMember 사용 → 401
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<Map<String, String>> handleAuthentication(AuthenticationException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(Map.of("message", e.getMessage()));
     }
 

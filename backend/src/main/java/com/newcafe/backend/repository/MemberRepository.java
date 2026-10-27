@@ -37,4 +37,10 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
   // 상태(active, suspended)별 회원 수. 회원 목록 상단의 개수에 쓴다
   long countByStatus(String status);
+
+  // 인증: 로그인할 때 이메일로 회원 찾기
+  Optional<Member> findByEmail(String email);
+
+  // 인증: 회원가입할 때 이메일 중복 확인
+  boolean existsByEmail(String email);
 }

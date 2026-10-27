@@ -6,6 +6,7 @@ import java.util.Base64;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import org.springframework.stereotype.Component;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Component
 public class PasswordHasher {
@@ -21,6 +22,8 @@ public class PasswordHasher {
   }
 
   public boolean matches(String password, String encoded) {
+    if (encoded != null && encoded.matches("^\\$2[aby]\\$.*"))
+      return new BCryptPasswordEncoder().matches(password, encoded);
     if (encoded == null || !encoded.startsWith("pbkdf2$")) return false;
     try {
       String[] parts = encoded.split("\\$");

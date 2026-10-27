@@ -1,5 +1,7 @@
 // 관리자 화면의 조회 함수 — 백엔드(/api/v1/admin/...)에서 받아 화면용 모양(lib/types)으로 바꾼다.
 // 서버 컴포넌트(페이지)에서만 부른다. 등록·수정·삭제처럼 브라우저에서 보내는 요청은 lib/apiClient.ts.
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import type {
   AdminMain,
@@ -79,9 +81,11 @@ type AdminMainResponse = Omit<AdminMain, "attentionMenus" | "recentMenus" | "pen
 export type CategoryWithCount = Category & { menuCount: number };
 
 // 없는 자원(404)이면 undefined. 그 밖의 실패는 에러로 던져 Next 의 에러 화면이 뜨게 한다
+// 서버에서 보내는 요청이라 브라우저 쿠키(로그인 세션)를 직접 실어 보낸다. 로그인 안 함(401)·관리자 아님(403)이면 로그인 화면으로
 async function get<T>(path: string): Promise<T | undefined> {
   await connection(); // 빌드할 때 미리 만들지 않고 요청이 올 때마다 백엔드에서 받는다
-  const res = await fetch(`${API_URL}${path}`, { cache: "no-store" });
+  const res = await fetch(`${API_URL}${path}`, { cache: "no-store", headers: { cookie: (await cookies()).toString() } });
+  if (res.status === 401 || res.status === 403) redirect("/login");
   if (res.status === 404) return undefined;
   if (!res.ok) throw new Error(`백엔드 요청 실패: GET ${path} (${res.status})`);
   return res.json() as Promise<T>;
