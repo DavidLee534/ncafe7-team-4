@@ -106,7 +106,7 @@ export default function AdminNav({ ref, id, open = false, closed = false, onNavi
 
         <section className={styles.section}>
           <p className={styles.sectionTitle}><span aria-hidden="true">✦</span>공방 둘러보기</p>
-          <Link href="/menu" className={styles.item}>
+          <Link href="/menus" className={styles.item}>
             <span className={styles.itemIcon} aria-hidden="true">🌙</span>
             <span>손님용 메뉴판</span>
           </Link>

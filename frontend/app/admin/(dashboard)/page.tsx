@@ -33,7 +33,7 @@ export default async function AdminDashboardPage() {
         description={`모카 점장이 밤새 정리한 공방 현황이에요. 오늘 주문 ${main.orders.todayCount}건.`}
         actions={
           <>
-            <Link href="/menu" className="m3-btn btn:outlined">
+            <Link href="/menus" className="m3-btn btn:outlined">
               손님용 메뉴판
             </Link>
             <Link href="/admin/menus/create" className="m3-btn btn-icon:leading">
