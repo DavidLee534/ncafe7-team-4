@@ -36,4 +36,11 @@ public interface SecretRecipeRepository extends JpaRepository<SecretRecipe, Long
 
   // 등급(rare, legend)별 개수. 목록 상단 요약에 쓴다
   long countByGrade(String grade);
+
+  // 회원 도감: 손님에게 보이는(visible) 비밀 레시피 전체. 계열은 fetch join (N+1 방지)
+  @Query("select s from SecretRecipe s left join fetch s.category where s.visible = true order by s.id")
+  List<SecretRecipe> findAllVisibleWithCategory();
+
+  // 손님에게 보이는 비밀 레시피 수 (도감 요약의 분모)
+  long countByVisibleTrue();
 }
