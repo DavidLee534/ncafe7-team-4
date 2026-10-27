@@ -149,14 +149,17 @@ export default function ServerCartView() {
             <h2>주문 금액</h2>
             <p>총 {data.totalQuantity}잔</p>
             <strong className={styles.total}>{won(data.totalPrice)}</strong>
-            {data.items.length > 0 && data.items.every((item) => item.available) ? (
-              <Link href="/checkout" className={styles.primary}>
-                주문하기
+            {data.items.length > 0 &&
+            data.items.every((item) => item.available) &&
+            !busy &&
+            !loadError ? (
+              <Link className={styles.primary} href="/orders/new">
+                주문·모의 결제하기
               </Link>
             ) : (
-              data.items.length > 0 && (
-                <p className={styles.error}>판매하지 않는 상품을 빼야 주문할 수 있어요.</p>
-              )
+              <button className={styles.primary} disabled>
+                주문·모의 결제하기
+              </button>
             )}
           </aside>
         </div>

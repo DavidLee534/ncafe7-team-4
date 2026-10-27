@@ -145,6 +145,10 @@
 .fields legend {
   margin-bottom: 12px;
 }
+.summary > strong {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
 .summary {
   display: flex;
   justify-content: space-between;
