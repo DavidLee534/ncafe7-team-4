@@ -1,10 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { useAuth } from "@/app/_components/AuthContext";
 import {
-  addServerCartItem,
   clearCart,
   refreshCart,
   removeFromCart,
@@ -12,40 +10,15 @@ import {
   useCartState,
   MAX_QUANTITY,
 } from "@/lib/cart";
-import { checkoutApi, type CatalogEntry } from "@/lib/checkoutApi";
 import { won } from "@/lib/format";
 import styles from "./Shopping.module.css";
 
+// 담기는 메뉴 책장·메뉴 상세·포션 자랑 화면에서 하고, 이 화면은 담은 것을 고치고 주문으로 넘긴다.
 export default function ServerCartView() {
   const { data, error: loadError, status } = useCartState();
-  const { member, ready } = useAuth();
-  const identity = member?.email ?? "";
-  const [catalogState, setCatalogState] = useState<{
-    identity: string;
-    items: CatalogEntry[];
-    error: string;
-  } | null>(null);
-  const catalog = catalogState?.identity === identity ? catalogState.items : [];
-  const catalogError =
-    catalogState?.identity === identity ? catalogState.error : "";
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
-  useEffect(() => {
-    if (!ready) return;
-    let active = true;
-    checkoutApi<CatalogEntry[]>("/my/cart/catalog")
-      .then((items) => {
-        if (active) setCatalogState({ identity, items, error: "" });
-      })
-      .catch((cause: Error) => {
-        if (active)
-          setCatalogState({ identity, items: [], error: cause.message });
-      });
-    return () => {
-      active = false;
-    };
-  }, [identity, ready]);
   async function change(action: () => Promise<unknown>, message: string) {
     if (busy) return;
     setBusy(true);
@@ -99,8 +72,8 @@ export default function ServerCartView() {
             </div>
             {!data.items.length ? (
               <p>
-                바구니가 비어 있어요. 아래에서 메뉴나 저장한 레시피를 담아
-                주세요.
+                바구니가 비어 있어요.{" "}
+                <Link href="/menu">메뉴 책장에서 담아 보세요 →</Link>
               </p>
             ) : (
               <ul className={styles.items}>
@@ -176,44 +149,18 @@ export default function ServerCartView() {
             <h2>주문 금액</h2>
             <p>총 {data.totalQuantity}잔</p>
             <strong className={styles.total}>{won(data.totalPrice)}</strong>
-            <p>주문·결제 기능은 별도 브랜치에서 연결됩니다.</p>
+            {data.items.length > 0 && data.items.every((item) => item.available) ? (
+              <Link href="/checkout" className={styles.primary}>
+                주문하기
+              </Link>
+            ) : (
+              data.items.length > 0 && (
+                <p className={styles.error}>판매하지 않는 상품을 빼야 주문할 수 있어요.</p>
+              )
+            )}
           </aside>
         </div>
       )}
-      <section className={styles.card} aria-labelledby="catalog-title">
-        <h2 id="catalog-title">메뉴와 내 레시피 더 담기</h2>
-        <p>현재 판매 중인 메뉴와 저장한 내 레시피예요.</p>
-        {catalogError && <p role="alert">{catalogError}</p>}
-        <div className={styles.catalog}>
-          {catalog.map((item) => (
-            <article
-              key={
-                item.menuId ? `menu-${item.menuId}` : `recipe-${item.recipeId}`
-              }
-            >
-              <small>{item.recipeId ? "내 레시피" : "기본 메뉴"}</small>
-              <h3>{item.name}</h3>
-              <p>{won(item.unitPrice)}</p>
-              <button
-                type="button"
-                disabled={busy || !!loadError}
-                onClick={() =>
-                  void change(
-                    () =>
-                      addServerCartItem({
-                        menuId: item.menuId,
-                        recipeId: item.recipeId,
-                      }),
-                    "바구니에 담았어요.",
-                  )
-                }
-              >
-                담기
-              </button>
-            </article>
-          ))}
-        </div>
-      </section>
     </main>
   );
 }

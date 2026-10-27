@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import UserHeader from "../../_components/UserHeader";
-import { basicMenuEffects, basicMenuId, basicMenuImage, basicMenus, categoryIcons } from "../_components/alchemyMenus";
+import { basicMenuEffects, basicMenuId, basicMenuImage, basicMenus } from "../_components/alchemyMenus";
 import { getCustomerMenu, getCustomerMenus } from "@/lib/customerMenuApi";
 import MenuOrderBox from "./_components/MenuOrderBox";
 import styles from "./MenuDetail.module.css";
@@ -39,7 +39,7 @@ export default async function MenuDetailPage(props: PageProps<"/menu/[id]">) {
           <div><dt>어울리는 기분</dt><dd>{menu.emotionTags.map(emotion => <span key={emotion}>{emotion}</span>)}</dd></div>
           <div><dt>맛</dt><dd>{menu.tasteTags.map(taste => <span key={taste}>{taste}</span>)}</dd></div>
         </dl>}
-        <MenuOrderBox combineMenuId={basic ? basicMenuId(basic) : undefined} name={name} base={menu.korName} icon={categoryIcons[category] ?? "🧪"} price={menu.price} available={menu.status === "on"} />
+        <MenuOrderBox menuId={menu.id} combineMenuId={basic ? basicMenuId(basic) : undefined} price={menu.price} available={menu.status === "on"} />
       </div>
     </section>
 

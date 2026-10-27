@@ -2,17 +2,17 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { addToCart, MAX_QUANTITY } from "@/lib/cart";
+import { addServerCartItem, MAX_QUANTITY } from "@/lib/cart";
 import styles from "../MenuDetail.module.css";
 
-// 수량을 고르고 장바구니에 담거나, 이 메뉴를 바탕으로 재료 연금술에서 조합하는 칸
-export default function MenuOrderBox({ combineMenuId, name, base, icon, price, available }: { combineMenuId?: number; name: string; base: string; icon: string; price: number; available: boolean }) {
+// 수량을 고르고 장바구니에 담거나, 이 메뉴를 바탕으로 재료 연금술에서 조합하는 칸. 담기는 DB 메뉴 번호(menuId)로 한다
+export default function MenuOrderBox({ menuId, combineMenuId, price, available }: { menuId: number; combineMenuId?: number; price: number; available: boolean }) {
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
   const putInCart = async () => {
     setAdded(false);
     try {
-      await addToCart({ name, options: [base], unitPrice: price }, quantity);
+      await addServerCartItem({ menuId, quantity });
       setAdded(true);
     } catch (error) { window.alert(error instanceof Error ? error.message : "담지 못했어요."); }
   };
