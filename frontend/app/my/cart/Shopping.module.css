@@ -29,7 +29,7 @@
   border-radius: 20px;
   padding: 24px;
   margin-bottom: 24px;
-  background: var(--color-surface-2, transparent);
+  background: var(--color-surface, var(--color-surface-1, #fff));
 }
 .card h2 {
   font-size: 20px;
