@@ -7,8 +7,8 @@ import java.util.List;
 import lombok.*;
 
 // 주문. 장바구니를 주문으로 만들고(POST /orders) 결제하면(POST /orders/{id}/payments) paid 가 된다
-// 상태 흐름: paid(결제완료) → brewing(제조중) → ready(제조완료) → done(수령완료)
-//           paid 에서만 cancelled(취소) 로 바꿀 수 있다
+// 현장 결제 주문: ordered(접수) → brewing(제조중) → ready(제조완료) → done(수령완료)
+// ordered 또는 기존 paid 상태에서는 cancelled(취소) 로 바꿀 수 있다
 // order 는 SQL 예약어라 테이블 이름은 orders
 @Entity
 @Table(name = "orders")
@@ -78,7 +78,7 @@ public class Order {
   // 관리자 "제조 상태 변경". 정해진 순서로만 한 단계씩 넘어간다
   public void changeStatus(String next) {
     boolean allowed = switch (status) {
-      case "paid" -> next.equals("brewing") || next.equals("cancelled");
+      case "ordered", "paid" -> next.equals("brewing") || next.equals("cancelled");
       case "brewing" -> next.equals("ready");
       case "ready" -> next.equals("done");
       default -> false;

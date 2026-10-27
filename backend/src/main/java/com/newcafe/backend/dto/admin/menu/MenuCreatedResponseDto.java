@@ -1,9 +1,9 @@
 package com.newcafe.backend.dto.admin.menu;
 
+import java.time.LocalDateTime;
+
 import com.newcafe.backend.entity.Category;
 import com.newcafe.backend.entity.Menu;
-import java.time.LocalDateTime;
-import java.util.List;
 
 // POST /api/v1/admin/menus 응답 (등록된 메뉴. id · 등록일처럼 서버가 채운 값 포함)
 // 지금은 다른 응답과 필드가 같지만, 화면마다 따로 바뀔 수 있게 나눠 둔다
@@ -19,12 +19,8 @@ public record MenuCreatedResponseDto(
     String imageUrl,
     String status,
     boolean ownerRecommended,
-    String slug,
-    List<String> emotionTags,
-    List<String> tasteTags,
     LocalDateTime createdAt,
-    LocalDateTime updatedAt
-) {
+    LocalDateTime updatedAt) {
   public static MenuCreatedResponseDto from(Menu menu) {
     Category category = menu.getCategory();
     return new MenuCreatedResponseDto(
@@ -38,11 +34,7 @@ public record MenuCreatedResponseDto(
         menu.getImageUrl(),
         menu.getStatus() != null ? menu.getStatus() : "on",
         menu.isOwnerRecommended(),
-        menu.getSlug(),
-        menu.emotionTagList(),
-        menu.tasteTagList(),
         menu.getCreatedAt(),
-        menu.getUpdatedAt()
-    );
+        menu.getUpdatedAt());
   }
 }

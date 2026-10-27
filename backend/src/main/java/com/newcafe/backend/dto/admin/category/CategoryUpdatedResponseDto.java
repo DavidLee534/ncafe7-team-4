@@ -1,7 +1,8 @@
 package com.newcafe.backend.dto.admin.category;
 
-import com.newcafe.backend.entity.Category;
 import java.time.LocalDateTime;
+
+import com.newcafe.backend.entity.Category;
 
 // PUT /api/v1/admin/categories/{id} 응답 (수정된 카테고리)
 // 지금은 다른 응답과 필드가 같지만, 화면마다 따로 바뀔 수 있게 나눠 둔다
@@ -13,8 +14,7 @@ public record CategoryUpdatedResponseDto(
     Integer sortOrder,
     boolean visible,
     long menuCount,
-    LocalDateTime createdAt
-) {
+    LocalDateTime createdAt) {
   public static CategoryUpdatedResponseDto from(Category category, long menuCount) {
     return new CategoryUpdatedResponseDto(
         category.getId(),
@@ -23,7 +23,6 @@ public record CategoryUpdatedResponseDto(
         category.getSortOrder(),
         category.isVisible(),
         menuCount,
-        category.getCreatedAt()
-    );
+        category.getCreatedAt());
   }
 }
