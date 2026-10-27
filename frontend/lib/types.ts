@@ -36,3 +36,24 @@ export type Menu = {
   createdAt: string;
   updatedAt: string;
 };
+
+// 재료 종류 — base(기반 재료, 계열마다 필수 1개) / extra(추가 재료, 선반에서 골라 넣음)
+export type IngredientType = "base" | "extra";
+
+// 종류별 재료 수 (all 은 전체)
+export type IngredientTypeCounts = Record<IngredientType | "all", number>;
+
+export type Ingredient = {
+  id: number;
+  name: string; // 예: 바닐라
+  type: IngredientType;
+  shelf: string; // 기반 재료는 계열(예: 커피), 추가 재료는 선반(예: 시럽)
+  price: number; // 추가 금액. 기반 재료는 보통 0
+  color: string; // 포션 색 #RRGGBB
+  effectTags: string[]; // 효과 태그 (예: ["활력", "상큼함"])
+  modifier: string; // 이름 앞 수식어. 추가 재료에만 있고, 없으면 빈 문자열
+  modifierPriority: number | null; // 수식어 우선순위. 클수록 이름 앞
+  visible: boolean; // false 면 손님 화면의 재료 선반에서 숨김
+  createdAt: string;
+  updatedAt: string;
+};

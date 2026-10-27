@@ -1,5 +1,5 @@
 // 화면 표시용 변환.
-import type { MenuStatus } from "./types";
+import type { IngredientType, MenuStatus } from "./types";
 
 export function won(price: number): string {
   return `${price.toLocaleString("ko-KR")}원`;
@@ -15,3 +15,18 @@ export const MENU_STATUS: Record<MenuStatus, { label: string; color: "success" |
 // 감정 연금술 추천에 쓰는 메뉴 태그. 백엔드 검증(MenuTagRules)과 같은 목록, 각각 3개까지
 export const MENU_EMOTION_TAGS = ["피곤함", "열정", "그리움", "울적함", "설렘", "긴장됨"] as const;
 export const MENU_TASTE_TAGS = ["달콤한", "쌉싸름한", "상큼한", "고소한", "시원한", "따뜻한"] as const;
+
+// 재료 종류 → 라벨과 m3-badge 색
+export const INGREDIENT_TYPE: Record<IngredientType, { label: string; color: "primary" | "secondary" }> = {
+  base: { label: "기반 재료", color: "primary" },
+  extra: { label: "추가 재료", color: "secondary" },
+};
+
+// 재료가 놓이는 자리 (README "공통 재료 선반"). 기반 재료는 계열, 추가 재료는 선반
+export const INGREDIENT_SHELVES: Record<IngredientType, string[]> = {
+  base: ["커피", "논커피", "과일라떼", "티", "스무디", "프라페", "디저트", "푸드"],
+  extra: ["시럽", "우유", "음료 토핑", "디저트 장식", "푸드 속재료", "티 블렌딩", "푸드 소스"],
+};
+
+// 효과 태그 7종. 동점일 때 이 순서로 효과 칭호를 정한다
+export const EFFECT_TAGS = ["활력", "진정", "달콤함", "상큼함", "고소함", "든든함", "시원함"];
