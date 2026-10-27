@@ -5,7 +5,6 @@ import com.newcafe.backend.common.exception.NotFoundException;
 import com.newcafe.backend.dto.checkout.CartEntryRequest;
 import com.newcafe.backend.dto.checkout.CartEntryResponse;
 import com.newcafe.backend.dto.checkout.CartResponse;
-import com.newcafe.backend.dto.checkout.CatalogEntryResponse;
 import com.newcafe.backend.entity.CartItem;
 import com.newcafe.backend.entity.Member;
 import com.newcafe.backend.entity.Menu;
@@ -13,13 +12,10 @@ import com.newcafe.backend.repository.MenuRepository;
 import com.newcafe.backend.repository.PotionShowcaseRepository;
 import com.newcafe.backend.repository.RecipeRepository;
 import com.newcafe.backend.repository.checkout.CheckoutCartRepository;
-import com.newcafe.backend.repository.checkout.CheckoutCatalogRepository;
 import com.newcafe.backend.repository.checkout.CheckoutMemberRepository;
-import com.newcafe.backend.repository.checkout.CheckoutRecipeRepository;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.HexFormat;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -36,10 +32,8 @@ public class DfCartService implements CartService {
     private final CurrentMember currentMember;
     private final CheckoutMemberRepository members;
     private final CheckoutCartRepository cartItems;
-    private final CheckoutCatalogRepository catalog;
     private final MenuRepository menus;
     private final RecipeRepository recipes;
-    private final CheckoutRecipeRepository ownRecipes;
     private final PotionShowcaseRepository showcases;
 
     private Member member() {
@@ -53,18 +47,6 @@ public class DfCartService implements CartService {
 
     public CartResponse cart() {
         return snapshot(member().getId());
-    }
-
-    public List<CatalogEntryResponse> catalog() {
-        Member member = member();
-        List<CatalogEntryResponse> result = new ArrayList<>();
-        catalog.availableMenus().forEach(menu -> result.add(new CatalogEntryResponse(
-            menu.getId(), null, menu.getKorName(), menu.getPrice(), menu.getImageUrl())));
-        ownRecipes.ownRecipes(member.getId()).stream()
-            .filter(recipe -> available(recipe.getBaseMenu()))
-            .forEach(recipe -> result.add(new CatalogEntryResponse(null, recipe.getId(),
-                recipe.getName(), recipe.getPrice(), recipe.getBaseMenu().getImageUrl())));
-        return result;
     }
 
     public CartEntryResponse add(CartEntryRequest request) {

@@ -8,13 +8,14 @@ import com.newcafe.backend.common.auth.CurrentMember;
 import com.newcafe.backend.dto.admin.order.OrderListRequestDto;
 import com.newcafe.backend.dto.admin.order.OrderStatusRequestDto;
 import com.newcafe.backend.dto.my.order.MyOrderStatusRequestDto;
-import com.newcafe.backend.dto.my.order.OrderCreateRequestDto;
 import com.newcafe.backend.entity.Member;
+import com.newcafe.backend.entity.Order;
+import com.newcafe.backend.entity.OrderItem;
 import com.newcafe.backend.repository.MemberRepository;
+import com.newcafe.backend.repository.OrderRepository;
 import com.newcafe.backend.service.admin.AdminMainService;
 import com.newcafe.backend.service.admin.OrderService;
 import com.newcafe.backend.service.my.MyPageService;
-import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Transactional
 class OrderAdminIntegrationTest {
   @Autowired private MemberRepository members;
+  @Autowired private OrderRepository orders;
   @Autowired private MyPageService myPage;
   @Autowired private OrderService adminOrders;
   @Autowired private AdminMainService adminMain;
@@ -51,8 +53,11 @@ class OrderAdminIntegrationTest {
     request.getSession(true).setAttribute(CurrentMember.SESSION_KEY, member.getId());
     RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
 
-    var created = myPage.createOrder(new OrderCreateRequestDto("픽업", "takeout", null,
-        List.of(new OrderCreateRequestDto.Item("포션", null, 4500, 2))));
+    // 접수된 주문 하나 (주문 · 결제 API 는 CheckoutIntegrationTest 에서 본다)
+    Order pending = Order.builder().member(member).orderNumber("NC-ADMIN-1").status("ordered")
+        .pickupName("픽업").pickupType("takeout").build();
+    pending.addItem(OrderItem.builder().itemType("menu").name("포션").unitPrice(4500).quantity(2).build());
+    var created = myPage.getOrder(orders.saveAndFlush(pending).getId());
 
     assertEquals("ordered", created.status());
     assertEquals(1, adminOrders.getSummary().ordered());

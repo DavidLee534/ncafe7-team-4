@@ -76,31 +76,6 @@ public class DfMyPageService implements MyPageService {
     }, count, level == 2 ? null : level == 1 ? 20 : 5);
   }
 
-  @Transactional
-  public MyOrderDetailResponseDto createOrder(OrderCreateRequestDto request) {
-    var buyer = member();
-    var order = Order.builder()
-        .member(buyer)
-        .orderNumber("NC" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddHHmmss"))
-            + "-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase(Locale.ROOT))
-        .status("ordered")
-        .pickupName(request.pickupName().trim())
-        .pickupType(request.pickupType())
-        .request(request.request() == null ? null : request.request().trim())
-        .build();
-    for (var item : request.items()) {
-      order.addItem(OrderItem.builder()
-          .itemType("menu")
-          .name(item.name().trim())
-          .options(item.options())
-          .unitPrice(item.unitPrice())
-          .quantity(item.quantity())
-          .build());
-    }
-    if (order.getTotalPrice() > 10_000_000) throw new IllegalArgumentException("주문 금액이 너무 큽니다.");
-    return detail(orders.saveAndFlush(order));
-  }
-
   public List<MyOrderListResponseDto> getOrders(String status, Integer size) {
     member();
     if (status != null && !List.of("ordered", "paid", "brewing", "ready", "done", "cancelled").contains(status))

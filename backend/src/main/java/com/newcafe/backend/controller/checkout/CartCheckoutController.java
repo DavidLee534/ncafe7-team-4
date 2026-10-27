@@ -4,10 +4,8 @@ import com.newcafe.backend.dto.checkout.CartEntryRequest;
 import com.newcafe.backend.dto.checkout.CartEntryResponse;
 import com.newcafe.backend.dto.checkout.CartQuantityRequest;
 import com.newcafe.backend.dto.checkout.CartResponse;
-import com.newcafe.backend.dto.checkout.CatalogEntryResponse;
 import com.newcafe.backend.service.checkout.CartService;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,9 +26,6 @@ public class CartCheckoutController {
 
     @GetMapping("/items")
     public CartResponse list() { return service.cart(); }
-
-    @GetMapping("/catalog")
-    public List<CatalogEntryResponse> catalog() { return service.catalog(); }
 
     @PostMapping("/items")
     @ResponseStatus(HttpStatus.CREATED)
