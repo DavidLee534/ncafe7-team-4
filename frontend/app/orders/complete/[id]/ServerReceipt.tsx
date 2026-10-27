@@ -84,7 +84,7 @@ export default function ServerReceipt({ id }: { id: string }) {
         )}
         <div className={styles.actions}>
           <Link href="/my/cart">장바구니로</Link>
-          <Link href="/menu">메뉴 더 보기</Link>
+          <Link href="/menus">메뉴 더 보기</Link>
         </div>
       </section>
     </main>

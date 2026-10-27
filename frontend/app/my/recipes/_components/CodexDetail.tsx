@@ -57,7 +57,7 @@ export default function CodexDetail({ entry, hiddenSecrets }: { entry: CodexEntr
           <p className={styles.desc}>✦ 비밀 레시피 「{detail.recipe.secretRecipeName}」 조합으로 빚었어요.</p>
         )}
         <p className={styles.found}>{shortDate(r.createdAt)} 연성</p>
-        <Link href="/menu/alchemy" className={styles.go}>연금 공방에서 다시 빚기</Link>
+        <Link href="/recipes/new" className={styles.go}>연금 공방에서 다시 빚기</Link>
         <div className={styles.moka}>
           <span className={styles.mokaFace} aria-hidden="true">🐱</span>
           <div>
@@ -90,7 +90,7 @@ export default function CodexDetail({ entry, hiddenSecrets }: { entry: CodexEntr
         </>
       )}
       {detail?.secret && <Rarity rate={detail.secret.customerRate} />}
-      <Link href="/menu/alchemy" className={styles.go}>{s.discovered ? "이 조합으로 다시 빚기" : "연금 공방에서 찾아보기"}</Link>
+      <Link href="/recipes/new" className={styles.go}>{s.discovered ? "이 조합으로 다시 빚기" : "연금 공방에서 찾아보기"}</Link>
       <div className={styles.moka}>
         <span className={styles.mokaFace} aria-hidden="true">🐱</span>
         <div>

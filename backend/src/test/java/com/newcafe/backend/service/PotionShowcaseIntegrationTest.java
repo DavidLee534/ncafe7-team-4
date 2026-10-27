@@ -10,7 +10,6 @@ import com.newcafe.backend.entity.*;
 import com.newcafe.backend.repository.*;
 import com.newcafe.backend.service.my.MyPageService;
 import com.newcafe.backend.dto.my.order.MyOrderStatusRequestDto;
-import com.newcafe.backend.dto.my.order.OrderCreateRequestDto;
 import com.newcafe.backend.dto.checkout.CartEntryRequest;
 import com.newcafe.backend.common.auth.CurrentMember;
 import com.newcafe.backend.service.checkout.CartService;
@@ -102,13 +101,14 @@ class PotionShowcaseIntegrationTest {
         () -> myPage.cancelOrder(paid.getId(), new MyOrderStatusRequestDto("cancelled")));
     assertEquals(1, myPage.getMembership().orderCount());
 
-    var createdOrder = myPage.createOrder(new OrderCreateRequestDto("나", "takeout", "얼음 적게",
-        java.util.List.of(new OrderCreateRequestDto.Item("내 포션", "얼음", 4500, 2))));
-    assertEquals("ordered", createdOrder.status());
-    assertEquals(9000, createdOrder.totalPrice());
-    assertEquals(createdOrder.orderNumber(), myPage.getOrder(createdOrder.id()).orderNumber());
+    // 주문 · 결제(POST /api/v1/orders)는 CheckoutIntegrationTest 에서 본다. 여기서는 접수된 주문을 바로 저장한다
+    var ordered = Order.builder().member(me).orderNumber("NC-4").status("ordered")
+        .pickupName("나").pickupType("takeout").request("얼음 적게").build();
+    ordered.addItem(OrderItem.builder().itemType("menu").name("내 포션").options("얼음").unitPrice(4500).quantity(2).build());
+    var createdOrder = orders.saveAndFlush(ordered);
+    assertEquals(9000, myPage.getOrder(createdOrder.getId()).totalPrice());
     assertEquals(4, myPage.getOrderSummary().all());
-    assertEquals("cancelled", myPage.cancelOrder(createdOrder.id(), new MyOrderStatusRequestDto("cancelled")).status());
+    assertEquals("cancelled", myPage.cancelOrder(createdOrder.getId(), new MyOrderStatusRequestDto("cancelled")).status());
 
     var comment = commentService.create(created.id(), new ShowcaseCommentCreateRequestDto("첫 댓글", null));
     var reply = commentService.create(created.id(), new ShowcaseCommentCreateRequestDto("답글", comment.id()));

@@ -11,7 +11,6 @@ public interface MyPageService {
   AccountResponseDto updateAccount(AccountUpdateRequestDto request);
   void withdraw();
   MembershipResponseDto getMembership();
-  MyOrderDetailResponseDto createOrder(OrderCreateRequestDto request);
   List<MyOrderListResponseDto> getOrders(String status, Integer size);
   MyOrderSummaryResponseDto getOrderSummary();
   MyOrderDetailResponseDto getOrder(Long id);

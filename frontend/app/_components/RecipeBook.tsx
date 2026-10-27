@@ -112,7 +112,7 @@ export default function RecipeBook({
                           </Link>
                         ) : customer ? (
                           <Link
-                            href={item.slug ? `/menus/${item.slug}` : `/menu/${item.id}`}
+                            href={item.slug ? `/menus/${item.slug}` : "/menus"}
                             className={styles.indexRow}
                             aria-label={`${lore?.magicName ?? item.korName} 자세히 보기`}
                           >

@@ -17,13 +17,6 @@ export type ServerCart = {
   totalQuantity: number;
   version: string;
 };
-export type CatalogEntry = {
-  menuId: number | null;
-  recipeId: number | null;
-  name: string;
-  unitPrice: number;
-  imageUrl: string | null;
-};
 export type Receipt = {
   id: number;
   orderNumber: string;

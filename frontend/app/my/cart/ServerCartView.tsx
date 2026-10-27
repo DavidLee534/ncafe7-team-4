@@ -73,7 +73,7 @@ export default function ServerCartView() {
             {!data.items.length ? (
               <p>
                 바구니가 비어 있어요.{" "}
-                <Link href="/menu">메뉴 책장에서 담아 보세요 →</Link>
+                <Link href="/menus">메뉴 책장에서 담아 보세요 →</Link>
               </p>
             ) : (
               <ul className={styles.items}>

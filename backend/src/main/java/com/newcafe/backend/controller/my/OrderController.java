@@ -13,11 +13,7 @@ import org.springframework.web.bind.annotation.*;
 public class OrderController {
   private final MyPageService service;
 
-  @PostMapping
-  public MyOrderDetailResponseDto create(@Valid @RequestBody OrderCreateRequestDto request) {
-    return service.createOrder(request);
-  }
-
+  // 주문 만들기는 장바구니로 주문 · 결제하는 POST /api/v1/orders (OrderCheckoutController)
   @GetMapping
   public List<MyOrderListResponseDto> getList(@RequestParam(required = false) String status,
       @RequestParam(required = false) Integer size) { return service.getOrders(status, size); }

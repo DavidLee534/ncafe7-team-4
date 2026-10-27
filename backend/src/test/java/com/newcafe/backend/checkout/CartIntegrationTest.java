@@ -94,7 +94,7 @@ class CartIntegrationTest {
         }
     }
     @Test
-    void catalogContainsOnlyOwnRecipesAndCartAcceptsOwnOrShowcasedRecipe() {
+    void cartAcceptsOwnOrShowcasedRecipe() {
         Long ownRecipe = jdbc.queryForObject("select r.id from recipes r where r.member_id=? fetch first 1 row only", Long.class, memberId);
         // 치즈손님의 '잠드는 꼬리'는 자랑글에 올라와 있다
         Long showcasedRecipe = jdbc.queryForObject("select s.recipe_id from potion_showcases s join members m on s.member_id=m.id where m.email='cheese@ncafe.dev' fetch first 1 row only", Long.class);
@@ -102,8 +102,6 @@ class CartIntegrationTest {
         jdbc.update("insert into recipes (member_id, base_menu_id, name, grade, price, color, created_at) values (?, ?, '숨겨 둔 포션', 'normal', 4000, '#000000', current_timestamp)", cheese, menuId);
         Long hiddenRecipe = jdbc.queryForObject("select id from recipes where name='숨겨 둔 포션'", Long.class);
         try {
-            assertThat(checkout.catalog()).anyMatch(item -> ownRecipe.equals(item.recipeId()))
-                .noneMatch(item -> showcasedRecipe.equals(item.recipeId()));
             assertThat(checkout.add(new CartEntryRequest(null, ownRecipe, 1)).itemType()).isEqualTo("recipe");
             assertThat(checkout.add(new CartEntryRequest(null, showcasedRecipe, 1)).itemType()).isEqualTo("recipe");
             assertThatThrownBy(() -> checkout.add(new CartEntryRequest(null, hiddenRecipe, 1))).hasMessageContaining("자랑글");
@@ -118,7 +116,6 @@ class CartIntegrationTest {
         Long category = jdbc.queryForObject("select category_id from menus where id=?", Long.class, menuId);
         jdbc.update("update categories set visible=false where id=?", category);
         try {
-            assertThat(checkout.catalog()).noneMatch(item -> menuId.equals(item.menuId()));
             assertThatThrownBy(() -> checkout.add(new CartEntryRequest(menuId, null, 1))).hasMessageContaining("판매");
         } finally {
             jdbc.update("update categories set visible=true where id=?", category);

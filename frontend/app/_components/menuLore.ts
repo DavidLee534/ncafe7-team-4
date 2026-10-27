@@ -1,5 +1,5 @@
 import type { Menu } from "@/lib/types";
-import { basicMenuEffects, basicMenus } from "../menu/_components/alchemyMenus";
+import { basicMenuEffects, basicMenus } from "./alchemyMenus";
 
 export type MenuLore = { magicName: string; grade: "일반" | "희귀" | "전설"; effects: string[] };
 

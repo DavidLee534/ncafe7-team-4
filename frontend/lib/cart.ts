@@ -5,7 +5,6 @@ import { useAuth } from "@/app/_components/AuthContext";
 import {
   checkoutApi,
   CheckoutApiError,
-  type CatalogEntry,
   type ServerCart,
 } from "./checkoutApi";
 
@@ -149,31 +148,6 @@ export function addServerCartItem(product: {
   );
 }
 
-// 메뉴 시스템의 기존 목업 호출부를 연결하는 어댑터. 이름은 상품 식별에만 쓰고 가격은 보내지 않는다.
-// 신규 메뉴·레시피 화면은 addServerCartItem({ menuId | recipeId })를 직접 사용한다.
-export async function addToCart(
-  potion: { name: string; options: string[]; unitPrice: number },
-  quantity = 1,
-) {
-  const catalog = await checkoutApi<CatalogEntry[]>("/my/cart/catalog");
-  const candidates = catalog.filter(
-    (item) =>
-      item.name === potion.name ||
-      (item.menuId !== null &&
-        potion.options.length === 1 &&
-        item.name === potion.options[0]),
-  );
-  if (candidates.length !== 1)
-    throw new Error(
-      "서버에 저장한 메뉴나 내 레시피만 담을 수 있어요. 장바구니의 상품 목록에서 선택해 주세요.",
-    );
-  const item = candidates[0];
-  await addServerCartItem({
-    menuId: item.menuId,
-    recipeId: item.recipeId,
-    quantity,
-  });
-}
 export function setQuantity(key: string, quantity: number) {
   return mutate(() =>
     checkoutApi(`/my/cart/items/${encodeURIComponent(key)}`, {

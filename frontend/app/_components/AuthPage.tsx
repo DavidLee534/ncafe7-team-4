@@ -69,7 +69,7 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
         </form>
         <p className={styles.feedback}>{isLogin ? "수습생 등록을 마쳤다면, 방금 사용한 이메일과 비밀번호로 로그인해 주세요냥." : "등록 후에는 로그인 화면에서 이메일과 비밀번호를 다시 입력해 주세요."}</p>
         <div className={styles.divider}><span>또는</span></div>
-        <Link href="/menu" className={styles.guest}>🌙 비회원으로 메뉴 둘러보기</Link>
+        <Link href="/menus" className={styles.guest}>🌙 비회원으로 메뉴 둘러보기</Link>
         <p className={styles.switch}>{isLogin ? "아직 수습생이 아니신가요?" : "이미 공방 계정이 있나요?"} <Link href={isLogin ? "/signup" : "/login"}>{isLogin ? "회원가입" : "로그인"}</Link></p>
       </section>
     </section>
