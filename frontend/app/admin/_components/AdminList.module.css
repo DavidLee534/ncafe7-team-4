@@ -1,0 +1,193 @@
+/* 주문 · 회원 목록이 함께 쓰는 조작 패널 — 상태 칩 · 검색 줄 · 빈 결과. 모양은 메뉴 목록(MenuList.module.css)과 맞춘다 */
+.panel {
+  margin: 1.5rem 0 1rem;
+  padding: 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: 1.25rem;
+  background: var(--color-surface);
+}
+.heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: end;
+}
+.heading h2 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+.heading p {
+  font-size: 0.8125rem;
+  color: var(--color-text-muted);
+}
+.heading strong {
+  color: #f4a895;
+  font-size: 1rem;
+}
+.eyebrow {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  color: #f4a895;
+}
+
+/* 상태 칩 — 누르면 ?status= 로 이동한다 */
+.rail {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  padding-bottom: 0.25rem;
+  overflow-x: auto;
+}
+.chip {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: #d9d2ee;
+  font-size: 0.8125rem;
+  transition:
+    background 0.15s,
+    color 0.15s,
+    border-color 0.15s;
+}
+.chip span {
+  display: grid;
+  place-items: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: var(--color-surface-1);
+  font-size: 0.68rem;
+}
+.chip:hover,
+.chipActive {
+  border-color: #5a3e32;
+  background: #5a3e32;
+  color: #fff;
+}
+.chipActive span {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* 검색 줄 — GET 폼이라 조건이 주소의 쿼리로 남는다 */
+.filterBar {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border-subtle);
+}
+.searchField,
+.selectField {
+  display: flex;
+  align-items: center;
+  height: 2.7rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  background: var(--color-surface-1);
+}
+.searchField {
+  flex: 1;
+  padding: 0 0.75rem;
+}
+.searchField i {
+  color: var(--color-text-muted);
+}
+.searchField input,
+.selectField select {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+}
+.searchField input {
+  padding-left: 0.55rem;
+}
+.searchField input::placeholder {
+  color: #bbb4ca;
+  opacity: 1;
+}
+.selectField {
+  min-width: 8.5rem;
+  padding: 0 0.65rem;
+}
+.selectField select option {
+  background: #fffdf8;
+  color: #302746;
+}
+.resetLink {
+  padding: 0.45rem;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+.resetLink:hover {
+  color: #f4a895;
+}
+
+/* 표 — 좁은 화면에서는 표만 가로로 넘겨 본다 */
+.tableWrap {
+  overflow-x: auto;
+}
+.tableWrap :global(.m3-table) {
+  min-width: 46rem;
+}
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+}
+
+/* 검색 결과가 없을 때 */
+.empty {
+  display: grid;
+  justify-items: center;
+  padding: 3.5rem 1.5rem;
+  text-align: center;
+}
+.empty > span {
+  font-size: 2rem;
+}
+.empty h3 {
+  margin-top: 0.75rem;
+  font-size: 1.05rem;
+}
+.empty p {
+  margin-top: 0.35rem;
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+}
+.empty a {
+  margin-top: 1rem;
+  color: #f4a895;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+@media (max-width: 600px) {
+  .panel {
+    padding: 1rem;
+  }
+  .heading {
+    align-items: start;
+    flex-direction: column;
+  }
+  .filterBar {
+    flex-wrap: wrap;
+  }
+  .searchField {
+    flex-basis: 100%;
+  }
+  .selectField {
+    flex: 1;
+  }
+}

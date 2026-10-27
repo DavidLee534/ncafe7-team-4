@@ -47,7 +47,7 @@ DB_PASSWORD=<비밀번호>
 
 ```bash
 cd backend
-./gradlew bootRun
+bash ./gradlew bootRun
 ```
 
 `ddl-auto: update` 가 엔티티를 보고 테이블을 만듭니다.
@@ -65,6 +65,16 @@ docker exec -i ncafe-postgres psql -U ncafe -d ncafedb < src/main/resources/data
 - 회원 4, 카테고리 8, 메뉴 30, 비밀 레시피 4, 포션 4, 장바구니 2, 주문 6, 게시글 2 가 들어갑니다. 1번 회원이 `CurrentMember` 의 "현재 회원"
 - 두 번 넣으면 이름 중복 오류가 납니다. 처음부터 다시 하려면 아래 "완전히 초기화"
 - PowerShell 은 `<` 를 쓸 수 없어서 `Get-Content src/main/resources/data.sql | docker exec -i ncafe-postgres psql -U ncafe -d ncafedb`
+
+### 예시 회원 로그인 활성화
+
+시작 데이터의 예시 회원은 비밀번호가 `not-set`이라 로그인할 수 없습니다. 기존 주문과 게시글을 가진 `moka@ncafe.dev` 계정을 사용하려면 `backend` 폴더에서 아래 명령을 실행하고 새 비밀번호를 입력하세요. 비밀번호는 화면에 표시되지 않고 해시로 DB에 저장됩니다. 이미 비밀번호가 설정된 계정에는 적용되지 않습니다.
+
+```bash
+python3 scripts/activate-seed-member.py moka@ncafe.dev
+```
+
+새 회원은 웹사이트의 회원가입 화면에서 만들 수 있습니다.
 
 ## 자주 쓰는 명령
 
