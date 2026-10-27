@@ -1,17 +1,19 @@
 "use client";
 // 비밀 레시피 등록·수정 공용 폼. 제출하면 백엔드에 POST(등록) / PUT(수정)을 보내고 상세(수정) 또는 목록(등록)으로 간다.
-// 이름이 겹치면 백엔드가 409 로 거절하고, 그 메시지를 알림으로 띄운다.
-// 재료 조합은 재료 관리가 머지된 뒤 이 폼에 추가한다.
+// 이름이나 재료 조합이 겹치면 백엔드가 409 로 거절하고, 그 메시지를 알림으로 띄운다.
+// 재료 조합은 계열의 기반 재료 1개 + 추가 재료. 손님이 연금 공방에서 똑같이 고르면 이 레시피가 된다.
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { SecretRecipeDetail } from "@/lib/adminApi";
 import { apiSend } from "@/lib/apiClient";
+import type { Ingredient } from "@/lib/types";
 
 type Props = {
   mode: "create" | "edit";
   initial?: SecretRecipeDetail;
   categories: { id: number; name: string }[];
+  ingredients: Ingredient[];
   cancelHref: string;
 };
 
@@ -19,15 +21,47 @@ function Required() {
   return <span className="color:danger">*</span>;
 }
 
-export default function SecretRecipeForm({ mode, initial, categories, cancelHref }: Props) {
+export default function SecretRecipeForm({ mode, initial, categories, ingredients, cancelHref }: Props) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [color, setColor] = useState(initial?.color ?? "#d9a03c");
+  const [categoryId, setCategoryId] = useState<number | null>(initial?.categoryId ?? null);
+  const [baseId, setBaseId] = useState<number | null>(initial?.baseIngredientId ?? null);
+  const [extraIds, setExtraIds] = useState<number[]>(
+    initial?.ingredientIds.filter((id) => id !== initial.baseIngredientId) ?? [],
+  );
+
+  // 기반 재료는 고른 계열의 것만 (재료의 shelf 가 계열 이름), 추가 재료는 선반별로 묶는다
+  const categoryName = categories.find((c) => c.id === categoryId)?.name;
+  const bases = ingredients.filter((item) => item.type === "base" && item.shelf === categoryName);
+  const extrasByShelf = [...new Set(ingredients.filter((item) => item.type === "extra").map((item) => item.shelf))].map(
+    (shelf) => [shelf, ingredients.filter((item) => item.type === "extra" && item.shelf === shelf)] as const,
+  );
+
+  function selectCategory(id: number) {
+    setCategoryId(id);
+    // 다른 계열의 기반 재료는 비운다
+    if (!ingredients.some((item) => item.id === baseId && item.shelf === categories.find((c) => c.id === id)?.name)) setBaseId(null);
+  }
+
+  function toggleExtra(id: number) {
+    setExtraIds((current) => (current.includes(id) ? current.filter((item) => item !== id) : [...current, id]));
+  }
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (baseId && extraIds.length === 0) {
+      window.alert("재료 조합에는 추가 재료를 하나 이상 골라 주세요.");
+      return;
+    }
     const form = new FormData(e.currentTarget);
     const text = (key: string) => String(form.get(key) ?? "").trim();
+    // 조합이 없으면 등록은 보내지 않고(조합 없이 등록), 수정은 빈 목록으로 보내 기존 조합을 지운다
+    const combination = baseId
+      ? { baseIngredientId: baseId, ingredientIds: [baseId, ...extraIds] }
+      : mode === "edit"
+        ? { baseIngredientId: null, ingredientIds: [] }
+        : {};
     const body = {
       name: text("name"),
       grade: text("grade"),
@@ -36,6 +70,7 @@ export default function SecretRecipeForm({ mode, initial, categories, cancelHref
       description: text("description") || null,
       riddle: text("riddle") || null,
       visible: form.get("visible") === "on",
+      ...combination,
     };
 
     setPending(true);
@@ -78,7 +113,13 @@ export default function SecretRecipeForm({ mode, initial, categories, cancelHref
             <label htmlFor="categoryId">
               계열 <Required />
             </label>
-            <select id="categoryId" name="categoryId" defaultValue={initial?.categoryId ?? ""} required>
+            <select
+              id="categoryId"
+              name="categoryId"
+              value={categoryId ?? ""}
+              onChange={(e) => selectCategory(Number(e.target.value))}
+              required
+            >
               <option value="" disabled>
                 계열을 고르세요
               </option>
@@ -105,6 +146,47 @@ export default function SecretRecipeForm({ mode, initial, categories, cancelHref
               <code>{color}</code>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="m3-section section:card">
+        <h2 className="section-title">재료 조합</h2>
+        <div className="form-fields">
+          <div className="m3-text-field field:outlined field-label:top">
+            <label htmlFor="baseIngredientId">기반 재료</label>
+            <select
+              id="baseIngredientId"
+              value={baseId ?? ""}
+              onChange={(e) => setBaseId(e.target.value ? Number(e.target.value) : null)}
+              disabled={!categoryName}
+            >
+              <option value="">{categoryName ? "조합 없음" : "계열을 먼저 고르세요"}</option>
+              {bases.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name}
+                  {item.visible ? "" : " (숨김)"}
+                </option>
+              ))}
+            </select>
+            <p className="font-size:caption color:text-muted">비워 두면 재료 조합 없이 저장해요. 손님은 이 레시피를 연금 공방에서 맞힐 수 없어요.</p>
+          </div>
+          {baseId &&
+            extrasByShelf.map(([shelf, items]) => (
+              <fieldset key={shelf} className="form-group">
+                <legend className="form-group-label">{shelf}</legend>
+                <div className="form-group-choices">
+                  {items.map((item) => (
+                    <label key={item.id} className="m3-checkbox">
+                      <input type="checkbox" checked={extraIds.includes(item.id)} onChange={() => toggleExtra(item.id)} />
+                      <span>
+                        {item.name}
+                        {item.visible ? "" : " (숨김)"}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+            ))}
         </div>
       </section>
 

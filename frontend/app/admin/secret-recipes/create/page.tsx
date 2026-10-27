@@ -2,17 +2,17 @@
 import Link from "next/link";
 import AdminPageHeader, { headerOverlap } from "../../_components/AdminPageHeader";
 import SecretRecipeForm from "../_components/SecretRecipeForm";
-import { getSecretRecipeCategories } from "@/lib/adminApi";
+import { getIngredients, getSecretRecipeCategories } from "@/lib/adminApi";
 
 export default async function AdminSecretRecipeCreatePage() {
-  const categories = await getSecretRecipeCategories();
+  const [categories, ingredients] = await Promise.all([getSecretRecipeCategories(), getIngredients()]);
 
   return (
     <>
       <AdminPageHeader
         crumb="SECRET RECIPE / NEW"
         title="비밀 레시피 등록"
-        description="새 비밀 레시피를 만듭니다. 재료 조합은 재료 관리가 연결되면 추가할 수 있어요."
+        description="새 비밀 레시피를 만듭니다. 손님이 연금 공방에서 이 재료 조합을 맞히면 도감에 열려요."
         actions={
           <Link href="/admin/secret-recipes" className="m3-btn btn:outlined">
             목록으로
@@ -20,7 +20,7 @@ export default async function AdminSecretRecipeCreatePage() {
         }
       />
       <div className={headerOverlap}>
-        <SecretRecipeForm mode="create" categories={categories} cancelHref="/admin/secret-recipes" />
+        <SecretRecipeForm mode="create" categories={categories} ingredients={ingredients} cancelHref="/admin/secret-recipes" />
       </div>
     </>
   );

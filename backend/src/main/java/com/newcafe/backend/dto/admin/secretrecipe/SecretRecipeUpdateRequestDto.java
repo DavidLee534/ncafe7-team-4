@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import java.util.List;
 
 // PUT /api/v1/admin/secret-recipes/{id} 요청 본문. 수정할 레시피의 id는 경로에서 받는다
 // visible을 비우면(null) 기존 값을 유지한다. 손님 도감에서 숨기려면 false
@@ -30,6 +31,11 @@ public record SecretRecipeUpdateRequestDto(
     @Size(max = 500, message = "수수께끼는 500자 이하로 입력하세요.")
     String riddle,
 
-    Boolean visible
+    Boolean visible,
+
+    // 재료 조합. ingredientIds 는 기반 재료(baseIngredientId)를 포함한 재료 id 전체
+    // 비우면(null) 기존 조합 유지, 빈 목록이면 조합을 지운다. 다른 레시피와 조합이 같으면 409
+    Long baseIngredientId,
+    List<Long> ingredientIds
 ) {
 }

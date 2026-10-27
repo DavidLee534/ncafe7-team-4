@@ -217,6 +217,8 @@ export type SecretRecipeRow = {
 export type SecretRecipeDetail = SecretRecipeRow & {
   description: string | null;
   riddle: string | null;
+  baseIngredientId: number | null; // 재료 조합의 기반 재료. 조합이 없으면 null
+  ingredientIds: number[]; // 기반 재료를 포함한 재료 id 전체. 조합이 없으면 빈 목록
 };
 
 export type SecretRecipeSummary = { all: number; rare: number; legend: number; discoveries: number };

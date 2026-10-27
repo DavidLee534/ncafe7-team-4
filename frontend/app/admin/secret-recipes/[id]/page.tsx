@@ -5,13 +5,18 @@ import AdminPageHeader, { headerOverlap } from "../../_components/AdminPageHeade
 import DeleteButton from "../../_components/DeleteButton";
 import DetailCard from "../../_components/DetailCard";
 import SecretRecipeGradeBadge from "../_components/SecretRecipeGradeBadge";
-import { getSecretRecipe, getSecretRecipeDiscoveries } from "@/lib/adminApi";
+import { getIngredients, getSecretRecipe, getSecretRecipeDiscoveries } from "@/lib/adminApi";
 
 export default async function AdminSecretRecipeDetailPage(props: PageProps<"/admin/secret-recipes/[id]">) {
   const { id } = await props.params;
   const recipe = await getSecretRecipe(Number(id));
   if (!recipe) notFound();
-  const discoveries = await getSecretRecipeDiscoveries(recipe.id);
+  const [discoveries, ingredients] = await Promise.all([getSecretRecipeDiscoveries(recipe.id), getIngredients()]);
+  // 재료 조합: 기반 재료를 앞에 두고 추가 재료를 잇는다 (예: 다크 로스트 + 바닐라)
+  const nameOf = (ingredientId: number) => ingredients.find((item) => item.id === ingredientId)?.name ?? `#${ingredientId}`;
+  const combo = recipe.baseIngredientId
+    ? [recipe.baseIngredientId, ...recipe.ingredientIds.filter((item) => item !== recipe.baseIngredientId)].map(nameOf).join(" + ")
+    : null;
 
   return (
     <>
@@ -60,7 +65,7 @@ export default async function AdminSecretRecipeDetailPage(props: PageProps<"/adm
                 <code>{recipe.color}</code>
               </dd>
               <dt className="color:text-muted">재료 조합</dt>
-              <dd className="color:text-muted">재료 관리가 연결되면 여기에 표시돼요.</dd>
+              <dd className={combo ? undefined : "color:text-muted"}>{combo ?? "아직 정하지 않았어요. 수정에서 고를 수 있어요."}</dd>
             </dl>
           </DetailCard>
           <DetailCard id="recipe-text" title="도감 문구">
