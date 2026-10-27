@@ -316,3 +316,56 @@
 - **[필요]** 재료 마스터(효과 태그·색·수식어)와 비밀 레시피 목록을 DB 시드 데이터로 등록
 - **[필요]** 등급 계산 기준(궁합 점수) 정의
 - **[필요]** 실제 주문과 모의 결제의 구현 범위 확정
+
+## 병합 작업 기록 (2026-10-27 17시~)
+
+17시쯤부터 팀원 브랜치를 develop 에 모으는 작업을 했습니다. 시간은 커밋 · 병합 기준입니다.
+
+### 한 일
+
+| 시간 | PR · 브랜치 | 내용 |
+| --- | --- | --- |
+| 17:00 | 원격 브랜치 점검 | main · develop 외 8개 브랜치 확인. `feature/member-showcase-order-20261027`(통합 브랜치)에 6개(`feat/admin-ingredient`, `feat/admin-main`, `feature/admin-orders-members`, `feature/admin-secret-recipes`, `feature/my-recipes`, `feature/auth`)가 이미 들어 있고 `feat/cart` 만 빠져 있었음 |
+| 17:27 | 통합 브랜치 + `feat/cart` | 두 브랜치가 같은 `POST /api/v1/my/cart/items` 를 만들어 서버가 안 뜸(Ambiguous mapping). `feat/cart` 의 `CartCheckoutController` 로 통일하고 중복 컨트롤러 · 서비스 삭제. 장바구니에 "내 레시피 또는 포션 자랑에 올라온 포션"을 담을 수 있게 하고, 포션 자랑의 담기가 두 번 담기던 문제 수정 |
+| 17:50 | 통합 브랜치 | 메뉴 화면의 담기를 이름 대신 메뉴 번호(`menuId`)로. 장바구니 화면의 "더 담기" 목록을 빼고 주문 버튼 복구 |
+| 17:54 | **PR #23 병합** | 통합 브랜치(7개 브랜치 포함) → develop. 병합된 원격 브랜치 8개 삭제 |
+| 18:07 | PR #21 `feat/order-payment` | develop 을 받아 충돌 2곳(`/checkout`, 장바구니 주문 버튼)을 장준영 님 쪽으로 정리. 장바구니 규칙이 바뀐 데 맞춰 `CheckoutIntegrationTest` 1곳 수정 |
+| 18:14 | PR #22 `feature/menus-recipes` | develop 을 받아 충돌 14곳 정리. 손님 메뉴 · 연금 공방은 #22 기준(`/menus`, `/recipes/new`)으로, 장바구니 담기만 서버 장바구니로. develop 의 `MenuCatalogController` 가 같은 `GET /api/v1/menus` 를 써서 삭제 |
+| 18:26 | PR #22 | 모바일에서 RecipeBook 가운데 접힌 선이 메뉴 이름을 가리던 문제 수정 (손님 · 관리자 공통) |
+| 18:40 | PR #22 | 연금 공방을 재료 테이블로 옮김(아래 "바뀐 규칙"). 관리자 비밀 레시피 등록 · 수정에서 재료 조합 선택 |
+| 18:48 | `feature/cleanup-legacy` (이 PR) | 새 화면 · API 로 대체된 예전 코드 정리 (아래 "지운 것") |
+| 18:55 | **PR #21, #22 병합** | develop 에 반영 |
+
+### 바뀐 규칙 (연금 공방)
+
+- 재료 이름 · 가격 · 색 · 효과 태그 · 수식어는 `ingredients` 테이블에서 읽는다. 테이블에 없는 규칙만 `service/AlchemyRules.java` 에 둔다
+- 계열에 연결된 선반만 열고 제외 재료는 뺀다. 선반별 개수: 시럽 0~2, 우유 0~1, 음료 토핑 0~3, 디저트 장식 0~3, 푸드 속재료 1~4, 티 블렌딩(과일청 1 + 허브 1), 푸드 소스 0~2. 어기면 400
+- 이름은 위 "조합 결과 규칙" 그대로(수식어 우선순위, 3개 이상이면 효과 칭호). 색은 기반 재료 60% + 추가 재료 40%
+- 비밀 레시피는 `secret_recipes.ingredient_combo`(재료 id 를 작은 순으로 쉼표로 이은 값)와 비교하고, 등급은 비밀 레시피에 정한 등급을 쓴다. 시드 비밀 레시피를 위 "비밀 레시피 목록(안)" 8개로 맞춤
+- 포션에 쓴 재료는 `recipe_ingredients` 에 저장. 포션 · 비밀 레시피 조합에 쓰인 재료는 삭제 409
+- API: `POST /api/v1/recipes` 본문이 `extras`(재료 이름) → `extraIds`(재료 id). `GET /api/v1/recipes/ingredients` 응답이 `extras` → `shelves`(선반별 min · max)
+
+### 지운 것 (이 PR)
+
+- `POST /api/v1/my/orders`: 브라우저가 보낸 이름 · 가격으로 주문을 만들던 API. 주문은 `POST /api/v1/orders`(서버 가격, 모의 결제)로만
+- `GET /api/v1/my/cart/catalog`: 이름으로 상품을 찾던 장바구니 어댑터 전용
+- 예전 화면 `/menu/*`, `/cart`, `/checkout`, `/checkout/complete`, `/mypage` 와 `lib/localStore.ts`. 링크는 `/menus`, `/recipes/new`, `/my/cart`, `/orders/new`, `/my` 로
+
+### 지금 상태
+
+- 16개 시스템 중 15개 구현. **15.0 메인 페이지는 화면만 있고 API 연결 전** (사장 추천 메뉴 · 카테고리 바로가기 · 인기 포션 자랑)
+- 남은 원격 브랜치: `main`, `develop` (+ 이 PR)
+- 백엔드 테스트 10개 클래스, 프론트 빌드 통과
+
+### 확인할 것
+
+- **pull 후 브랜치 정리:** 원격 브랜치를 많이 지웠으니 `git fetch --prune` 후 develop 을 받고, 병합된 로컬 브랜치는 각자 지운다. #21 · #22 브랜치를 로컬에서 쓰고 있었다면 develop 기준으로 새로 딴다
+- **로컬 PostgreSQL 데이터:** `data.sql` 은 H2 에서만 실행되므로 예전에 만든 로컬 DB 에는 새 시드가 없다
+  - 회원 비밀번호가 `not-set` 이면 로그인이 안 된다. `data.sql` 의 BCrypt 해시로 바꾸면 시드 계정 모두 `ncafe1234`
+  - `ingredients` 가 비어 있으면 연금 공방의 추가 재료 선반이 비고, 푸드 계열은 포션을 만들 수 없다 (속재료 1개 이상 필요). 비밀 레시피에도 재료 조합이 없다
+  - 새 테이블 `recipe_ingredients`, `checkout_attempts` 는 `ddl-auto: update` 로 자동 생성된다
+  - 시드 그대로 빠르게 보려면 `./gradlew bootRun --args='--spring.profiles.active=h2'` (메모리 DB, 끄면 사라짐)
+- **화면 확인:** 연금 공방(`/recipes/new`) 선반별 개수 제한 · 비밀 레시피 발견, 관리자 비밀 레시피 재료 조합 고르기, 장바구니 → `/orders/new` 주문 · 모의 결제
+- **주문 상태 `ordered`(접수 완료):** 이제 새로 생기지 않는다(새 주문은 결제 완료 `paid`). 관리자 화면에는 남아 있으니 없앨지 정하기
+- **WBS 수정:** `POST /api/v1/menus/{slug}`(담기)는 만들지 않고 장바구니 API(`POST /api/v1/my/cart/items`)로 대신함. 주문 생성은 `POST /api/v1/orders` 하나
+- **결정할 사항:** 위 "결정할 사항" 중 `excluded_ingredient`(제외 재료)와 재료 마스터 · 비밀 레시피 시드는 처리됨. 등급 계산 기준(궁합 점수)은 아직 "추가 재료 2개 이상이면 희귀"로 임시
