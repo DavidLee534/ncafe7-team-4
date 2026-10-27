@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import java.util.List;
 
 // POST /api/v1/admin/secret-recipes 요청 본문. id는 DB가 정하므로 받지 않는다
 // categoryId(계열)는 서비스에서 Category로 찾아 넘긴다. visible을 비우면 true(손님 도감에 보임)
@@ -33,8 +34,14 @@ public record SecretRecipeCreateRequestDto(
     @Size(max = 500, message = "수수께끼는 500자 이하로 입력하세요.")
     String riddle,
 
-    Boolean visible
+    Boolean visible,
+    Long baseIngredientId,
+    List<Long> ingredientIds
 ) {
+  public SecretRecipeCreateRequestDto(String name, String description, SecretRecipe.Grade grade,
+      Long baseIngredientId, List<Long> ingredientIds, String riddle, String color) {
+    this(name, grade.name(), null, color, description, riddle, true, baseIngredientId, ingredientIds);
+  }
   public SecretRecipe toEntity(Category category) {
     return SecretRecipe.builder()
         .name(name.trim())

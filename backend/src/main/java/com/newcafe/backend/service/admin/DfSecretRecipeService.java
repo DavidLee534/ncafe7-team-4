@@ -13,10 +13,12 @@ import com.newcafe.backend.dto.admin.secretrecipe.SecretRecipeUpdateRequestDto;
 import com.newcafe.backend.dto.admin.secretrecipe.SecretRecipeUpdatedResponseDto;
 import com.newcafe.backend.entity.Category;
 import com.newcafe.backend.entity.SecretRecipe;
+import com.newcafe.backend.entity.Ingredient;
 import com.newcafe.backend.repository.CategoryRepository;
 import com.newcafe.backend.repository.RecipeRepository;
 import com.newcafe.backend.repository.SecretRecipeDiscoveryRepository;
 import com.newcafe.backend.repository.SecretRecipeRepository;
+import com.newcafe.backend.repository.IngredientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +26,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.HashSet;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,17 +39,45 @@ public class DfSecretRecipeService implements SecretRecipeService {
   private final SecretRecipeDiscoveryRepository discoveryRepository;
   private final CategoryRepository categoryRepository;
   private final RecipeRepository recipeRepository;
+  private final IngredientRepository ingredientRepository;
 
   // 같은 이름이 있으면 409
   @Override
   @Transactional
   public SecretRecipeCreatedResponseDto create(SecretRecipeCreateRequestDto request) {
+    String combination = null;
+    if (request.ingredientIds() != null) {
+      combination = normalizeAndValidate(request.baseIngredientId(), request.ingredientIds());
+      if (secretRecipeRepository.existsByIngredientCombo(combination)) {
+        throw new IllegalStateException("이미 등록된 재료 조합입니다.");
+      }
+    }
     if (secretRecipeRepository.existsByName(request.name().trim())) {
       throw new IllegalStateException("이미 있는 비밀 레시피 이름입니다: " + request.name().trim());
     }
-    Category category = findCategory(request.categoryId());
-    SecretRecipe saved = secretRecipeRepository.save(request.toEntity(category));
+    Category category = request.categoryId() == null ? null : findCategory(request.categoryId());
+    SecretRecipe entity = request.toEntity(category);
+    if (combination != null) {
+      entity.setIngredientCombination(ingredientRepository.getReferenceById(request.baseIngredientId()), combination);
+    }
+    SecretRecipe saved = combination == null ? secretRecipeRepository.save(entity) : secretRecipeRepository.saveAndFlush(entity);
     return SecretRecipeCreatedResponseDto.from(saved, 0);
+  }
+
+  private String normalizeAndValidate(Long baseId, List<Long> ids) {
+    if (baseId == null || baseId <= 0 || ids.size() < 2 || ids.size() > 20
+        || ids.stream().anyMatch(id -> id == null || id <= 0)
+        || new HashSet<>(ids).size() != ids.size() || !ids.contains(baseId)) {
+      throw new IllegalArgumentException("기반 재료를 포함해 서로 다른 재료 ID를 2~20개 입력하세요.");
+    }
+    Map<Long, Ingredient> ingredients = ingredientRepository.findAllById(ids).stream()
+        .collect(Collectors.toMap(Ingredient::getId, Function.identity()));
+    if (ingredients.size() != ids.size() || ingredients.get(baseId).getKind() != Ingredient.Kind.BASE
+        || ids.stream().filter(id -> !id.equals(baseId))
+            .anyMatch(id -> ingredients.get(id).getKind() != Ingredient.Kind.EXTRA)) {
+      throw new IllegalArgumentException("기반 재료 1개와 추가 재료를 선택하세요.");
+    }
+    return ids.stream().sorted().map(String::valueOf).collect(Collectors.joining(","));
   }
 
   // 빈 문자열 조건(?keyword=)은 조건 없음(null)으로 바꿔서 넘긴다

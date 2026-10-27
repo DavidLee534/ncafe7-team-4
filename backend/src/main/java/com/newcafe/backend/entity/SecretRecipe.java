@@ -97,6 +97,11 @@ public class SecretRecipe {
     this.updatedAt = LocalDateTime.now();
   }
 
+  public void setIngredientCombination(Ingredient baseIngredient, String ingredientCombo) {
+    this.baseIngredient = baseIngredient;
+    this.ingredientCombo = ingredientCombo;
+  }
+
   // 비밀 레시피 수정 화면의 값으로 덮어쓴다
   public void update(
       String name,

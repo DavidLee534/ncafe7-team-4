@@ -8,6 +8,9 @@ import com.newcafe.backend.dto.admin.secretrecipe.SecretRecipeCreateRequestDto;
 import com.newcafe.backend.entity.Ingredient;
 import com.newcafe.backend.entity.SecretRecipe;
 import com.newcafe.backend.repository.IngredientRepository;
+import com.newcafe.backend.repository.CategoryRepository;
+import com.newcafe.backend.repository.RecipeRepository;
+import com.newcafe.backend.repository.SecretRecipeDiscoveryRepository;
 import com.newcafe.backend.repository.SecretRecipeRepository;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,7 +25,8 @@ class DfSecretRecipeServiceTest {
 
   @BeforeEach
   void setUp() {
-    service = new DfSecretRecipeService(recipes, ingredients);
+    service = new DfSecretRecipeService(recipes, mock(SecretRecipeDiscoveryRepository.class),
+        mock(CategoryRepository.class), mock(RecipeRepository.class), ingredients);
   }
 
   @Test
