@@ -13,4 +13,7 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
 
   // 회원이 만든 포션 수 (관리자 회원 상세). 포션이 있는 회원은 삭제를 막는 데도 쓴다
   long countByMemberId(Long memberId);
+
+  // 이 비밀 레시피를 맞혀서 만든 포션이 있는지. 있으면 관리자가 비밀 레시피를 지울 수 없다
+  boolean existsBySecretRecipeId(Long secretRecipeId);
 }
