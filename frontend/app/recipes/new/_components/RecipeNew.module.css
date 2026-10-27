@@ -1,0 +1,178 @@
+/* 연금 공방 화면만 쓰는 부분 — 연금솥 · 결과 카드 · 버튼 줄. 나머지는 _components/Catalog.module.css */
+.cauldron {
+  display: grid;
+  place-items: center;
+  margin-top: 0.75rem;
+}
+.cauldron img {
+  width: min(100%, 11rem);
+  filter: drop-shadow(0 1rem 0.7rem rgba(84, 55, 37, 0.25));
+}
+.brewing img {
+  animation: bubble 0.5s ease-in-out infinite alternate;
+}
+@keyframes bubble {
+  from {
+    transform: rotate(-2deg) translateY(0);
+  }
+  to {
+    transform: rotate(2deg) translateY(-4px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .brewing img {
+    animation: none;
+  }
+}
+.estimate {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.75rem;
+  padding: 0.7rem 0.8rem;
+  border-radius: 0.7rem;
+  background: rgba(235, 210, 188, 0.35);
+  color: #725b51;
+  font-size: 0.8rem;
+}
+.estimate b {
+  color: #3d3446;
+  font-size: 1rem;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+.actions > :first-child {
+  flex: 1;
+}
+.warning {
+  margin-top: 0.6rem;
+  color: #c0533c;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.result {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid #e7ad43;
+  border-radius: 0.9rem;
+  background: linear-gradient(135deg, #fff6d9, #fffaf0);
+}
+.result h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.45rem;
+  font-size: 1.1rem;
+}
+.result h3 i {
+  width: 0.85rem;
+  height: 0.85rem;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px #fff;
+}
+.result p {
+  margin-top: 0.3rem;
+  color: #725b51;
+  font-size: 0.78rem;
+}
+.result .secret {
+  margin-top: 0.6rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 0.6rem;
+  background: #9a553f;
+  color: #fff6da;
+  font-weight: 700;
+}
+.result > :last-child {
+  margin-top: 0.8rem;
+}
+.extraPrice {
+  color: inherit;
+  opacity: 0.75;
+  font-size: 0.7rem;
+}
+
+/* 감정 처방 결과 — 아코디언. 펼친 후보 하나만 내용을 보여준다 */
+.candidates {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+.candidate {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+  background: var(--color-surface);
+  transition: border-color 0.15s;
+}
+.candidateOpen {
+  border-color: #e8806a;
+  box-shadow: 0 0 0 1px #e8806a;
+}
+.candidateHead {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.9rem 1rem;
+  border: 0;
+  background: transparent;
+  text-align: left;
+}
+.candidateHead span {
+  color: var(--color-text-muted);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+.candidateOpen .candidateHead span {
+  color: #e8a07f;
+}
+.candidateHead b {
+  font-size: 1rem;
+}
+.candidateHead small {
+  color: #e8a07f;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+.candidateHead:focus-visible {
+  outline: 2px solid #ffd98e;
+  outline-offset: -2px;
+}
+.candidateBody {
+  padding: 0 1rem 1rem;
+  border-top: 1px solid var(--color-border-subtle);
+}
+.candidateBody > p {
+  margin-top: 0.75rem;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+.candidateActions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+}
+.candidateActions :global(.m3-btn.btn\:text) {
+  --btn-color: #e8806a;
+  color: #e8806a;
+}
+
+/* 연금솥 목록의 기분 색 점 */
+.emotionDot {
+  display: inline-block;
+  width: 0.6rem;
+  height: 0.6rem;
+  margin-right: 0.35rem;
+  border-radius: 50%;
+  vertical-align: middle;
+}

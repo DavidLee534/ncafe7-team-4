@@ -31,6 +31,14 @@ public class GlobalExceptionHandler {
                 .body(Map.of("message", message));
     }
 
+    // 요청 값이 업무 규칙에 맞지 않음 (예: 고를 수 없는 재료 · 감정, 메뉴와 포션을 함께 담기) → 400
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, String>> handleIllegalArgument(IllegalArgumentException e) {
+        String message = Objects.requireNonNullElse(e.getMessage(), "입력값을 확인하세요.");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(Map.of("message", message));
+    }
+
     // DB 제약 위반 (다른 데이터가 참조 중인 행 삭제, 중복 값 등) → 409
     // 서비스에서 미리 막지 못한 경우를 위한 안전장치. 원래 메시지에는 테이블·컬럼 이름이 있어서 그대로 보내지 않는다
     @ExceptionHandler(DataIntegrityViolationException.class)

@@ -7,14 +7,13 @@ import { useAuth } from "./AuthContext";
 import styles from "./UserHeader.module.css";
 
 const navigation = [
-  { href: "/menu", label: "메뉴 책장" },
-  { href: "/menu/alchemy", label: "연금 공방" },
+  { href: "/menus", label: "메뉴 책장" },
+  { href: "/recipes/new", label: "연금 공방" },
   { href: "/codex", label: "레시피 도감" },
 ];
 
-// 메뉴 책장은 상세(/menu/3)까지, 연금 공방은 하위 탭(/menu/alchemy/...)까지 켠다.
-const isActive = (pathname: string, href: string) =>
-  pathname === href || (href === "/menu" ? /^\/menu\/\d+$/.test(pathname) : pathname.startsWith(`${href}/`));
+// 메뉴 책장은 상세(/menus/{slug})까지, 연금 공방은 하위 탭(/recipes/new/...)까지 켠다.
+const isActive = (pathname: string, href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
 export default function UserHeader() {
   const pathname = usePathname();
