@@ -2,6 +2,7 @@ package com.newcafe.backend.repository;
 
 import com.newcafe.backend.entity.SecretRecipeDiscovery;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -29,4 +30,15 @@ public interface SecretRecipeDiscoveryRepository extends JpaRepository<SecretRec
       order by d.discoveredAt desc, d.id desc
       """)
   List<SecretRecipeDiscovery> findAllBySecretRecipeIdWithMember(@Param("secretRecipeId") Long secretRecipeId);
+
+  // 회원 도감: 이 회원의 발견 기록 전체 (어떤 레시피를 언제 찾았는지)
+  @Query("select d from SecretRecipeDiscovery d where d.member.id = :memberId")
+  List<SecretRecipeDiscovery> findAllByMemberId(@Param("memberId") Long memberId);
+
+  // 회원 도감 상세: 이 회원이 이 레시피를 찾은 기록
+  Optional<SecretRecipeDiscovery> findByMemberIdAndSecretRecipeId(Long memberId, Long secretRecipeId);
+
+  // 이 회원이 찾은 비밀 레시피 중 손님에게 보이는(visible) 것의 수 (도감 요약)
+  @Query("select count(d) from SecretRecipeDiscovery d where d.member.id = :memberId and d.secretRecipe.visible = true")
+  long countVisibleByMemberId(@Param("memberId") Long memberId);
 }

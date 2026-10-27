@@ -166,8 +166,8 @@ public class DfMyPageService implements MyPageService {
 
   public List<MyRecipeListResponseDto> getRecipes() {
     member();
-    return recipes.findByMemberIdOrderByCreatedAtDesc(currentMember.id()).stream().map(r -> new MyRecipeListResponseDto(
-        r.getId(), r.getName(), r.getGrade(), r.getPrice(), r.getColor(), r.getBaseMenu().getKorName(), r.getCreatedAt())).toList();
+    return recipes.findByMemberIdOrderByCreatedAtDesc(currentMember.id()).stream()
+        .map(MyRecipeListResponseDto::from).toList();
   }
 
   private void checkSize(Integer size) {

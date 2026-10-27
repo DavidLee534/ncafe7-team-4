@@ -9,7 +9,7 @@ import styles from "./UserHeader.module.css";
 const navigation = [
   { href: "/menu", label: "메뉴 책장" },
   { href: "/menu/alchemy", label: "연금 공방" },
-  { href: "/codex", label: "레시피 도감" },
+  { href: "/my/recipes", label: "레시피 도감" },
   { href: "/potion-showcases", label: "포션 자랑" },
 ];
 
