@@ -11,9 +11,9 @@ import com.newcafe.backend.repository.*;
 import com.newcafe.backend.service.my.MyPageService;
 import com.newcafe.backend.dto.my.order.MyOrderStatusRequestDto;
 import com.newcafe.backend.dto.my.order.OrderCreateRequestDto;
-import com.newcafe.backend.dto.my.cart.CartItemCreateRequestDto;
+import com.newcafe.backend.dto.checkout.CartEntryRequest;
 import com.newcafe.backend.common.auth.CurrentMember;
-import com.newcafe.backend.service.my.MyCartService;
+import com.newcafe.backend.service.checkout.CartService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,7 +43,7 @@ class PotionShowcaseIntegrationTest {
   @Autowired private PotionShowcaseRepository showcases;
   @Autowired private OrderRepository orders;
   @Autowired private MyPageService myPage;
-  @Autowired private MyCartService myCart;
+  @Autowired private CartService myCart;
 
   @BeforeEach
   void loginTestMember() {
@@ -82,8 +82,8 @@ class PotionShowcaseIntegrationTest {
     assertEquals(2, service.getList("rating", 10).size());
     assertEquals(otherPost.getId(), service.getList("rating", 10).get(0).id());
 
-    var firstCartItem = myCart.add(new CartItemCreateRequestDto(null, otherRecipe.getId(), null));
-    var repeatedCartItem = myCart.add(new CartItemCreateRequestDto(null, otherRecipe.getId(), 2));
+    var firstCartItem = myCart.add(new CartEntryRequest(null, otherRecipe.getId(), null));
+    var repeatedCartItem = myCart.add(new CartEntryRequest(null, otherRecipe.getId(), 2));
     assertEquals(firstCartItem.id(), repeatedCartItem.id());
     assertEquals(3, repeatedCartItem.quantity());
 

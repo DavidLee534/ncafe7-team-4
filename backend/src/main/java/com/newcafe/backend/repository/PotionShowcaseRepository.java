@@ -15,4 +15,7 @@ public interface PotionShowcaseRepository extends JpaRepository<PotionShowcase, 
 
   // 회원이 쓴 자랑글이 있는지. 있으면 관리자가 회원을 지울 수 없다
   boolean existsByMemberId(Long memberId);
+
+  // 자랑글에 올라온 포션인지. 올라온 포션은 다른 회원도 장바구니에 담을 수 있다
+  boolean existsByRecipeId(Long recipeId);
 }

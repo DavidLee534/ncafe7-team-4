@@ -94,13 +94,23 @@ class CartIntegrationTest {
         }
     }
     @Test
-    void catalogContainsOnlyOwnRecipesAndCartAcceptsOwnRecipe() {
+    void catalogContainsOnlyOwnRecipesAndCartAcceptsOwnOrShowcasedRecipe() {
         Long ownRecipe = jdbc.queryForObject("select r.id from recipes r where r.member_id=? fetch first 1 row only", Long.class, memberId);
-        Long otherRecipe = jdbc.queryForObject("select r.id from recipes r join members m on r.member_id=m.id where m.email='cheese@ncafe.dev' fetch first 1 row only", Long.class);
-        assertThat(checkout.catalog()).anyMatch(item -> ownRecipe.equals(item.recipeId()))
-            .noneMatch(item -> otherRecipe.equals(item.recipeId()));
-        assertThat(checkout.add(new CartEntryRequest(null, ownRecipe, 1)).itemType()).isEqualTo("recipe");
-        assertThatThrownBy(() -> checkout.add(new CartEntryRequest(null, otherRecipe, 1))).hasMessageContaining("내 레시피");
+        // 치즈손님의 '잠드는 꼬리'는 자랑글에 올라와 있다
+        Long showcasedRecipe = jdbc.queryForObject("select s.recipe_id from potion_showcases s join members m on s.member_id=m.id where m.email='cheese@ncafe.dev' fetch first 1 row only", Long.class);
+        Long cheese = jdbc.queryForObject("select id from members where email='cheese@ncafe.dev'", Long.class);
+        jdbc.update("insert into recipes (member_id, base_menu_id, name, grade, price, color, created_at) values (?, ?, '숨겨 둔 포션', 'normal', 4000, '#000000', current_timestamp)", cheese, menuId);
+        Long hiddenRecipe = jdbc.queryForObject("select id from recipes where name='숨겨 둔 포션'", Long.class);
+        try {
+            assertThat(checkout.catalog()).anyMatch(item -> ownRecipe.equals(item.recipeId()))
+                .noneMatch(item -> showcasedRecipe.equals(item.recipeId()));
+            assertThat(checkout.add(new CartEntryRequest(null, ownRecipe, 1)).itemType()).isEqualTo("recipe");
+            assertThat(checkout.add(new CartEntryRequest(null, showcasedRecipe, 1)).itemType()).isEqualTo("recipe");
+            assertThatThrownBy(() -> checkout.add(new CartEntryRequest(null, hiddenRecipe, 1))).hasMessageContaining("자랑글");
+        } finally {
+            jdbc.update("delete from cart_items where recipe_id=?", hiddenRecipe);
+            jdbc.update("delete from recipes where id=?", hiddenRecipe);
+        }
     }
 
     @Test

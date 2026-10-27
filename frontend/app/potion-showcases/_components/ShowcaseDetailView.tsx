@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import UserHeader from "@/app/_components/UserHeader";
-import { addToCart } from "@/lib/cart";
+import { addServerCartItem } from "@/lib/cart";
 import { memberApi, dateText, priceText, type ShowcaseDetail } from "@/lib/memberApi";
 import MemberGate from "./MemberGate";
 import ShowcaseComments from "./ShowcaseComments";
@@ -36,9 +36,8 @@ export default function ShowcaseDetailView({ id }: { id: number }) {
     if (!post) return;
     setBusy(true); setError(""); setNotice("");
     try {
-      await memberApi(`/my/cart/items`, { method: "POST", body: JSON.stringify({ recipeId: post.recipeId }) });
-      // 현재 장바구니 화면은 브라우저 저장소를 읽으므로 화면에도 같은 포션을 반영한다.
-      addToCart({ name: post.recipeName, options: [], unitPrice: post.recipePrice });
+      // 서버 장바구니에 담고, 헤더의 장바구니 개수도 다시 읽는다
+      await addServerCartItem({ recipeId: post.recipeId });
       setNotice("포션을 장바구니에 담았어요.");
     } catch (e) { setError((e as Error).message); } finally { setBusy(false); }
   }

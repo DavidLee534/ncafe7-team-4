@@ -10,6 +10,7 @@ import com.newcafe.backend.entity.CartItem;
 import com.newcafe.backend.entity.Member;
 import com.newcafe.backend.entity.Menu;
 import com.newcafe.backend.repository.MenuRepository;
+import com.newcafe.backend.repository.PotionShowcaseRepository;
 import com.newcafe.backend.repository.RecipeRepository;
 import com.newcafe.backend.repository.checkout.CheckoutCartRepository;
 import com.newcafe.backend.repository.checkout.CheckoutCatalogRepository;
@@ -39,6 +40,7 @@ public class DfCartService implements CartService {
     private final MenuRepository menus;
     private final RecipeRepository recipes;
     private final CheckoutRecipeRepository ownRecipes;
+    private final PotionShowcaseRepository showcases;
 
     private Member member() {
         Member member = members.lockMember(currentMember.id())
@@ -84,9 +86,11 @@ public class DfCartService implements CartService {
                 item.addQuantity(quantity);
             }
         } else {
+            // 내 레시피, 또는 포션 자랑 게시판에 올라온 남의 포션을 담을 수 있다 (13.0 자랑글 "장바구니 담기")
             var recipe = recipes.findById(request.recipeId())
-                .filter(value -> value.getMember().getId().equals(member.getId()))
-                .orElseThrow(() -> new NotFoundException("내 레시피를 찾을 수 없습니다."));
+                .filter(value -> value.getMember().getId().equals(member.getId())
+                    || showcases.existsByRecipeId(value.getId()))
+                .orElseThrow(() -> new NotFoundException("내 레시피나 자랑글에 올라온 포션만 담을 수 있습니다."));
             requireAvailable(recipe.getBaseMenu());
             item = existing.stream().filter(row -> row.getRecipe() != null &&
                 row.getRecipe().getId().equals(recipe.getId())).findFirst().orElse(null);
