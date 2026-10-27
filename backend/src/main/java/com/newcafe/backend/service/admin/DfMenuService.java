@@ -12,10 +12,8 @@ import com.newcafe.backend.dto.admin.menu.MenuUpdateRequestDto;
 import com.newcafe.backend.dto.admin.menu.MenuUpdatedResponseDto;
 import com.newcafe.backend.entity.Category;
 import com.newcafe.backend.entity.Menu;
-import com.newcafe.backend.repository.CartItemRepository;
 import com.newcafe.backend.repository.CategoryRepository;
 import com.newcafe.backend.repository.MenuRepository;
-import com.newcafe.backend.repository.RecipeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,17 +30,12 @@ public class DfMenuService implements MenuService {
 
   private final MenuRepository menuRepository;
   private final CategoryRepository categoryRepository;
-  private final RecipeRepository recipeRepository;
-  private final CartItemRepository cartItemRepository;
 
   @Override
   @Transactional
   public MenuCreatedResponseDto create(MenuCreateRequestDto request) {
     Category category = findCategory(request.categoryId());
-    if (request.slug() != null && menuRepository.existsBySlug(request.slug())) {
-      throw new IllegalStateException("이미 쓰고 있는 slug입니다: " + request.slug());
-    }
-    Menu saved = menuRepository.save(request.toEntity(category));
+    Menu saved = menuRepository.save(request.toEntity(category, newSlug(request.engName())));
     return MenuCreatedResponseDto.from(saved);
   }
 
@@ -59,11 +52,11 @@ public class DfMenuService implements MenuService {
         : Pageable.unpaged(sort);
 
     return menuRepository.findAllByCondition(
-            request.categoryId(),
-            blankToNull(request.status()),
-            request.ownerRecommended(),
-            blankToNull(request.keyword()),
-            pageable)
+        request.categoryId(),
+        blankToNull(request.status()),
+        request.ownerRecommended(),
+        blankToNull(request.keyword()),
+        pageable)
         .stream()
         .map(MenuListResponseDto::from)
         .toList();
@@ -106,10 +99,8 @@ public class DfMenuService implements MenuService {
   public MenuUpdatedResponseDto update(Long id, MenuUpdateRequestDto request) {
     Menu menu = findMenu(id);
     Category category = findCategory(request.categoryId());
-    String slug = request.slug() != null ? request.slug() : menu.getSlug();
-    if (slug != null && menuRepository.existsBySlugAndIdNot(slug, id)) {
-      throw new IllegalStateException("이미 쓰고 있는 slug입니다: " + slug);
-    }
+    // 이미 있는 slug는 그대로 둔다. 예전 메뉴처럼 비어 있으면 이번에 만든다
+    String slug = menu.getSlug() != null ? menu.getSlug() : newSlug(request.engName());
     menu.update(
         request.korName(),
         request.engName(),
@@ -124,17 +115,10 @@ public class DfMenuService implements MenuService {
     return MenuUpdatedResponseDto.from(menu);
   }
 
-  // 회원이 만든 포션의 기반 메뉴면 지울 수 없다(409) → 대신 숨김(hidden)으로 바꾼다
-  // 장바구니에 담긴 줄은 임시 데이터라 메뉴와 함께 지운다. 지난 주문(OrderItem)은 메뉴를 참조하지 않아 영향 없음
   @Override
   @Transactional
   public void delete(Long id) {
-    Menu menu = findMenu(id);
-    if (recipeRepository.existsByBaseMenuId(id)) {
-      throw new IllegalStateException("회원이 만든 포션에 쓰인 메뉴는 삭제할 수 없습니다. 판매 상태를 숨김으로 바꾸세요: " + menu.getKorName());
-    }
-    cartItemRepository.deleteAllByMenuId(id);
-    menuRepository.delete(menu);
+    menuRepository.delete(findMenu(id));
   }
 
   // 없는 id면 NotFoundException(404)
@@ -143,11 +127,29 @@ public class DfMenuService implements MenuService {
         .orElseThrow(() -> new NotFoundException("메뉴를 찾을 수 없습니다: " + id));
   }
 
+  // 영문 이름으로 사용자 메뉴 주소(slug)를 만든다. "Caffe Latte" → "caffe-latte"
+  // 영문·숫자 말고는 하이픈으로 바꾸고, 다른 메뉴가 이미 쓰고 있으면 뒤에 -2, -3 ... 을 붙인다
+  private String newSlug(String engName) {
+    String base = engName.toLowerCase().replaceAll("[^a-z0-9]+", "-").replaceAll("^-|-$", "");
+    if (base.isEmpty()) {
+      base = "menu";
+    }
+    if (base.length() > 50) {
+      base = base.substring(0, 50).replaceAll("-$", "");
+    }
+    String slug = base;
+    for (int n = 2; menuRepository.existsBySlug(slug); n++) {
+      slug = base + "-" + n;
+    }
+    return slug;
+  }
+
   private String blankToNull(String value) {
     return value == null || value.isBlank() ? null : value.trim();
   }
 
-  // 없는 id면 NotFoundException(404). 등록·수정 요청은 categoryId가 필수라(@NotNull) null은 들어오지 않는다
+  // 없는 id면 NotFoundException(404). 등록·수정 요청은 categoryId가 필수라(@NotNull) null은 들어오지
+  // 않는다
   private Category findCategory(Long categoryId) {
     if (categoryId == null) {
       return null;

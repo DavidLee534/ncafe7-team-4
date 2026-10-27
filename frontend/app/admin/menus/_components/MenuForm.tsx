@@ -1,6 +1,6 @@
 "use client";
 // 메뉴 등록·수정 공용 폼. 제출하면 백엔드에 POST(등록) / PUT(수정)을 보내고 상세 화면으로 간다.
-// 대표 이미지 · 신메뉴(NEW) · 비밀 레시피는 백엔드에 아직 칸이 없어 저장되지 않는다.
+// 화면에서 저장하는 항목은 메뉴 API의 필드와 일치시킨다.
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -31,7 +31,6 @@ export default function MenuForm({ mode, initial, categories, cancelHref }: Menu
       description: String(form.get("description") ?? ""),
       status: String(form.get("status") ?? "on"),
       ownerRecommended: form.get("isRecommended") === "on",
-      slug: String(form.get("slug") ?? "").trim() || null,
       emotionTags: form.getAll("emotionTags").map(String),
       tasteTags: form.getAll("tasteTags").map(String),
     };
@@ -95,37 +94,10 @@ export default function MenuForm({ mode, initial, categories, cancelHref }: Menu
           </div>
 
           <div className="m3-text-field field:outlined field-label:top">
-            <label htmlFor="slug">사용자 화면 주소(slug)</label>
-            <input
-              id="slug"
-              name="slug"
-              type="text"
-              placeholder="예) caffe-latte"
-              defaultValue={initial?.slug}
-              maxLength={60}
-              pattern="[a-z0-9]+(-[a-z0-9]+)*"
-              title="영문 소문자, 숫자, 하이픈(-)만 쓸 수 있어요."
-            />
-            <p className="font-size:caption color:text-muted">
-              손님 메뉴 상세 주소 /menus/{"{slug}"} 에 쓰여요. 비워 두면 손님 메뉴판에 나오지 않아요.
-            </p>
-          </div>
-
-          <div className="m3-text-field field:outlined field-label:top">
             <label htmlFor="description">설명</label>
             <textarea id="description" name="description" rows={4} placeholder="사용자 화면의 메뉴 상세에 보이는 설명" defaultValue={initial?.description} maxLength={1000} />
           </div>
 
-          <div className="m3-text-field field:outlined field-label:top">
-            <label htmlFor="image">대표 이미지</label>
-            <input id="image" name="image" type="file" accept="image/*" />
-          </div>
-          {initial?.image && (
-            <div className="display:flex align-items:center gap:3">
-              <img src={initial.image} alt="" className="width:12 height:12 border-radius:2 object-fit:cover" />
-              <span className="font-size:caption color:text-muted">현재 이미지: {initial.image}</span>
-            </div>
-          )}
         </div>
       </section>
 
@@ -145,23 +117,10 @@ export default function MenuForm({ mode, initial, categories, cancelHref }: Menu
           </fieldset>
           <div className="form-group">
             <label className="m3-switch">
-              <input type="checkbox" name="isNew" defaultChecked={initial?.isNew} />
-              <span className="switch-label">신메뉴(NEW)로 표시</span>
-            </label>
-          </div>
-          <div className="form-group">
-            <label className="m3-switch">
               <input type="checkbox" name="isRecommended" defaultChecked={initial?.isRecommended} />
               <span className="switch-label">사장 추천 메뉴로 표시</span>
             </label>
             <p className="font-size:caption color:text-muted">메뉴 카탈로그 위쪽의 추천 메뉴 칸에 모여요.</p>
-          </div>
-          <div className="form-group">
-            <label className="m3-switch">
-              <input type="checkbox" name="isSecret" defaultChecked={initial?.isSecret} />
-              <span className="switch-label">비밀 레시피로 등록</span>
-            </label>
-            <p className="font-size:caption color:text-muted">메뉴 카탈로그 목록에 ✦ 비밀 표시가 붙어요.</p>
           </div>
         </div>
       </section>

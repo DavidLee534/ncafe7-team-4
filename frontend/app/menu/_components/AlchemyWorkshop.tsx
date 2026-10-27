@@ -4,22 +4,22 @@ import Link from "next/link";
 import { type CSSProperties, type MouseEvent, type PointerEvent, useRef, useState } from "react";
 import { addToCart } from "@/lib/cart";
 import AlchemyModeLayout from "./AlchemyModeLayout";
-import { basicMenus, getBasicMenu } from "./alchemyMenus";
+import { basicMenuId, type BasicMenu } from "./alchemyMenus";
 import styles from "./EmotionAlchemyWorkshop.module.css";
 import own from "./AlchemyWorkshop.module.css";
 
-// 기반 재료는 기본 메뉴 30종에서 가져온다 — 기반 재료만 고른 가격이 곧 그 기본 메뉴 가격이다 (README "공통 재료 선반").
-const basesOf = (category: string) => basicMenus.filter((menu) => menu.category === category).map((menu) => [menu.ingredient, "", menu.price] as const);
+// 기반 재료의 판매 여부와 가격은 DB 메뉴에서 전달받는다.
+const basesOf = (category: string, menus: BasicMenu[]) => menus.filter((menu) => menu.category === category).map((menu) => [menu.ingredient, "", menu.price] as const);
 
 const shelves = {
-  coffee: { label: "커피", spell: "어둠의 물약", icon: "☕", category: "커피", bases: basesOf("커피"), extras: [["바닐라", "✨", 500], ["캐러멜", "🟤", 500], ["오트", "🥛", 700], ["휘핑", "☁️", 600]] },
-  tea: { label: "티", spell: "약초 달임", icon: "🍵", category: "티", bases: basesOf("티"), extras: [["꿀", "🍯", 500], ["레몬청", "🍋", 600], ["허브", "🌿", 500]] },
-  fruit: { label: "과일 라떼", spell: "열매의 물약", icon: "🍓", category: "과일라떼", bases: basesOf("과일라떼"), extras: [["우유", "🥛", 500], ["과육", "🍒", 700], ["크림", "☁️", 600]] },
-  smoothie: { label: "스무디", spell: "정령의 진액", icon: "🧋", category: "스무디", bases: basesOf("스무디"), extras: [["요거트", "🍶", 600], ["우유", "🥛", 500], ["꿀", "🍯", 500]] },
-  noncoffee: { label: "논커피", spell: "대지의 물약", icon: "🍫", category: "논커피", bases: basesOf("논커피"), extras: [["우유", "🥛", 500], ["꿀", "🍯", 500], ["휘핑", "☁️", 600]] },
-  frappe: { label: "프라페", spell: "얼음 결정 엘릭서", icon: "🧊", category: "프라페", bases: basesOf("프라페"), extras: [["시럽", "✨", 500], ["휘핑", "☁️", 600], ["초코칩", "🍫", 500]] },
-  dessert: { label: "디저트", spell: "연성 과자", icon: "🧁", category: "디저트", bases: basesOf("디저트"), extras: [["아이스크림", "🍨", 800], ["베리 소스", "🍓", 600], ["생크림", "☁️", 600]] },
-  food: { label: "푸드", spell: "모험가의 식량", icon: "🥯", category: "푸드", bases: basesOf("푸드"), extras: [["크림치즈", "🧀", 700], ["연어", "🐟", 1200], ["에그", "🍳", 800]] },
+  coffee: { label: "커피", spell: "어둠의 물약", icon: "☕", category: "커피", extras: [["바닐라", "✨", 500], ["캐러멜", "🟤", 500], ["오트", "🥛", 700], ["휘핑", "☁️", 600]] },
+  tea: { label: "티", spell: "약초 달임", icon: "🍵", category: "티", extras: [["꿀", "🍯", 500], ["레몬청", "🍋", 600], ["허브", "🌿", 500]] },
+  fruit: { label: "과일 라떼", spell: "열매의 물약", icon: "🍓", category: "과일라떼", extras: [["우유", "🥛", 500], ["과육", "🍒", 700], ["크림", "☁️", 600]] },
+  smoothie: { label: "스무디", spell: "정령의 진액", icon: "🧋", category: "스무디", extras: [["요거트", "🍶", 600], ["우유", "🥛", 500], ["꿀", "🍯", 500]] },
+  noncoffee: { label: "논커피", spell: "대지의 물약", icon: "🍫", category: "논커피", extras: [["우유", "🥛", 500], ["꿀", "🍯", 500], ["휘핑", "☁️", 600]] },
+  frappe: { label: "프라페", spell: "얼음 결정 엘릭서", icon: "🧊", category: "프라페", extras: [["시럽", "✨", 500], ["휘핑", "☁️", 600], ["초코칩", "🍫", 500]] },
+  dessert: { label: "디저트", spell: "연성 과자", icon: "🧁", category: "디저트", extras: [["아이스크림", "🍨", 800], ["베리 소스", "🍓", 600], ["생크림", "☁️", 600]] },
+  food: { label: "푸드", spell: "모험가의 식량", icon: "🥯", category: "푸드", extras: [["크림치즈", "🧀", 700], ["연어", "🐟", 1200], ["에그", "🍳", 800]] },
 } as const;
 
 type ShelfKey = keyof typeof shelves;
@@ -39,9 +39,9 @@ type Potion = { name: string; grade: "일반" | "희귀" | "전설"; icon: strin
 type FlyingIngredient = { id: number; label: string; x: number; y: number; dx: number; dy: number };
 
 // 고른 재료로 완성될 포션 — 정해 둔 비밀 레시피와 같으면 전설, 추가 재료가 둘 이상이면 희귀.
-function brew(category: ShelfKey, baseIndex: number, extras: number[]): Potion {
+function brew(category: ShelfKey, baseIndex: number, extras: number[], menus: BasicMenu[]): Potion {
   const shelf = shelves[category];
-  const base = shelf.bases[baseIndex];
+  const base = basesOf(shelf.category, menus)[baseIndex];
   const extraItems = extras.map((index) => shelf.extras[index]);
   const extraNames = extraItems.map((item) => item[0]);
   const signature = signaturePotionNames[[base[0], ...extraNames].join("|")];
@@ -56,17 +56,17 @@ function brew(category: ShelfKey, baseIndex: number, extras: number[]): Potion {
 }
 
 // 메뉴 상세에서 "조합하기"로 넘어오면 그 메뉴의 계열과 기반 재료를 미리 골라 둔다.
-function startingPoint(menuId?: number): { category: ShelfKey | null; baseIndex: number | null } {
-  const menu = menuId ? getBasicMenu(menuId) : undefined;
+function startingPoint(menuId: number | undefined, menus: BasicMenu[]): { category: ShelfKey | null; baseIndex: number | null } {
+  const menu = menuId ? menus.find(item => basicMenuId(item) === menuId) : undefined;
   const key = menu && (Object.keys(shelves) as ShelfKey[]).find((shelfKey) => shelves[shelfKey].category === menu.category);
   if (!menu || !key) return { category: null, baseIndex: null };
-  const baseIndex = shelves[key].bases.findIndex((base) => base[0] === menu.ingredient);
+  const baseIndex = basesOf(shelves[key].category, menus).findIndex((base) => base[0] === menu.ingredient);
   return { category: key, baseIndex: baseIndex >= 0 ? baseIndex : null };
 }
 
-export default function AlchemyWorkshop({ initialMenuId }: { initialMenuId?: number }) {
+export default function AlchemyWorkshop({ initialMenuId, menus }: { initialMenuId?: number; menus: BasicMenu[] }) {
   // 처음에는 아무것도 고르지 않은 상태(상세에서 넘어오면 그 메뉴 기준). 계열과 기반 재료는 필수다.
-  const [start] = useState(() => startingPoint(initialMenuId));
+  const [start] = useState(() => startingPoint(initialMenuId, menus));
   const [category, setCategory] = useState<ShelfKey | null>(start.category);
   const [baseIndex, setBaseIndex] = useState<number | null>(start.baseIndex);
   const [extras, setExtras] = useState<number[]>([]);
@@ -79,7 +79,8 @@ export default function AlchemyWorkshop({ initialMenuId }: { initialMenuId?: num
   const flightIdRef = useRef(0);
   const [missing, setMissing] = useState<"category" | "base" | null>(null); // 필수 선택 없이 조합하기를 누르면 안내
   const shelf = category ? shelves[category] : null;
-  const preview = category && baseIndex !== null ? brew(category, baseIndex, extras) : null;
+  const availableBases = shelf ? basesOf(shelf.category, menus) : [];
+  const preview = category && baseIndex !== null ? brew(category, baseIndex, extras, menus) : null;
   const recipeOf = (item: Potion) => item.ingredients.map((ingredient) => ingredient.name).join("|");
   const changed = potion !== null && (preview === null || recipeOf(preview) !== recipeOf(potion));
   const selectCategory = (key: ShelfKey) => { if (isBrewing) return; setCategory(key); setBaseIndex(null); setExtras([]); setMissing(null); };
@@ -120,7 +121,7 @@ export default function AlchemyWorkshop({ initialMenuId }: { initialMenuId?: num
         <div className={`${styles.sectionTitle} ${missing === "category" ? own.missing : ""}`}><b>계열</b><small>{shelf ? shelf.spell : "필수 1개 · 0/1"}</small></div>
         <div className={`${styles.choiceGrid} ${own.categoryGrid}`}>{(Object.keys(shelves) as ShelfKey[]).map((key) => <button type="button" key={key} className={key === category ? styles.selectedEmotion : ""} onClick={() => selectCategory(key)}>{shelves[key].label}</button>)}</div>
         <div className={`${styles.sectionTitle} ${missing === "base" ? own.missing : ""}`}><b>기반 재료</b><small>필수 1개 · {baseIndex === null ? 0 : 1}/1</small></div>
-        {shelf ? <div className={`${styles.choiceGrid} ${own.categoryGrid}`}>{shelf.bases.map((item, index) => <button type="button" key={item[0]} className={index === baseIndex ? styles.selectedEmotion : ""} onClick={(event) => selectBase(event, index, item[0])}>{item[0]}</button>)}</div> : <p className={own.placeholder}>계열을 먼저 골라 주세요.</p>}
+        {shelf ? <div className={`${styles.choiceGrid} ${own.categoryGrid}`}>{availableBases.map((item, index) => <button type="button" key={item[0]} className={index === baseIndex ? styles.selectedEmotion : ""} onClick={(event) => selectBase(event, index, item[0])}>{item[0]}</button>)}</div> : <p className={own.placeholder}>계열을 먼저 골라 주세요.</p>}
         <div className={styles.sectionTitle}><b>추가 재료</b><small>선택 0~{MAX_EXTRAS} · {extras.length}/{MAX_EXTRAS}</small></div>
         {shelf ? <div className={styles.choiceGrid}>{shelf.extras.map((item, index) => <button type="button" key={item[0]} className={`${own.ingredient} ${extras.includes(index) ? styles.selectedTaste : ""}`} onClick={(event) => toggleExtra(event, index, item[0])}>{item[0]}<small>+{item[2].toLocaleString()}원</small></button>)}</div> : <p className={own.placeholder}>계열을 먼저 골라 주세요.</p>}
       </section>

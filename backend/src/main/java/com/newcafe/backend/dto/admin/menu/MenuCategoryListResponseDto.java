@@ -8,13 +8,11 @@ import com.newcafe.backend.entity.Category;
 public record MenuCategoryListResponseDto(
     Long id,
     String name,
-    long menuCount
-) {
+    long menuCount) {
   public static MenuCategoryListResponseDto from(Category category, long menuCount) {
     return new MenuCategoryListResponseDto(
         category.getId(),
         category.getName(),
-        menuCount
-    );
+        menuCount);
   }
 }
