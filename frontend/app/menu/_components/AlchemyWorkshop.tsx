@@ -104,7 +104,7 @@ export default function AlchemyWorkshop({ initialMenuId }: { initialMenuId?: num
     }, 1450);
   };
   const toggleExtra = (event: MouseEvent<HTMLButtonElement>, index: number, label: string) => { if (isBrewing) return; if (!extras.includes(index) && extras.length < MAX_EXTRAS) flyToCauldron(event, label); setExtras((selected) => selected.includes(index) ? selected.filter((value) => value !== index) : selected.length < MAX_EXTRAS ? [...selected, index] : selected); };
-  const putInCart = (potion: Potion) => { addToCart({ name: potion.name, options: potion.ingredients.map((item) => item.name), unitPrice: potion.price }); setAddedName(potion.name); };
+  const putInCart = async (potion: Potion) => { setAddedName(null); try { await addToCart({ name: potion.name, options: potion.ingredients.map((item) => item.name), unitPrice: potion.price }); setAddedName(potion.name); } catch (error) { window.alert(error instanceof Error ? error.message : "담지 못했어요."); } };
   const showClickFeedback = (event: PointerEvent<HTMLElement>) => {
     if (!(event.target instanceof Element) || !event.target.closest("button, a")) return;
     setClickPulse({ x: event.clientX, y: event.clientY });

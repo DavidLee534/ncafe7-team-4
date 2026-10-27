@@ -9,9 +9,12 @@ import styles from "../MenuDetail.module.css";
 export default function MenuOrderBox({ menuId, name, base, icon, price }: { menuId: number; name: string; base: string; icon: string; price: number }) {
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
-  const putInCart = () => {
-    Array.from({ length: quantity }).forEach(() => addToCart({ name, options: [base], unitPrice: price }));
-    setAdded(true);
+  const putInCart = async () => {
+    setAdded(false);
+    try {
+      await addToCart({ name, options: [base], unitPrice: price }, quantity);
+      setAdded(true);
+    } catch (error) { window.alert(error instanceof Error ? error.message : "담지 못했어요."); }
   };
 
   return <div className={styles.order}>

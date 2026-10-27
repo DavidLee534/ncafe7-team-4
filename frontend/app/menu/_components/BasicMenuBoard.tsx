@@ -27,7 +27,7 @@ export default function BasicMenuBoard() {
         <div className={own.tags}>{menu.emotions.map((item) => <b key={item}>{item}</b>)}{menu.tastes.map((item) => <b key={item}>{item}</b>)}</div>
         <div className={own.footer}>
           <strong>{menu.price.toLocaleString()}원</strong>
-          <button type="button" className={own.add} onClick={() => { addToCart({ name: menu.name, options: [menu.base], unitPrice: menu.price }); setAddedName(menu.name); }}>🛒 담기</button>
+          <button type="button" className={own.add} onClick={async () => { setAddedName(null); try { await addToCart({ name: menu.name, options: [menu.base], unitPrice: menu.price }); setAddedName(menu.name); } catch (error) { window.alert(error instanceof Error ? error.message : "담지 못했어요."); } }}>🛒 담기</button>
         </div>
         {addedName === menu.name && <p className={styles.added} role="status">담았어요! <Link href="/cart">장바구니 보기 →</Link></p>}
       </article>)}
