@@ -31,7 +31,7 @@ export default function UserHeader() {
       </nav>
       <div className={styles.actions}>
         <Link href="/cart" className={`${styles.cart} ${pathname === "/cart" ? styles.cartActive : ""}`} aria-label={`장바구니 ${count}개`}>🛒 <span>장바구니</span> <b>{count}</b></Link>
-        {member ? <><Link href="/mypage">{member.name} 님</Link><button type="button" className={styles.logout} onClick={signOut}>로그아웃</button></> : <><Link href="/login">로그인</Link><Link href="/signup" className={styles.signup}>회원가입</Link></>}
+        {member ? <><Link href="/mypage">{member.nickname} 님</Link><button type="button" className={styles.logout} onClick={signOut}>로그아웃</button></> : <><Link href="/login">로그인</Link><Link href="/signup" className={styles.signup}>회원가입</Link></>}
       </div>
     </header>
   );

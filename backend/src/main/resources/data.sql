@@ -5,12 +5,12 @@
 -- 메뉴 30종은 frontend/app/menu/_components/alchemyMenus.ts 와 같은 값이다
 
 -- ===== 회원 =====
--- 1번이 CurrentMember 의 "현재 회원". 비밀번호는 인증 시스템을 붙일 때 해시로 바꾼다
+-- 비밀번호는 모두 ncafe1234 (BCrypt 해시). admin@ncafe.dev 가 관리자, tofu@ncafe.dev 는 정지 회원이라 로그인 거부
 insert into members (email, password, nickname, role, status, created_at, updated_at) values
-  ('moka@ncafe.dev',  'not-set', '모카손님',  'member', 'active',    current_timestamp, current_timestamp),
-  ('admin@ncafe.dev', 'not-set', '모카점장',  'admin',  'active',    current_timestamp, current_timestamp),
-  ('cheese@ncafe.dev','not-set', '치즈손님',  'member', 'active',    current_timestamp, current_timestamp),
-  ('tofu@ncafe.dev',  'not-set', '두부손님',  'member', 'suspended', current_timestamp, current_timestamp);
+  ('moka@ncafe.dev',  '$2a$10$pbHdBG3BbvKl4.UeRAyydOlzuMoLkcPEoL8xVcN/hXaQGP.zaCLe.', '모카손님',  'member', 'active',    current_timestamp, current_timestamp),
+  ('admin@ncafe.dev', '$2a$10$pbHdBG3BbvKl4.UeRAyydOlzuMoLkcPEoL8xVcN/hXaQGP.zaCLe.', '모카점장',  'admin',  'active',    current_timestamp, current_timestamp),
+  ('cheese@ncafe.dev','$2a$10$pbHdBG3BbvKl4.UeRAyydOlzuMoLkcPEoL8xVcN/hXaQGP.zaCLe.', '치즈손님',  'member', 'active',    current_timestamp, current_timestamp),
+  ('tofu@ncafe.dev',  '$2a$10$pbHdBG3BbvKl4.UeRAyydOlzuMoLkcPEoL8xVcN/hXaQGP.zaCLe.', '두부손님',  'member', 'suspended', current_timestamp, current_timestamp);
 
 -- ===== 카테고리 (8개 계열) =====
 insert into categories (name, eng_name, sort_order, visible, created_at, updated_at) values

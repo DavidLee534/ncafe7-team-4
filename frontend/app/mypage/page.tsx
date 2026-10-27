@@ -25,7 +25,7 @@ export default function MyPage() {
 
   if (!ready || !member) return <><UserHeader /><main className={styles.page} aria-busy="true" /></>;
   const isMember = Boolean(member);
-  const displayName = member?.name ?? "비회원 손님";
+  const displayName = member?.nickname ?? "비회원 손님";
   return <><UserHeader /><main className={styles.page}>
     <header className={styles.hero}>
       <span>MOONLIGHT GUESTBOOK</span>
