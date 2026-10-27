@@ -2,6 +2,8 @@
 // 서버 컴포넌트(페이지)에서만 부른다. 등록·수정·삭제처럼 브라우저에서 보내는 요청은 lib/apiClient.ts.
 import { connection } from "next/server";
 import type {
+  AdminMain,
+  AdminMainOrder,
   Category,
   Ingredient,
   IngredientType,
@@ -58,6 +60,12 @@ type IngredientResponse = {
   visible: boolean;
   createdAt: string | null;
   updatedAt: string | null;
+};
+
+type AdminMainResponse = Omit<AdminMain, "attentionMenus" | "recentMenus" | "pendingOrders"> & {
+  attentionMenus: MenuResponse[];
+  recentMenus: MenuResponse[];
+  pendingOrders: (Omit<AdminMainOrder, "createdAt"> & { createdAt: string | null })[];
 };
 
 export type CategoryWithCount = Category & { menuCount: number };
@@ -191,21 +199,30 @@ export async function getIngredient(id: number): Promise<Ingredient | undefined>
   return dto && toIngredient(dto);
 }
 
-// ===== 받은 목록을 화면에서 세기 (대시보드 · 재료 목록) =====
+// ===== 관리자 메인 =====
+
+// 메뉴 · 재료 · 주문 · 회원 현황과 최근 항목을 한 번에 받는다. 메뉴는 메뉴 API 와 같은 모양
+export async function getAdminMain(): Promise<AdminMain> {
+  const dto = await get<AdminMainResponse>("/api/v1/admin");
+  if (!dto) throw new Error("백엔드 요청 실패: GET /api/v1/admin (404)");
+  return {
+    ...dto,
+    attentionMenus: dto.attentionMenus.map(toMenu),
+    recentMenus: dto.recentMenus.map(toMenu),
+    // 주문 시각은 날짜와 분까지 ("2026-10-27T14:05:12" → "2026-10-27 14:05")
+    pendingOrders: dto.pendingOrders.map((order) => ({
+      ...order,
+      createdAt: order.createdAt?.slice(0, 16).replace("T", " ") ?? "",
+    })),
+  };
+}
+
+// ===== 받은 목록을 화면에서 세기 (재료 목록) =====
 
 export function countIngredientsByType(ingredients: Ingredient[]): IngredientTypeCounts {
   return {
     all: ingredients.length,
     base: ingredients.filter((i) => i.type === "base").length,
     extra: ingredients.filter((i) => i.type === "extra").length,
-  };
-}
-
-export function countMenusByStatus(menus: Menu[]): MenuStatusCounts {
-  return {
-    all: menus.length,
-    on: menus.filter((m) => m.status === "on").length,
-    soldout: menus.filter((m) => m.status === "soldout").length,
-    hidden: menus.filter((m) => m.status === "hidden").length,
   };
 }
