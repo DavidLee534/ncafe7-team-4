@@ -9,7 +9,6 @@ final class MenuTagRules {
   private MenuTagRules() {
   }
 
-  static final String SLUG = "^[a-z0-9]+(-[a-z0-9]+)*$";
   static final String EMOTIONS = "피곤함|열정|그리움|울적함|설렘|긴장됨";
   static final String TASTES = "달콤한|쌉싸름한|상큼한|고소한|시원한|따뜻한";
 

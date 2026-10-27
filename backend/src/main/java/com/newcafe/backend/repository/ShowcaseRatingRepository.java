@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-// 조회 메서드는 이 엔티티를 쓰는 시스템을 만들 때 필요한 것만 추가한다
 public interface ShowcaseRatingRepository extends JpaRepository<ShowcaseRating, Long> {
   interface RatingSummary {
     Long getShowcaseId();
@@ -22,4 +21,7 @@ public interface ShowcaseRatingRepository extends JpaRepository<ShowcaseRating, 
 
   Optional<ShowcaseRating> findByShowcaseIdAndMemberId(Long showcaseId, Long memberId);
   void deleteByShowcaseId(Long showcaseId);
+
+  // 관리자가 회원을 지울 때, 그 회원이 준 별점도 함께 지운다
+  void deleteAllByMemberId(Long memberId);
 }

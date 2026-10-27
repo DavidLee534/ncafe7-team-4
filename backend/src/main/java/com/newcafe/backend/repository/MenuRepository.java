@@ -39,6 +39,8 @@ public interface MenuRepository extends JpaRepository<Menu, Long> {
       @Param("keyword") String keyword,
       Pageable pageable);
 
+  // slug를 만들 때 다른 메뉴가 이미 쓰고 있는지 확인
+  boolean existsBySlug(String slug);
   // 카테고리에 속한 메뉴 수. 메뉴가 있는 카테고리는 삭제를 막는 데 쓴다
   long countByCategoryId(Long categoryId);
 

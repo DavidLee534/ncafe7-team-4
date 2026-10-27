@@ -1,5 +1,5 @@
 // 화면 표시용 변환.
-import type { IngredientType, MenuStatus } from "./types";
+import type { IngredientType, MemberRole, MemberStatus, MenuStatus, OrderStatus } from "./types";
 
 export function won(price: number): string {
   return `${price.toLocaleString("ko-KR")}원`;
@@ -30,3 +30,31 @@ export const INGREDIENT_SHELVES: Record<IngredientType, string[]> = {
 
 // 효과 태그 7종. 동점일 때 이 순서로 효과 칭호를 정한다
 export const EFFECT_TAGS = ["활력", "진정", "달콤함", "상큼함", "고소함", "든든함", "시원함"];
+
+// 주문 상태 → 라벨과 m3-badge 색
+export const ORDER_STATUS: Record<OrderStatus, { label: string; color: "primary" | "warning" | "success" | "neutral" | "danger" }> = {
+  paid: { label: "결제 완료", color: "primary" },
+  brewing: { label: "제조 중", color: "warning" },
+  ready: { label: "제조 완료", color: "success" },
+  done: { label: "수령 완료", color: "neutral" },
+  cancelled: { label: "취소", color: "danger" },
+};
+
+// 지금 상태에서 넘어갈 다음 단계와 버튼 이름. 규칙은 백엔드(Order.changeStatus)와 같다. 취소는 paid 에서만
+export const ORDER_NEXT_STEP: Partial<Record<OrderStatus, { status: OrderStatus; label: string }>> = {
+  paid: { status: "brewing", label: "제조 시작" },
+  brewing: { status: "ready", label: "제조 완료" },
+  ready: { status: "done", label: "수령 완료" },
+};
+
+export const PICKUP_TYPE: Record<string, string> = { "dine-in": "매장", takeout: "포장" };
+
+export const PAYMENT_METHOD: Record<string, string> = { card: "카드", easy: "간편결제", transfer: "계좌이체" };
+
+// 회원 상태 · 역할 → 라벨과 m3-badge 색
+export const MEMBER_STATUS: Record<MemberStatus, { label: string; color: "success" | "danger" }> = {
+  active: { label: "정상", color: "success" },
+  suspended: { label: "정지", color: "danger" },
+};
+
+export const MEMBER_ROLE: Record<MemberRole, string> = { member: "회원", admin: "관리자" };

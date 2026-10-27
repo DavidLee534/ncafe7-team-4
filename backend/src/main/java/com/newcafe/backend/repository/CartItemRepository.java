@@ -12,4 +12,7 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
 
   // 관리자가 메뉴를 지울 때, 그 메뉴가 담긴 장바구니 줄도 함께 지운다
   void deleteAllByMenuId(Long menuId);
+
+  // 관리자가 회원을 지울 때, 그 회원의 장바구니도 함께 지운다
+  void deleteAllByMemberId(Long memberId);
 }

@@ -31,7 +31,6 @@ export default function MenuForm({ mode, initial, categories, cancelHref }: Menu
       description: String(form.get("description") ?? ""),
       status: String(form.get("status") ?? "on"),
       ownerRecommended: form.get("isRecommended") === "on",
-      slug: String(form.get("slug") ?? "").trim() || null,
       emotionTags: form.getAll("emotionTags").map(String),
       tasteTags: form.getAll("tasteTags").map(String),
     };
@@ -92,23 +91,6 @@ export default function MenuForm({ mode, initial, categories, cancelHref }: Menu
               </label>
               <input id="price" name="price" type="number" placeholder="0" defaultValue={initial?.price} min={0} step={100} required />
             </div>
-          </div>
-
-          <div className="m3-text-field field:outlined field-label:top">
-            <label htmlFor="slug">사용자 화면 주소(slug)</label>
-            <input
-              id="slug"
-              name="slug"
-              type="text"
-              placeholder="예) caffe-latte"
-              defaultValue={initial?.slug}
-              maxLength={60}
-              pattern="[a-z0-9]+(-[a-z0-9]+)*"
-              title="영문 소문자, 숫자, 하이픈(-)만 쓸 수 있어요."
-            />
-            <p className="font-size:caption color:text-muted">
-              손님 메뉴 상세 주소 /menus/{"{slug}"} 에 쓰여요. 비워 두면 손님 메뉴판에 나오지 않아요.
-            </p>
           </div>
 
           <div className="m3-text-field field:outlined field-label:top">

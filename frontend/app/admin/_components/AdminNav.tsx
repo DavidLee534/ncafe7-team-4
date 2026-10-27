@@ -1,5 +1,5 @@
 "use client";
-// 관리자 왼쪽 메뉴 — 대시보드 · 메뉴 · 재료 · 카테고리 링크. 지금 주소에 맞는 항목을 켠다.
+// 관리자 왼쪽 메뉴 — 대시보드 · 메뉴 · 재료 · 카테고리 · 주문 · 회원 링크.
 // 좁은 화면에서는 AdminShell 이 모달처럼 여닫는다.
 import type { Ref } from "react";
 import Link from "next/link";
@@ -28,6 +28,14 @@ const SECTIONS = [
       { href: "/admin/ingredients/create", name: "새 재료 등록", icon: "⚗️" },
       { href: "/admin/categories", name: "카테고리 관리", icon: "🧺" },
       { href: "/admin/categories/create", name: "새 재료 분류", icon: "➕" },
+    ],
+  },
+  {
+    title: "손님과 주문",
+    mark: "✦",
+    items: [
+      { href: "/admin/orders", name: "주문 관리", icon: "🧾" },
+      { href: "/admin/members", name: "회원 관리", icon: "🐱" },
     ],
   },
 ];

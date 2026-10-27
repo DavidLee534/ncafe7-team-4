@@ -10,4 +10,7 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
 
   // 이 메뉴를 기반으로 만든 포션이 있는지. 있으면 관리자가 메뉴를 지울 수 없다
   boolean existsByBaseMenuId(Long menuId);
+
+  // 회원이 만든 포션 수 (관리자 회원 상세). 포션이 있는 회원은 삭제를 막는 데도 쓴다
+  long countByMemberId(Long memberId);
 }
