@@ -106,9 +106,13 @@ class CheckoutIntegrationTest {
 
     @Test
     void anotherMembersRecipeAndReceiptAreNotExposed() {
-        Long recipeId = jdbc.queryForObject("select r.id from recipes r join members m on r.member_id=m.id where m.email='cheese@ncafe.dev' fetch first 1 row only", Long.class);
+        // 자랑글에 올라온 포션은 남도 담을 수 있으므로, 자랑글에 없는 치즈손님 포션으로 확인한다
+        Long cheese = jdbc.queryForObject("select id from members where email='cheese@ncafe.dev'", Long.class);
+        jdbc.update("insert into recipes (member_id, base_menu_id, name, grade, price, color, created_at) values (?, ?, '숨겨 둔 포션', 'normal', 4000, '#000000', current_timestamp)", cheese, menuId);
+        Long recipeId = jdbc.queryForObject("select id from recipes where name='숨겨 둔 포션'", Long.class);
         assertThatThrownBy(() -> carts.add(new CartEntryRequest(null, recipeId, 1)))
             .hasMessageContaining("내 레시피");
+        jdbc.update("delete from recipes where id=?", recipeId);
         carts.add(new CartEntryRequest(menuId, null, 1));
         var receipt = checkout.checkout(UUID.randomUUID().toString(), request(carts.cart().version()));
         Long other = jdbc.queryForObject("select id from members where email='cheese@ncafe.dev'", Long.class);
