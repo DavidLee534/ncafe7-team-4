@@ -12,6 +12,8 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SecretRecipe {
 
+  public enum Grade { rare, legend }
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;  // id
@@ -26,6 +28,13 @@ public class SecretRecipe {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "category_id")
   private Category category;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "base_ingredient_id")
+  private Ingredient baseIngredient;
+
+  @Column(name = "ingredient_combo", unique = true, length = 500)
+  private String ingredientCombo;
 
   @Column(nullable = false)
   private String color; // 포션 색 (#RRGGBB)
@@ -61,6 +70,36 @@ public class SecretRecipe {
     this.description = description;
     this.riddle = riddle;
     this.visible = visible;
+  }
+
+  // 재료 조합을 저장하는 기존 API와 호환한다.
+  public SecretRecipe(String name, String description, Grade grade, Ingredient baseIngredient,
+      String ingredientCombo, String riddle, String color) {
+    this.name = name;
+    this.description = description;
+    this.grade = grade.name();
+    this.baseIngredient = baseIngredient;
+    this.ingredientCombo = ingredientCombo;
+    this.riddle = riddle;
+    this.color = color;
+    this.visible = true;
+  }
+
+  public void update(String name, String description, Grade grade, Ingredient baseIngredient,
+      String ingredientCombo, String riddle, String color) {
+    this.name = name;
+    this.description = description;
+    this.grade = grade.name();
+    this.baseIngredient = baseIngredient;
+    this.ingredientCombo = ingredientCombo;
+    this.riddle = riddle;
+    this.color = color;
+    this.updatedAt = LocalDateTime.now();
+  }
+
+  public void setIngredientCombination(Ingredient baseIngredient, String ingredientCombo) {
+    this.baseIngredient = baseIngredient;
+    this.ingredientCombo = ingredientCombo;
   }
 
   // 비밀 레시피 수정 화면의 값으로 덮어쓴다

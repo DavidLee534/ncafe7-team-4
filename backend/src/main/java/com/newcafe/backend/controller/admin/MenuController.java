@@ -31,7 +31,9 @@ public class MenuController {
     return menuService.create(request);
   }
 
-  // 메뉴 목록. 쿼리스트링의 조건(?categoryId=&status=&keyword=&ownerRecommended=&sort=&size=)으로 거른다. 조건이 없으면 전체
+  // 메뉴 목록. 쿼리스트링의
+  // 조건(?categoryId=&status=&keyword=&ownerRecommended=&sort=&size=)으로 거른다. 조건이
+  // 없으면 전체
   @GetMapping
   public List<MenuListResponseDto> getList(@ModelAttribute MenuListRequestDto request) {
     return menuService.getList(request);

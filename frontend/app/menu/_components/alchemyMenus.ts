@@ -9,7 +9,7 @@ export const emotions: { name: Emotion; color: string }[] = [
 ];
 export const tastes: Taste[] = ["달콤한", "쌉싸름한", "상큼한", "고소한", "시원한", "따뜻한"];
 
-export type BasicMenu = { category: string; name: string; base: string; ingredient: string; price: number; emotions: Emotion[]; tastes: Taste[]; effects: string[]; color: string; description: string }; // ingredient 는 재료 연금술 선반의 기반 재료 이름. effects·color 는 README 재료 마스터의 기반 재료 효과 태그와 포션 색
+export type BasicMenu = { id?: number; category: string; name: string; base: string; ingredient: string; price: number; emotions: Emotion[]; tastes: Taste[]; effects: string[]; color: string; description: string }; // id 는 DB 메뉴 번호. ingredient 는 재료 연금술 선반의 기반 재료 이름.
 
 // 기본 메뉴 30종 — 추가 재료 없이 기반 재료만 고른 포션. 감정 연금술 추천과 기본 메뉴 목록이 함께 쓴다.
 export const basicMenus: BasicMenu[] = [
@@ -50,7 +50,7 @@ export const basicMenuCategories = [...new Set(basicMenus.map((menu) => menu.cat
 export const categoryIcons: Record<string, string> = { 커피: "☕", 논커피: "🍫", 과일라떼: "🍓", 티: "🍵", 스무디: "🧋", 프라페: "🧊", 디저트: "🧁", 푸드: "🥯" };
 
 // 메뉴 번호(1~30)는 위 목록 순서. 메뉴 책장·기본 메뉴·상세 페이지가 같은 번호와 그림을 쓴다.
-export const basicMenuId = (menu: BasicMenu) => basicMenus.indexOf(menu) + 1;
+export const basicMenuId = (menu: BasicMenu) => basicMenus.findIndex(item => item.base === menu.base) + 1;
 export const basicMenuImage = (id: number) => `/images/menus/basic/${String(id).padStart(2, "0")}.svg`;
 export const getBasicMenu = (id: number): BasicMenu | undefined => basicMenus[id - 1];
 // 효과 문구 — 첫 효과 태그는 +2, 나머지는 +1 (예: 활력 +2 · 상큼함 +1)

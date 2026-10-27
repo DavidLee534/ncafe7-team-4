@@ -7,7 +7,7 @@ type Props = {
   total: number;
 };
 
-// 오른쪽 결제 요약 — 잔 수 · 합계 · 주문하기(모의 결제 페이지로)
+// 오른쪽 주문 요약 — 잔 수 · 합계 · 주문하기
 export default function CartSummary({ count, total }: Props) {
   return (
     <aside className={styles.summary} aria-label="주문 요약">

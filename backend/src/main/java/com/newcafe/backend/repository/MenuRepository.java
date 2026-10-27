@@ -1,12 +1,13 @@
 package com.newcafe.backend.repository;
 
-import com.newcafe.backend.entity.Menu;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import com.newcafe.backend.entity.Menu;
 
 public interface MenuRepository extends JpaRepository<Menu, Long> {
 
@@ -38,12 +39,8 @@ public interface MenuRepository extends JpaRepository<Menu, Long> {
       @Param("keyword") String keyword,
       Pageable pageable);
 
-  // 등록할 때 같은 slug가 있는지 확인
+  // slug를 만들 때 다른 메뉴가 이미 쓰고 있는지 확인
   boolean existsBySlug(String slug);
-
-  // 수정할 때 자기 자신을 뺀 다른 메뉴에 같은 slug가 있는지 확인
-  boolean existsBySlugAndIdNot(String slug, Long id);
-
   // 카테고리에 속한 메뉴 수. 메뉴가 있는 카테고리는 삭제를 막는 데 쓴다
   long countByCategoryId(Long categoryId);
 

@@ -1,4 +1,5 @@
-// 관리자 홈(대시보드) — 밤하늘 헤더 · 현황 숫자 · 손봐야 할 메뉴 · 카테고리별 메뉴 · 최근 수정. 데이터는 백엔드에서 받는다.
+// 관리자 홈(대시보드) — 밤하늘 헤더 · 현황 숫자 · 처리할 주문 · 손봐야 할 메뉴 · 카테고리별 메뉴 · 재료 선반 · 최근 수정.
+// 데이터는 백엔드 GET /api/v1/admin 한 번으로 받는다. 세기·고르기는 백엔드가 하고, 페이지는 나눠 주기만 한다.
 // (dashboard) 는 주소에 안 들어가는 폴더라 이 페이지의 주소는 /admin 이다.
 import Link from "next/link";
 import AdminPageHeader, { headerOverlap } from "../_components/AdminPageHeader";
@@ -6,23 +7,22 @@ import StatCard, { type Stat } from "../_components/StatCard";
 import MokaMessage from "../../_components/MokaMessage";
 import DashboardAttention from "./_components/DashboardAttention";
 import DashboardCategories from "./_components/DashboardCategories";
+import DashboardIngredients from "./_components/DashboardIngredients";
+import DashboardOrders from "./_components/DashboardOrders";
 import DashboardRecent from "./_components/DashboardRecent";
-import { countMenusByStatus, getCategories, getMenus } from "@/lib/adminApi";
-import { mokaReport, recentlyUpdated } from "@/lib/cat";
+import { getAdminMain } from "@/lib/adminApi";
+import { mokaReport } from "@/lib/cat";
+import { won } from "@/lib/format";
 
 export default async function AdminDashboardPage() {
-  const [menus, categories] = await Promise.all([getMenus(), getCategories()]);
-  const counts = countMenusByStatus(menus);
-  const visibleCategories = categories.filter((item) => item.visible).length;
+  const main = await getAdminMain();
 
   const stats: Stat[] = [
-    { label: "전체 메뉴", value: `${counts.all}개` },
-    { label: "판매 중", value: `${counts.on}개` },
-    { label: "품절 · 비공개", value: `${counts.soldout + counts.hidden}개` },
-    { label: "공개 카테고리", value: `${visibleCategories} / ${categories.length}` },
+    { label: "판매 중 메뉴", value: `${main.menus.on} / ${main.menus.all}` },
+    { label: "처리할 주문", value: `${main.orders.ordered + main.orders.paid}건` },
+    { label: "오늘 접수 금액", value: won(main.orders.todayOrderAmount) },
+    { label: "회원", value: `${main.members.all}명` },
   ];
-  const attention = menus.filter((menu) => menu.status !== "on");
-  const shelf = categories.map((category) => ({ category, count: category.menuCount }));
 
   return (
     <>
@@ -30,7 +30,7 @@ export default async function AdminDashboardPage() {
         cat
         crumb="DASHBOARD"
         title="오늘의 공방"
-        description="모카 점장이 밤새 정리한 메뉴와 카테고리 현황이에요."
+        description={`모카 점장이 밤새 정리한 공방 현황이에요. 오늘 주문 ${main.orders.todayCount}건.`}
         actions={
           <>
             <Link href="/menu" className="m3-btn btn:outlined">
@@ -55,13 +55,17 @@ export default async function AdminDashboardPage() {
         style={{ "--grid-template-columns-ex": "minmax(0, 3fr) minmax(0, 2fr)" }}
       >
         <div className="display:flex flex-direction:column gap:5">
-          <DashboardAttention menus={attention} />
-          <DashboardCategories rows={shelf} />
+          <DashboardOrders orders={main.pendingOrders} counts={main.orders} />
+          <DashboardAttention menus={main.attentionMenus} />
+          <DashboardCategories categories={main.categories} />
         </div>
-        <DashboardRecent menus={recentlyUpdated(menus)} />
+        <div className="display:flex flex-direction:column gap:5">
+          <DashboardIngredients counts={main.ingredients} />
+          <DashboardRecent menus={main.recentMenus} />
+        </div>
       </div>
 
-      <MokaMessage message={mokaReport(counts)} label="MOKA'S NIGHT REPORT" />
+      <MokaMessage message={mokaReport(main.menus)} label="MOKA'S NIGHT REPORT" />
     </>
   );
 }

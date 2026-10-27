@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.*;
 
-// 회원. 인증을 붙이기 전까지는 1번 회원을 "현재 회원"으로 쓴다 (common/auth/CurrentMember)
+// 회원. 로그인 세션에서 현재 회원을 조회한다.
 // 멤버십 등급은 컬럼으로 두지 않고 주문 수로 계산한다 (5회 이상, 20회 이상)
 @Entity
 @Table(name = "members")
@@ -47,8 +47,14 @@ public class Member {
   }
 
   // 마이페이지 "회원 정보 수정"
-  public void updateAccount(String nickname) {
+  public void updateAccount(String nickname, String email) {
     this.nickname = nickname;
+    this.email = email;
+    this.updatedAt = LocalDateTime.now();
+  }
+
+  public void changePassword(String passwordHash) {
+    this.password = passwordHash;
     this.updatedAt = LocalDateTime.now();
   }
 

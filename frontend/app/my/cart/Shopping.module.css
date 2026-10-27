@@ -1,0 +1,208 @@
+.page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+  color: var(--color-text, inherit);
+}
+.hero {
+  margin-bottom: 32px;
+}
+.hero span {
+  font-size: 12px;
+  letter-spacing: 0.14em;
+}
+.hero h1 {
+  font-size: clamp(28px, 4vw, 42px);
+  margin: 12px 0;
+}
+.hero p {
+  opacity: 0.75;
+}
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 24px;
+  align-items: start;
+}
+.card {
+  border: 1px solid color-mix(in srgb, currentColor 18%, transparent);
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 24px;
+  background: var(--color-surface, var(--color-surface-1, #fff));
+}
+.card h2 {
+  font-size: 20px;
+  margin: 0 0 18px;
+}
+.heading {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+}
+.items {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.items li {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 22px 0;
+  border-top: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+}
+.items li > div:first-child {
+  flex: 1;
+}
+.items h3 {
+  font-size: 16px;
+  margin: 0 0 8px;
+}
+.items p {
+  margin: 4px 0;
+}
+.quantity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.page button {
+  font: inherit;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+  background: transparent;
+  color: inherit;
+}
+.page button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.total {
+  display: block;
+  font-size: 30px;
+  margin: 20px 0;
+}
+.primary {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+  text-decoration: none;
+  border-radius: 12px;
+  padding: 14px 20px !important;
+  background: #785038 !important;
+  color: #fff !important;
+  font-weight: 700;
+}
+.notice {
+  padding: 18px;
+  border: 1px solid #b87b36;
+  border-radius: 12px;
+  margin: 16px 0;
+}
+.notice a,
+.notice button {
+  margin-left: 12px;
+}
+.error {
+  color: #be4035;
+}
+.fields {
+  display: grid;
+  gap: 18px;
+}
+.fields label {
+  display: grid;
+  gap: 8px;
+}
+.fields input,
+.fields select,
+.fields textarea {
+  font: inherit;
+  color: inherit;
+  background: transparent;
+  border: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+  padding: 12px;
+  border-radius: 10px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.fields select option {
+  color: #222;
+  background: #fff;
+}
+.fields fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+.fields legend {
+  margin-bottom: 12px;
+}
+.summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 12px 0;
+}
+.actions {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 24px;
+}
+.receipt {
+  max-width: 760px;
+  margin: 0 auto;
+}
+.receipt dl > div {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 16px;
+  margin: 14px 0;
+}
+.receipt dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.agreement {
+  display: flex !important;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+}
+.agreement input {
+  margin-top: 5px;
+}
+.error a {
+  margin-left: 8px;
+}
+@media (max-width: 760px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  .page {
+    padding: 28px 16px 60px;
+  }
+  .card {
+    padding: 18px;
+  }
+  .items li {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .items li > div:first-child {
+    flex-basis: 100%;
+  }
+  .quantity {
+    margin-right: auto;
+  }
+  .receipt dl > div {
+    grid-template-columns: 85px 1fr;
+  }
+}

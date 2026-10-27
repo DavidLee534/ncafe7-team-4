@@ -13,7 +13,7 @@ public class Category {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;  // id
+  private Long id; // id
 
   @Column(nullable = false, unique = true)
   private String name; // 화면에 보이는 이름 (예: 커피)
@@ -28,10 +28,10 @@ public class Category {
   private boolean visible; // false 면 사용자 화면에서 숨김
 
   @Column(name = "created_at", updatable = false)
-  private LocalDateTime createdAt;  // 등록일
+  private LocalDateTime createdAt; // 등록일
 
   @Column(name = "updated_at")
-  private LocalDateTime updatedAt;  // 수정일
+  private LocalDateTime updatedAt; // 수정일
 
   @Builder
   private Category(String name, String engName, Integer sortOrder, boolean visible) {

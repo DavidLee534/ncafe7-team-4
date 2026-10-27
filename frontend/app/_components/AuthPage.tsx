@@ -2,29 +2,43 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent } from "react";
+import { FormEvent, useState } from "react";
 import { useAuth } from "./AuthContext";
+import { memberApi, type Account } from "@/lib/memberApi";
 import styles from "./AuthPage.module.css";
 
 type AuthMode = "login" | "signup";
+type LoginAccount = Account & { role: "member" | "admin" };
 
 export default function AuthPage({ mode }: { mode: AuthMode }) {
   const isLogin = mode === "login";
   const router = useRouter();
   const { signIn } = useAuth();
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
   const title = isLogin ? "다시 만났네요, 손님냥" : "모카의 공방에 어서 와요";
 
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
-    const email = String(form.get("email") ?? "");
+    const email = String(form.get("email") ?? "").trim();
+    const password = String(form.get("password") ?? "");
     const nickname = String(form.get("nickname") ?? "").trim();
-    if (isLogin) {
-      signIn({ name: nickname || email.split("@")[0] || "달빛 손님", email });
-      router.push("/mypage");
-      return;
+    setBusy(true);
+    setError("");
+    try {
+      if (isLogin) {
+        const account = await memberApi<LoginAccount>("/auth/login", { method: "POST", body: JSON.stringify({ email, password }) });
+        signIn({ name: account.nickname, email: account.email, role: account.role });
+        router.push(account.role === "admin" ? "/admin" : "/my");
+      } else {
+        await memberApi<Account>("/auth/signup", { method: "POST", body: JSON.stringify({ email, password, nickname }) });
+        router.push("/login?signup=complete");
+      }
+    } catch (cause) {
+      setError((cause as Error).message);
+      setBusy(false);
     }
-    router.push("/login?signup=complete");
   };
 
   return <main className={styles.page}>
@@ -38,7 +52,7 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
         <ul>
           <li>✦ 나만의 포션 레시피 저장</li>
           <li>✦ 비밀 레시피 도감 수집</li>
-          <li>✦ 주문·모의 결제 내역 확인</li>
+          <li>✦ 주문 내역 확인</li>
         </ul>
       </aside>
       <section className={styles.card} aria-labelledby="auth-title">
@@ -50,7 +64,8 @@ export default function AuthPage({ mode }: { mode: AuthMode }) {
           <label>이메일<input name="email" type="email" placeholder="moka@example.com" autoComplete="email" required /></label>
           <label>비밀번호<input name="password" type="password" placeholder="8자 이상 입력" autoComplete={isLogin ? "current-password" : "new-password"} minLength={8} required /></label>
           {!isLogin && <label className={styles.agree}><input type="checkbox" required /> <span>이용 약관과 개인정보 처리방침에 동의해요.</span></label>}
-          <button type="submit">{isLogin ? "공방으로 로그인" : "수습생 등록하기"}</button>
+          {error && <p role="alert" className={styles.feedback}>{error}</p>}
+          <button type="submit" disabled={busy}>{busy ? "처리 중…" : isLogin ? "공방으로 로그인" : "수습생 등록하기"}</button>
         </form>
         <p className={styles.feedback}>{isLogin ? "수습생 등록을 마쳤다면, 방금 사용한 이메일과 비밀번호로 로그인해 주세요냥." : "등록 후에는 로그인 화면에서 이메일과 비밀번호를 다시 입력해 주세요."}</p>
         <div className={styles.divider}><span>또는</span></div>

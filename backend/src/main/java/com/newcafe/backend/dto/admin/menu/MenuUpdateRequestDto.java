@@ -9,7 +9,8 @@ import java.util.List;
 
 // PUT /api/v1/admin/menus/{id} 요청 본문. 수정할 메뉴의 id는 경로에서 받는다
 // 이미지(imageUrl)와 인기(popular)는 아직 화면에서 바꾸지 않아서 받지 않고 기존 값을 유지한다
-// status, ownerRecommended, slug, emotionTags, tasteTags를 비우면(null) 기존 값을 유지한다
+// slug는 받지 않는다. 처음 정해진 주소를 그대로 쓴다 (영문 이름을 바꿔도 손님 화면 주소는 바뀌지 않는다)
+// status, ownerRecommended, emotionTags, tasteTags를 비우면(null) 기존 값을 유지한다
 // 태그를 모두 지우려면 빈 목록([])을 보낸다
 // 검증에 실패하면 400 (컨트롤러의 @Valid)
 public record MenuUpdateRequestDto(
@@ -35,10 +36,6 @@ public record MenuUpdateRequestDto(
     String status,
 
     Boolean ownerRecommended,
-
-    @Size(max = 60, message = "slug는 60자 이하로 입력하세요.")
-    @Pattern(regexp = MenuTagRules.SLUG, message = "slug는 영문 소문자, 숫자, 하이픈(-)으로 입력하세요. (예: caffe-latte)")
-    String slug,
 
     @Size(max = 3, message = "감정 태그는 3개까지 고를 수 있습니다.")
     List<@Pattern(regexp = MenuTagRules.EMOTIONS, message = "알 수 없는 감정 태그입니다.") String> emotionTags,

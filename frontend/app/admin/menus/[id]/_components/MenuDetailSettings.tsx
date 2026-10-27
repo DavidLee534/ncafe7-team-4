@@ -1,4 +1,4 @@
-// 메뉴 상세 · 판매 설정 — 판매 상태 · 신메뉴 표시 · 사장 추천 · 비밀 레시피
+// 메뉴 상세 · 판매 설정 — 판매 상태와 사장 추천
 import type { Menu } from "@/lib/types";
 import DetailCard from "../../../_components/DetailCard";
 import MenuStatusBadge from "../../../_components/MenuStatusBadge";
@@ -13,14 +13,10 @@ export default function MenuDetailSettings({ menu }: { menu: Menu }) {
             <td>
               <MenuStatusBadge status={menu.status} />
             </td>
-            <th scope="row">신메뉴 표시</th>
-            <td>{menu.isNew ? "예" : "아니오"}</td>
           </tr>
           <tr>
             <th scope="row">사장 추천</th>
             <td>{menu.isRecommended ? "예" : "아니오"}</td>
-            <th scope="row">비밀 레시피</th>
-            <td>{menu.isSecret ? "✦ 등록됨" : "아니오"}</td>
           </tr>
         </tbody>
       </table>

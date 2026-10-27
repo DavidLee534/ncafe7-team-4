@@ -1,8 +1,9 @@
 package com.newcafe.backend.dto.admin.menu;
 
+import java.time.LocalDateTime;
+
 import com.newcafe.backend.entity.Category;
 import com.newcafe.backend.entity.Menu;
-import java.time.LocalDateTime;
 
 // GET /api/v1/admin/menus 응답의 한 줄 (메뉴 목록)
 // 지금은 다른 응답과 필드가 같지만, 화면마다 따로 바뀔 수 있게 나눠 둔다
@@ -19,8 +20,7 @@ public record MenuListResponseDto(
     String status,
     boolean ownerRecommended,
     LocalDateTime createdAt,
-    LocalDateTime updatedAt
-) {
+    LocalDateTime updatedAt) {
   public static MenuListResponseDto from(Menu menu) {
     Category category = menu.getCategory();
     return new MenuListResponseDto(
@@ -35,7 +35,6 @@ public record MenuListResponseDto(
         menu.getStatus() != null ? menu.getStatus() : "on",
         menu.isOwnerRecommended(),
         menu.getCreatedAt(),
-        menu.getUpdatedAt()
-    );
+        menu.getUpdatedAt());
   }
 }

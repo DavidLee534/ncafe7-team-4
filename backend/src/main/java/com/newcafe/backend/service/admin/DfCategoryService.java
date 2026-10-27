@@ -11,7 +11,6 @@ import com.newcafe.backend.dto.admin.category.CategoryUpdatedResponseDto;
 import com.newcafe.backend.entity.Category;
 import com.newcafe.backend.repository.CategoryRepository;
 import com.newcafe.backend.repository.MenuRepository;
-import com.newcafe.backend.repository.SecretRecipeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +28,6 @@ public class DfCategoryService implements CategoryService {
 
   private final CategoryRepository categoryRepository;
   private final MenuRepository menuRepository;
-  private final SecretRecipeRepository secretRecipeRepository;
 
   // 같은 이름이 있으면 409. sortOrder를 비우면 맨 뒤에 붙인다
   @Override
@@ -93,16 +91,13 @@ public class DfCategoryService implements CategoryService {
     return getList();
   }
 
-  // 메뉴나 비밀 레시피가 남아 있으면 409. 다른 카테고리로 옮기거나 지운 뒤에 삭제할 수 있다
+  // 메뉴가 남아 있으면 409. 메뉴를 다른 카테고리로 옮기거나 지운 뒤에 삭제할 수 있다
   @Override
   @Transactional
   public void delete(Long id) {
     Category category = findCategory(id);
     if (countMenus(category) > 0) {
       throw new IllegalStateException("메뉴가 있는 카테고리는 삭제할 수 없습니다: " + category.getName());
-    }
-    if (secretRecipeRepository.existsByCategoryId(id)) {
-      throw new IllegalStateException("비밀 레시피가 있는 카테고리는 삭제할 수 없습니다: " + category.getName());
     }
     categoryRepository.delete(category);
   }

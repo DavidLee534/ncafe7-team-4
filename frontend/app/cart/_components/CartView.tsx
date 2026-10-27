@@ -1,5 +1,5 @@
 "use client";
-// 장바구니 화면 — 저장된 장바구니를 읽어서 목록 · 합계를 배치한다. 주문하기는 모의 결제 페이지로 이어진다.
+// 장바구니 화면 — 저장된 장바구니를 읽어서 목록 · 합계를 배치한다.
 import { cartCount, cartTotal, clearCart, useCart } from "@/lib/cart";
 import CartItemRow from "./CartItemRow";
 import CartSummary from "./CartSummary";
