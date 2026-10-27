@@ -57,7 +57,7 @@ class AuthFlowTests {
 
     // 조회 API 는 로그인 없이도 열려 있다
     HttpClient guest = HttpClient.newHttpClient();
-    assertTrue(send(guest, "GET", "/api/v1/menus", null).statusCode() != 401);
+    assertEquals(200, send(guest, "GET", "/api/v1/menus", null).statusCode());
   }
 
   @Test

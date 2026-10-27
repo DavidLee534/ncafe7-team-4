@@ -3,7 +3,7 @@ import { PAYMENT_METHOD, won } from "@/lib/format";
 import type { OrderDetail } from "@/lib/types";
 import DetailCard from "../../../_components/DetailCard";
 
-export default function OrderDetailPayment({ payment }: { payment: OrderDetail["payment"] }) {
+export default function OrderDetailPayment({ payment, status }: { payment: OrderDetail["payment"]; status: OrderDetail["status"] }) {
   return (
     <DetailCard id="payment" title="결제 정보">
       {payment ? (
@@ -32,7 +32,7 @@ export default function OrderDetailPayment({ payment }: { payment: OrderDetail["
           </tbody>
         </table>
       ) : (
-        <p className="color:text-muted">결제 기록이 없습니다.</p>
+        <p className="color:text-muted">{status === "ordered" ? "현장 결제 예정입니다. 아직 결제 기록이 없습니다." : "결제 기록이 없습니다."}</p>
       )}
     </DetailCard>
   );

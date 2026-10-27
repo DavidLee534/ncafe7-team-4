@@ -1,4 +1,4 @@
-// 주문 상태 버튼 — 다음 단계(제조 시작 · 제조 완료 · 수령 완료) 하나와, 결제 완료일 때만 취소.
+// 주문 상태 버튼 — 다음 단계(제조 시작 · 제조 완료 · 수령 완료)와 제조 전 취소.
 // 수령 완료 · 취소된 주문은 더 바꿀 수 없어서 버튼이 없다. 목록의 줄과 상세 헤더에서 함께 쓴다.
 import { ORDER_NEXT_STEP } from "@/lib/format";
 import type { Order } from "@/lib/types";
@@ -26,7 +26,7 @@ export default function OrderStatusActions({ order, size = "xs" }: Props) {
       >
         {next.label}
       </StatusChangeButton>
-      {order.status === "paid" && (
+      {(order.status === "ordered" || order.status === "paid") && (
         <StatusChangeButton
           path={path}
           status="cancelled"

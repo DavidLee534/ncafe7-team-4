@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.*;
 
-// 주문. 장바구니를 주문으로 만들고(POST /orders) 결제하면(POST /orders/{id}/payments) paid 가 된다
+// 주문. 장바구니를 주문으로 접수하고, 결제는 매장에서 진행한다.
 // 현장 결제 주문: ordered(접수) → brewing(제조중) → ready(제조완료) → done(수령완료)
 // ordered 또는 기존 paid 상태에서는 cancelled(취소) 로 바꿀 수 있다
 // order 는 SQL 예약어라 테이블 이름은 orders
@@ -28,7 +28,7 @@ public class Order {
   private String orderNumber; // 화면에 보이는 주문번호 (예: NC261014-4821)
 
   @Column(nullable = false)
-  private String status; // paid / brewing / ready / done / cancelled
+  private String status; // ordered / paid(기존 결제 주문) / brewing / ready / done / cancelled
 
   @Column(name = "pickup_name", nullable = false)
   private String pickupName; // 포션이 나오면 불러 줄 이름
@@ -61,7 +61,7 @@ public class Order {
       String request) {
     this.member = member;
     this.orderNumber = orderNumber;
-    this.status = status != null ? status : "paid";
+    this.status = status != null ? status : "ordered";
     this.pickupName = pickupName;
     this.pickupType = pickupType;
     this.request = request;
@@ -90,7 +90,7 @@ public class Order {
     this.updatedAt = LocalDateTime.now();
   }
 
-  // 회원 "주문 취소". 제조를 시작하기 전(paid)에만 할 수 있다
+  // 회원 "주문 취소". 제조를 시작하기 전(ordered 또는 paid)에만 할 수 있다
   public void cancel() {
     changeStatus("cancelled");
   }

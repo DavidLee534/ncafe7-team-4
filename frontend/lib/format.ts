@@ -33,6 +33,7 @@ export const EFFECT_TAGS = ["활력", "진정", "달콤함", "상큼함", "고�
 
 // 주문 상태 → 라벨과 m3-badge 색
 export const ORDER_STATUS: Record<OrderStatus, { label: string; color: "primary" | "warning" | "success" | "neutral" | "danger" }> = {
+  ordered: { label: "접수 완료", color: "primary" },
   paid: { label: "결제 완료", color: "primary" },
   brewing: { label: "제조 중", color: "warning" },
   ready: { label: "제조 완료", color: "success" },
@@ -40,8 +41,9 @@ export const ORDER_STATUS: Record<OrderStatus, { label: string; color: "primary"
   cancelled: { label: "취소", color: "danger" },
 };
 
-// 지금 상태에서 넘어갈 다음 단계와 버튼 이름. 규칙은 백엔드(Order.changeStatus)와 같다. 취소는 paid 에서만
+// 지금 상태에서 넘어갈 다음 단계와 버튼 이름. 취소는 제조 시작 전까지 가능하다.
 export const ORDER_NEXT_STEP: Partial<Record<OrderStatus, { status: OrderStatus; label: string }>> = {
+  ordered: { status: "brewing", label: "제조 시작" },
   paid: { status: "brewing", label: "제조 시작" },
   brewing: { status: "ready", label: "제조 완료" },
   ready: { status: "done", label: "수령 완료" },

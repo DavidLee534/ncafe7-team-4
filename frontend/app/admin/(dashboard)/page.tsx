@@ -19,8 +19,8 @@ export default async function AdminDashboardPage() {
 
   const stats: Stat[] = [
     { label: "판매 중 메뉴", value: `${main.menus.on} / ${main.menus.all}` },
-    { label: "처리할 주문", value: `${main.orders.paid}건` },
-    { label: "오늘 매출", value: won(main.orders.todaySales) },
+    { label: "처리할 주문", value: `${main.orders.ordered + main.orders.paid}건` },
+    { label: "오늘 접수 금액", value: won(main.orders.todayOrderAmount) },
     { label: "회원", value: `${main.members.all}명` },
   ];
 

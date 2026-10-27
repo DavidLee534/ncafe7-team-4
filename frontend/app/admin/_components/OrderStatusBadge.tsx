@@ -1,4 +1,4 @@
-// 주문 상태 배지 — 결제 완료 / 제조 중 / 제조 완료 / 수령 완료 / 취소
+// 주문 상태 배지 — 접수 완료 / 결제 완료 / 제조 중 / 제조 완료 / 수령 완료 / 취소
 import { ORDER_STATUS } from "@/lib/format";
 import type { OrderStatus } from "@/lib/types";
 

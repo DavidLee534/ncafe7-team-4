@@ -41,7 +41,7 @@ export default function ShowcaseForm({ id }: { id?: number }) {
   }
   return <><UserHeader /><MemberGate><main className={styles.page}><div className={styles.inner}><Link className={styles.back} href={id ? `/potion-showcases/${id}` : "/potion-showcases"}>← 게시판으로</Link><section className={styles.panel}>
     <span className={styles.eyebrow}>POTION STORY</span><h1>{id ? "포션 자랑 수정" : "내 포션 자랑하기"}</h1>
-    {!id && recipes.length === 0 && <p className={styles.muted}>도감에 저장된 포션이 없으면 글을 쓸 수 없어요. <Link className={styles.back} href="/codex">도감 보러 가기</Link></p>}
+    {!id && recipes.length === 0 && <p className={styles.muted}>도감에 저장된 포션이 없으면 글을 쓸 수 없어요. <Link className={styles.back} href="/my/recipes">도감 보러 가기</Link></p>}
     <form onSubmit={submit}>
       {!id && <label className={styles.field}>자랑할 포션<select value={recipeId} onChange={e => setRecipeId(Number(e.target.value))} required>{recipes.map(recipe => <option value={recipe.id} key={recipe.id}>{recipe.name} · {recipe.price.toLocaleString()}원</option>)}</select></label>}
       <label className={styles.field}>제목<input value={title} onChange={e => setTitle(e.target.value)} maxLength={50} required placeholder="내 포션의 이야기를 들려주세요" /></label>

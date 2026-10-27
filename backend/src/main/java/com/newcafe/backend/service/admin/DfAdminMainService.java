@@ -40,7 +40,7 @@ public class DfAdminMainService implements AdminMainService {
         menuService.getCategories(),
         getAttentionMenus(),
         menuService.getList(new MenuListRequestDto(null, null, null, null, "updatedAt", 5)),
-        orderRepository.findTop5ByStatusOrderByCreatedAtAsc("paid").stream()
+        orderRepository.findTop5ByStatusInOrderByCreatedAtAsc(List.of("ordered", "paid")).stream()
             .map(AdminMainOrderDto::from)
             .toList());
   }
@@ -57,6 +57,7 @@ public class DfAdminMainService implements AdminMainService {
   private AdminMainOrderSummaryDto getOrderSummary() {
     LocalDateTime today = LocalDate.now().atStartOfDay();
     return new AdminMainOrderSummaryDto(
+        orderRepository.countByStatus("ordered"),
         orderRepository.countByStatus("paid"),
         orderRepository.countByStatus("brewing"),
         orderRepository.countByStatus("ready"),

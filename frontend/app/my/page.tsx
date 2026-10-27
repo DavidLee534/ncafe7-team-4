@@ -54,7 +54,7 @@ export default function MyPage() {
     {serverStatus === "unavailable" && <p role="alert" className={styles.muted}>주문과 회원 정보를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p>}
     {serverStatus === "ready" && !connected && <p role="status" className={styles.muted}>로그인 정보가 일치하지 않습니다. 다시 로그인해 주세요.</p>}
     <div className={`${styles.grid} ${styles.overview}`}>
-      <div className={styles.card}>저장한 포션<strong>{serverData ? serverData.recipes.length : "—"}</strong><Link className={styles.link} href="/codex">도감 보기 →</Link></div>
+      <div className={styles.card}>저장한 포션<strong>{serverData ? serverData.recipes.length : "—"}</strong><Link className={styles.link} href="/my/recipes">도감 보기 →</Link></div>
       <div className={styles.card}>포션 자랑 글<strong>{serverData ? `${serverData.showcases.length}${serverData.showcases.length === 3 ? "+" : ""}` : "—"}</strong>{serverData ? <Link className={styles.link} href="/potion-showcases">게시판 보기 →</Link> : <span className={styles.muted}>서버 연결 후 확인 가능</span>}</div>
     </div>
     {serverData && <section id="orders" className={styles.panel}>

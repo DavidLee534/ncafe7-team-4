@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.*;
 
-// 모의 결제 기록. 주문 하나에 결제 하나 (POST /orders/{id}/payments)
+// 기존 주문의 결제 기록. 현재 현장 결제 주문은 접수 시 결제 기록을 만들지 않는다.
 @Entity
 @Table(name = "payments")
 @Getter
@@ -29,7 +29,7 @@ public class Payment {
   private Integer amount; // 결제 금액 (= 주문 합계)
 
   @Column(name = "approval_code", nullable = false)
-  private String approvalCode; // 모의 승인번호
+  private String approvalCode; // 결제 승인번호
 
   @Column(name = "paid_at", updatable = false)
   private LocalDateTime paidAt;  // 결제 시각

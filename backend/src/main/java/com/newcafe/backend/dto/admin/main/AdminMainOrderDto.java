@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 public record AdminMainOrderDto(
     Long id,
     String orderNumber,
+    String status,
     String pickupName,
     String pickupType,
     Integer totalPrice,
@@ -16,6 +17,7 @@ public record AdminMainOrderDto(
     return new AdminMainOrderDto(
         order.getId(),
         order.getOrderNumber(),
+        order.getStatus(),
         order.getPickupName(),
         order.getPickupType(),
         order.getTotalPrice(),

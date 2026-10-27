@@ -43,7 +43,7 @@ export default async function AdminOrderDetailPage(props: PageProps<"/admin/orde
           <OrderDetailInfo order={order} />
           <OrderDetailItems order={order} />
         </div>
-        <OrderDetailPayment payment={order.payment} />
+        <OrderDetailPayment payment={order.payment} status={order.status} />
       </div>
     </>
   );

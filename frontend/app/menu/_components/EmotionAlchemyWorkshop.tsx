@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { addToCart } from "@/lib/cart";
 import AlchemyModeLayout from "./AlchemyModeLayout";
-import { basicMenus as menus, emotions, tastes, type BasicMenu, type Emotion, type Taste } from "./alchemyMenus";
+import { emotions, tastes, type BasicMenu, type Emotion, type Taste } from "./alchemyMenus";
 import styles from "./EmotionAlchemyWorkshop.module.css";
 import own from "./AlchemyWorkshop.module.css";
 
@@ -16,7 +16,7 @@ const emotionTracks = [
 
 type EmotionTrack = (typeof emotionTracks)[number];
 
-export default function EmotionAlchemyWorkshop() {
+export default function EmotionAlchemyWorkshop({ menus }: { menus: BasicMenu[] }) {
   const [track, setTrack] = useState<EmotionTrack["id"] | null>(null);
   const [emotion, setEmotion] = useState<Emotion | null>(null); // 처음에는 아무것도 고르지 않은 상태. 기분은 필수
   const [selectedTastes, setSelectedTastes] = useState<Taste[]>([]);

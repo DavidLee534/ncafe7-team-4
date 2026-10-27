@@ -279,17 +279,18 @@ export async function getOrders(filter: OrderFilter = {}): Promise<Order[]> {
   return (list ?? []).map((dto) => ({ ...dto, createdAt: minute(dto.createdAt) }));
 }
 
-// 상태별 주문 수와 오늘 매출. 검색 조건과 상관없이 전체를 센다
+// 상태별 주문 수와 오늘 접수 금액. 검색 조건과 상관없이 전체를 센다
 export async function getOrderSummary(): Promise<OrderSummary> {
   return (
     (await get<OrderSummary>("/api/v1/admin/orders/summary")) ?? {
       all: 0,
+      ordered: 0,
       paid: 0,
       brewing: 0,
       ready: 0,
       done: 0,
       cancelled: 0,
-      todaySales: 0,
+      todayOrderAmount: 0,
     }
   );
 }

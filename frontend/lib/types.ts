@@ -58,10 +58,11 @@ export type Ingredient = {
   updatedAt: string;
 };
 
-// 관리자 메인의 "처리할 주문" 한 줄 (결제 완료 상태)
+// 관리자 메인의 "처리할 주문" 한 줄 (접수 또는 결제 완료 상태)
 export type AdminMainOrder = {
   id: number;
   orderNumber: string;
+  status: OrderStatus;
   pickupName: string;
   pickupType: string; // dine-in(매장) / takeout(포장)
   totalPrice: number;
@@ -72,7 +73,7 @@ export type AdminMainOrder = {
 export type AdminMain = {
   menus: MenuStatusCounts;
   ingredients: IngredientTypeCounts & { hidden: number };
-  orders: { paid: number; brewing: number; ready: number; todayCount: number; todaySales: number };
+  orders: { ordered: number; paid: number; brewing: number; ready: number; todayCount: number; todayOrderAmount: number };
   members: { all: number; active: number; suspended: number };
   categories: MenuCategory[];
   attentionMenus: Menu[]; // 품절 · 숨김 메뉴
@@ -82,11 +83,11 @@ export type AdminMain = {
 
 // ===== 주문 =====
 
-// paid(결제완료) → brewing(제조중) → ready(제조완료) → done(수령완료). paid 에서만 cancelled(취소)
-export type OrderStatus = "paid" | "brewing" | "ready" | "done" | "cancelled";
+// ordered(현장 결제 예정) 또는 기존 paid → brewing → ready → done. 제조 전에는 취소 가능.
+export type OrderStatus = "ordered" | "paid" | "brewing" | "ready" | "done" | "cancelled";
 
 // 상태별 주문 수 (all 은 전체) + 오늘 매출
-export type OrderSummary = Record<OrderStatus | "all", number> & { todaySales: number };
+export type OrderSummary = Record<OrderStatus | "all", number> & { todayOrderAmount: number };
 
 // 주문 목록의 한 줄
 export type Order = {

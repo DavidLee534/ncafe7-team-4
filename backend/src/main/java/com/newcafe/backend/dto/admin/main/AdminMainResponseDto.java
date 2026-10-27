@@ -15,6 +15,6 @@ public record AdminMainResponseDto(
     List<MenuCategoryListResponseDto> categories,    // 카테고리별 메뉴 수 (화면 순서대로)
     List<MenuListResponseDto> attentionMenus,        // 손봐야 할 메뉴 (품절 · 숨김)
     List<MenuListResponseDto> recentMenus,           // 최근 수정 메뉴 5개
-    List<AdminMainOrderDto> pendingOrders            // 처리할 주문 (결제 완료) 5개
+    List<AdminMainOrderDto> pendingOrders            // 제조 대기(접수·결제 완료) 주문 5개
 ) {
 }

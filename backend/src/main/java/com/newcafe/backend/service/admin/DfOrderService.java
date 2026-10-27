@@ -69,12 +69,13 @@ public class DfOrderService implements OrderService {
   public OrderSummaryResponseDto getSummary() {
     return new OrderSummaryResponseDto(
         orderRepository.count(),
+        orderRepository.countByStatus("ordered"),
         orderRepository.countByStatus("paid"),
         orderRepository.countByStatus("brewing"),
         orderRepository.countByStatus("ready"),
         orderRepository.countByStatus("done"),
         orderRepository.countByStatus("cancelled"),
-        orderRepository.sumSalesSince(LocalDate.now().atStartOfDay()));
+        orderRepository.sumTotalPriceSince(LocalDate.now().atStartOfDay()));
   }
 
   // 주문·회원·항목은 한 번에, 결제는 따로 가져온다

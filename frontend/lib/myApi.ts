@@ -1,6 +1,8 @@
 // 회원 화면(/my/...)의 조회 함수 — 백엔드(/api/v1/my/...)에서 받는다.
 // 서버 컴포넌트(페이지)에서만 부른다. 브라우저에서 부를 때는 같은 주소(/api/v1/my/...)를 fetch 하면
-// next.config 의 rewrites 가 백엔드로 넘긴다. 지금 회원은 백엔드 CurrentMember(인증 전까지 1번 회원)
+// next.config 의 rewrites 가 백엔드로 넘긴다. 서버 요청은 현재 로그인 쿠키를 전달한다.
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { connection } from "next/server";
 
 const API_URL = process.env.API_URL ?? "http://localhost:8080";
@@ -55,7 +57,8 @@ export type MyCodexSummary = {
 
 async function get<T>(path: string): Promise<T> {
   await connection(); // 요청이 올 때마다 백엔드에서 받는다
-  const res = await fetch(`${API_URL}${path}`, { cache: "no-store" });
+  const res = await fetch(`${API_URL}${path}`, { cache: "no-store", headers: { cookie: (await cookies()).toString() } });
+  if (res.status === 401 || res.status === 403) redirect("/login");
   if (!res.ok) throw new Error(`백엔드 요청 실패: GET ${path} (${res.status})`);
   return res.json() as Promise<T>;
 }
