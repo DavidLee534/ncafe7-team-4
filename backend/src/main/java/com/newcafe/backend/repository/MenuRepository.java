@@ -1,6 +1,7 @@
 package com.newcafe.backend.repository;
 
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -52,4 +53,44 @@ public interface MenuRepository extends JpaRepository<Menu, Long> {
   // 카테고리 안의 상태별 메뉴 수. 카테고리를 골랐을 때의 개수에 쓴다
   @Query("select count(m) from Menu m where m.category.id = :categoryId and coalesce(m.status, 'on') = :status")
   long countByCategoryIdAndStatus(@Param("categoryId") Long categoryId, @Param("status") String status);
+
+  // 손님 화면(연금 공방)에 보이는 메뉴. 숨김 메뉴와 숨긴 카테고리의 메뉴는 뺀다. categoryId가 null이면 전체
+  // 카테고리 화면 순서(sortOrder) → 등록순. 카테고리는 fetch join으로 함께 가져온다 (N+1 방지)
+  @Query("""
+      select m from Menu m join fetch m.category c
+      where coalesce(m.status, 'on') <> 'hidden'
+        and c.visible = true
+        and (:categoryId is null or c.id = :categoryId)
+      order by c.sortOrder, c.id, m.id
+      """)
+  List<Menu> findAllForCustomer(@Param("categoryId") Long categoryId);
+
+  // 손님 메뉴판(/menus)의 메뉴. slug가 없는 메뉴 · 숨김 메뉴 · 숨긴 카테고리의 메뉴는 뺀다. 값이 null인 조건은 건너뛴다
+  // keyword는 한글 · 영문 이름에서 찾는다 (cast 이유는 findAllByCondition 참고)
+  // 카테고리 화면 순서(sortOrder) → 등록순. 카테고리는 fetch join으로 함께 가져온다 (N+1 방지)
+  @Query("""
+      select m from Menu m join fetch m.category c
+      where m.slug is not null
+        and coalesce(m.status, 'on') <> 'hidden'
+        and c.visible = true
+        and (:categoryId is null or c.id = :categoryId)
+        and (:ownerRecommended is null or m.ownerRecommended = :ownerRecommended)
+        and (cast(:keyword as String) is null
+             or lower(m.korName) like lower(concat('%', cast(:keyword as String), '%'))
+             or lower(m.engName) like lower(concat('%', cast(:keyword as String), '%')))
+      order by c.sortOrder, c.id, m.id
+      """)
+  List<Menu> findAllPublic(
+      @Param("categoryId") Long categoryId,
+      @Param("ownerRecommended") Boolean ownerRecommended,
+      @Param("keyword") String keyword);
+
+  // 손님 메뉴 상세(/menus/{slug}). 숨김 메뉴 · 숨긴 카테고리의 메뉴면 비어 있다 (→ 404)
+  @Query("""
+      select m from Menu m join fetch m.category c
+      where m.slug = :slug
+        and coalesce(m.status, 'on') <> 'hidden'
+        and c.visible = true
+      """)
+  Optional<Menu> findPublicBySlug(@Param("slug") String slug);
 }

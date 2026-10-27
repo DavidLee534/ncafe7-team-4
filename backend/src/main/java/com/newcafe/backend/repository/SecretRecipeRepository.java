@@ -1,13 +1,12 @@
 package com.newcafe.backend.repository;
 
+import com.newcafe.backend.entity.SecretRecipe;
 import java.util.List;
 import org.springframework.data.jpa.repository.EntityGraph;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
-import com.newcafe.backend.entity.SecretRecipe;
 
 public interface SecretRecipeRepository extends JpaRepository<SecretRecipe, Long> {
   List<SecretRecipe> findAllByOrderByIdDesc();
@@ -22,6 +21,16 @@ public interface SecretRecipeRepository extends JpaRepository<SecretRecipe, Long
 
   // 이 카테고리(계열)에 속한 비밀 레시피가 있는지. 있으면 관리자가 카테고리를 지울 수 없다
   boolean existsByCategoryId(Long categoryId);
+
+  // 연금 공방: 고른 재료 조합(정렬한 재료 id를 쉼표로 이은 값)과 같은 비밀 레시피
+  Optional<SecretRecipe> findByIngredientCombo(String ingredientCombo);
+
+  // 이 재료를 기반 재료로 쓰는 비밀 레시피가 있는지. 있으면 재료를 삭제할 수 없다
+  boolean existsByBaseIngredientId(Long ingredientId);
+
+  // 재료 조합이 있는 비밀 레시피의 조합 값 전체. 추가 재료가 쓰였는지 볼 때 쓴다 (레시피 수가 적어 한 번에 읽는다)
+  @Query("select s.ingredientCombo from SecretRecipe s where s.ingredientCombo is not null")
+  List<String> findAllIngredientCombos();
 
   // 관리자 비밀 레시피 목록. 값이 null인 조건은 건너뛴다
   // 계열(카테고리)은 fetch join으로 함께 가져온다 (N+1 방지)

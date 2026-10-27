@@ -2,6 +2,7 @@ package com.newcafe.backend.repository;
 
 import com.newcafe.backend.entity.Ingredient;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -36,4 +37,10 @@ public interface IngredientRepository extends JpaRepository<Ingredient, Long> {
 
   // 손님 화면에서 숨긴 재료 수 (재고 없음 등)
   long countByVisibleFalse();
+
+  // 연금 공방: 메뉴의 기반 재료를 이름으로 찾는다 (메뉴 ↔ 기반 재료는 AlchemyRules 의 이름 매핑)
+  Optional<Ingredient> findByName(String name);
+
+  // 연금 공방의 재료 선반: 손님에게 보이는 재료 전체 (등록순)
+  List<Ingredient> findAllByVisibleTrueOrderByIdAsc();
 }

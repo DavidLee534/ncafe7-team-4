@@ -3,11 +3,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import AdminPageHeader, { headerOverlap } from "../../../_components/AdminPageHeader";
 import SecretRecipeForm from "../../_components/SecretRecipeForm";
-import { getSecretRecipe, getSecretRecipeCategories } from "@/lib/adminApi";
+import { getIngredients, getSecretRecipe, getSecretRecipeCategories } from "@/lib/adminApi";
 
 export default async function AdminSecretRecipeEditPage(props: PageProps<"/admin/secret-recipes/[id]/edit">) {
   const { id } = await props.params;
-  const [recipe, categories] = await Promise.all([getSecretRecipe(Number(id)), getSecretRecipeCategories()]);
+  const [recipe, categories, ingredients] = await Promise.all([getSecretRecipe(Number(id)), getSecretRecipeCategories(), getIngredients()]);
   if (!recipe) notFound();
 
   return (
@@ -23,7 +23,7 @@ export default async function AdminSecretRecipeEditPage(props: PageProps<"/admin
         }
       />
       <div className={headerOverlap}>
-        <SecretRecipeForm mode="edit" initial={recipe} categories={categories} cancelHref={`/admin/secret-recipes/${recipe.id}`} />
+        <SecretRecipeForm mode="edit" initial={recipe} categories={categories} ingredients={ingredients} cancelHref={`/admin/secret-recipes/${recipe.id}`} />
       </div>
     </>
   );

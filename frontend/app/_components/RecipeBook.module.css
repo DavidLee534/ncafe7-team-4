@@ -31,3 +31,6 @@
 
 /* 관리자 목록에서 비밀 레시피로 등록된 메뉴 표시 */
 .secretMark { margin-right: .3rem; padding: .05rem .35rem; border-radius: 999px; background: #56406f; color: #fff6da; font-family: inherit; font-size: .62rem; font-weight: 800; vertical-align: .1em; }
+
+/* 좁은 화면에서는 두 쪽이 위아래로 쌓이므로 가운데 접힌 선을 그리지 않는다 (선이 메뉴 이름을 가림) */
+@media (max-width: 640px) { .book::before { display: none; } }

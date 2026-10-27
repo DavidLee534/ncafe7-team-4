@@ -16,6 +16,13 @@ export const MENU_STATUS: Record<MenuStatus, { label: string; color: "success" |
 export const MENU_EMOTION_TAGS = ["피곤함", "열정", "그리움", "울적함", "설렘", "긴장됨"] as const;
 export const MENU_TASTE_TAGS = ["달콤한", "쌉싸름한", "상큼한", "고소한", "시원한", "따뜻한"] as const;
 
+// 회원이 만든 포션의 등급 → 라벨과 m3-badge 색
+export const RECIPE_GRADE: Record<"normal" | "rare" | "legend", { label: string; color: "neutral" | "primary" | "warning" }> = {
+  normal: { label: "일반", color: "neutral" },
+  rare: { label: "희귀", color: "primary" },
+  legend: { label: "전설", color: "warning" },
+};
+
 // 재료 종류 → 라벨과 m3-badge 색
 export const INGREDIENT_TYPE: Record<IngredientType, { label: string; color: "primary" | "secondary" }> = {
   base: { label: "기반 재료", color: "primary" },

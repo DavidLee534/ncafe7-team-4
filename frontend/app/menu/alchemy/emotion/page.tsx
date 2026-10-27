@@ -1,6 +1,6 @@
-import EmotionAlchemyWorkshop from "../../_components/EmotionAlchemyWorkshop";
-import { getAvailableBasicMenus, getCustomerMenus } from "@/lib/customerMenuApi";
+import { redirect } from "next/navigation";
 
-export default async function EmotionAlchemyPage() {
-  return <EmotionAlchemyWorkshop menus={getAvailableBasicMenus(await getCustomerMenus())} />;
+// 감정 연금술은 /recipes/new/emotion 으로 옮겼다. 예전 주소로 들어와도 그쪽으로 보낸다.
+export default function EmotionAlchemyPage() {
+  redirect("/recipes/new/emotion");
 }

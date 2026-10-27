@@ -10,6 +10,9 @@ import com.newcafe.backend.dto.admin.ingredient.IngredientUpdateRequestDto;
 import com.newcafe.backend.dto.admin.ingredient.IngredientUpdatedResponseDto;
 import com.newcafe.backend.entity.Ingredient;
 import com.newcafe.backend.repository.IngredientRepository;
+import com.newcafe.backend.repository.RecipeIngredientRepository;
+import com.newcafe.backend.repository.SecretRecipeRepository;
+import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +25,8 @@ import java.util.List;
 public class DfIngredientService implements IngredientService {
 
   private final IngredientRepository ingredientRepository;
+  private final RecipeIngredientRepository recipeIngredientRepository;
+  private final SecretRecipeRepository secretRecipeRepository;
 
   // 같은 이름이 있으면 409
   @Override
@@ -74,12 +79,24 @@ public class DfIngredientService implements IngredientService {
     return IngredientUpdatedResponseDto.from(ingredient);
   }
 
-  // 아직 재료를 참조하는 테이블(포션, 비밀 레시피)이 없어서 바로 지운다
-  // 레시피 등록을 만들 때 쓰이는 재료는 삭제를 막는다 (카테고리의 메뉴 수 검사처럼)
+  // 회원 포션이나 비밀 레시피 조합에 쓰인 재료는 지울 수 없다(409) → 대신 숨김(visible=false)으로 바꾼다
+  // 지우면 도감의 포션 재료와 비밀 레시피 조합이 가리킬 재료가 사라지기 때문
   @Override
   @Transactional
   public void delete(Long id) {
-    ingredientRepository.delete(findIngredient(id));
+    Ingredient ingredient = findIngredient(id);
+    if (recipeIngredientRepository.existsByIngredientId(id) || usedBySecretRecipe(id)) {
+      throw new IllegalStateException("포션이나 비밀 레시피에 쓰인 재료는 삭제할 수 없습니다. 숨김으로 바꾸세요: " + ingredient.getName());
+    }
+    ingredientRepository.delete(ingredient);
+  }
+
+  // 비밀 레시피의 기반 재료이거나 재료 조합(쉼표로 이은 id)에 들어 있는지
+  private boolean usedBySecretRecipe(Long id) {
+    String target = String.valueOf(id);
+    return secretRecipeRepository.existsByBaseIngredientId(id)
+        || secretRecipeRepository.findAllIngredientCombos().stream()
+            .anyMatch(combo -> Arrays.asList(combo.split(",")).contains(target));
   }
 
   // 없는 id면 NotFoundException(404)

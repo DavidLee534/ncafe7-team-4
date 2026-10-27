@@ -1,10 +1,6 @@
-import UserMenuCatalog from "./_components/UserMenuCatalog";
-import { getCustomerMenus, toBookMenu } from "@/lib/customerMenuApi";
+import { redirect } from "next/navigation";
 
-export default async function CustomerMenuPage() {
-  const catalog = await getCustomerMenus();
-  const categories = [...new Map(catalog.filter(menu => menu.categoryId != null)
-    .map(menu => [menu.categoryId!, { id: menu.categoryId!, name: menu.categoryName ?? "기타", sortOrder: menu.categorySortOrder ?? 999 }])).values()]
-    .sort((a, b) => a.sortOrder - b.sortOrder);
-  return <UserMenuCatalog menus={catalog.map(toBookMenu)} categories={categories} />;
+// 손님 메뉴판은 /menus 로 옮겼다 (WBS 3.0). 예전 주소로 들어와도 그쪽으로 보낸다.
+export default function CustomerMenuPage() {
+  redirect("/menus");
 }

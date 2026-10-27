@@ -138,6 +138,18 @@ public class DfSecretRecipeService implements SecretRecipeService {
     if (secretRecipeRepository.existsByNameAndIdNot(name, id)) {
       throw new IllegalStateException("이미 있는 비밀 레시피 이름입니다: " + name);
     }
+    // 재료 조합: null 이면 그대로, 빈 목록이면 지우고, 값이 있으면 검사한 뒤 바꾼다
+    if (request.ingredientIds() != null) {
+      if (request.ingredientIds().isEmpty()) {
+        recipe.setIngredientCombination(null, null);
+      } else {
+        String combination = normalizeAndValidate(request.baseIngredientId(), request.ingredientIds());
+        if (secretRecipeRepository.existsByIngredientComboAndIdNot(combination, id)) {
+          throw new IllegalStateException("이미 등록된 재료 조합입니다.");
+        }
+        recipe.setIngredientCombination(ingredientRepository.getReferenceById(request.baseIngredientId()), combination);
+      }
+    }
     recipe.update(
         name,
         request.grade(),

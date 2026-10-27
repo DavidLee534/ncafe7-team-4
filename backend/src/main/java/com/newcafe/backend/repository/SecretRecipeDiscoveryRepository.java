@@ -9,6 +9,9 @@ import org.springframework.data.repository.query.Param;
 
 public interface SecretRecipeDiscoveryRepository extends JpaRepository<SecretRecipeDiscovery, Long> {
 
+  // 회원이 이 비밀 레시피를 이미 발견했는지. 처음일 때만 발견 기록을 남긴다
+  boolean existsByMemberIdAndSecretRecipeId(Long memberId, Long secretRecipeId);
+
   // 관리자가 회원을 지울 때, 그 회원의 비밀 레시피 발견 기록도 함께 지운다
   void deleteAllByMemberId(Long memberId);
 

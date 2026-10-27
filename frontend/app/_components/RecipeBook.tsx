@@ -92,9 +92,10 @@ export default function RecipeBook({
                           {lore && <em className={styles.magicEffects}>{lore.effects.join(" · ")}</em>}
                         </span>
                         <span
-                          className={`${styles.indexStatus} ${lore ? styles[`grade${lore.grade}`] : styles[`status${item.status}`]}`}
+                          className={`${styles.indexStatus} ${lore && item.status === "on" ? styles[`grade${lore.grade}`] : styles[`status${item.status}`]}`}
                         >
-                          {lore?.grade ?? status.label}
+                          {/* 손님 화면은 등급을 보여 주되, 품절이면 품절을 먼저 알린다 */}
+                          {lore && item.status === "on" ? lore.grade : status.label}
                         </span>
                         <strong>{won(item.price)}</strong>
                       </>
@@ -111,7 +112,7 @@ export default function RecipeBook({
                           </Link>
                         ) : customer ? (
                           <Link
-                            href={`/menu/${item.id}`}
+                            href={item.slug ? `/menus/${item.slug}` : `/menu/${item.id}`}
                             className={styles.indexRow}
                             aria-label={`${lore?.magicName ?? item.korName} 자세히 보기`}
                           >
@@ -134,11 +135,13 @@ export default function RecipeBook({
         <RecipeBookControls
           page={page}
           total={totalSpreads}
-          description="한 장에 네 가지 메뉴"
+          description={customer ? undefined : "한 장에 네 가지 메뉴"}
           onTurn={turn}
         />
         <p className={styles.indexHint}>
-          원하는 메뉴의 ↗ 버튼을 누르면 레시피 관리 페이지로 이동합니다.
+          {customer
+            ? "메뉴를 누르면 자세한 설명을 보고 장바구니에 담을 수 있어요."
+            : "원하는 메뉴의 ↗ 버튼을 누르면 레시피 관리 페이지로 이동합니다."}
         </p>
       </section>
     );
