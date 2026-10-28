@@ -50,31 +50,33 @@ cd backend
 bash ./gradlew bootRun
 ```
 
-`ddl-auto: update` 가 엔티티를 보고 테이블을 만듭니다.
+`ddl-auto: update` 가 엔티티를 보고 테이블을 만듭니다. `Started BackendApplication` 이 보이면 켜 둔 채로 4번으로 갑니다.
 
 ### 4. 시작 데이터 넣기 (3 다음에, 한 번만)
 
-`backend` 폴더에서:
+다른 터미널의 `backend` 폴더에서:
 
 ```bash
-docker exec -i ncafe-postgres psql -U ncafe -d ncafedb < src/main/resources/data.sql
+sed -E "s/listagg\(cast\(id as varchar\), ','\) within group \(order by id\)/string_agg(cast(id as varchar), ',' order by id)/" \
+  src/main/resources/data.sql \
+  | docker exec -i ncafe-postgres psql -v ON_ERROR_STOP=1 -U ncafe -d ncafedb
 ```
 
-- `data.sql` 은 H2 에서는 자동으로 들어가지만 PostgreSQL 에는 이렇게 직접 넣습니다
+- `data.sql` 은 H2 에서는 켤 때 자동으로 들어가지만 PostgreSQL 에는 이렇게 직접 넣습니다
+- `data.sql` 의 비밀 레시피 조합은 H2 함수(`listagg`)로 만들어서 PostgreSQL 에서는 오류가 납니다. 위 명령은 그 부분만 PostgreSQL 함수(`string_agg`)로 바꿔서 넣습니다. 저장소의 파일은 바뀌지 않습니다
+- `sed` 가 없는 PowerShell 에서는 Git Bash 나 WSL 에서 실행합니다
 - 테이블이 있어야 하므로 꼭 3(백엔드 실행) 다음에
-- 회원 4, 카테고리 8, 메뉴 30, 비밀 레시피 4, 포션 4, 장바구니 2, 주문 6, 게시글 2 가 들어갑니다. 1번 회원이 `CurrentMember` 의 "현재 회원"
-- 두 번 넣으면 이름 중복 오류가 납니다. 처음부터 다시 하려면 아래 "완전히 초기화"
-- PowerShell 은 `<` 를 쓸 수 없어서 `Get-Content src/main/resources/data.sql | docker exec -i ncafe-postgres psql -U ncafe -d ncafedb`
+- 들어가는 것: 회원 4, 카테고리 8, 메뉴 30, 재료 73, 비밀 레시피 8(재료 조합 포함), 포션 4, 장바구니 2, 주문 6, 자랑글 2
+- 회원 비밀번호는 모두 `ncafe1234` (`admin@ncafe.dev` 관리자, `tofu@ncafe.dev` 정지 회원). 계정별 쓰임은 [demo-guide.md](demo-guide.md)
+- 두 번 넣으면 이름 중복 오류가 납니다. 처음부터 다시 하려면 아래 "데이터만 비우기"
 
-### 예시 회원 로그인 활성화
-
-시작 데이터의 예시 회원은 비밀번호가 `not-set`이라 로그인할 수 없습니다. 기존 주문과 게시글을 가진 `moka@ncafe.dev` 계정을 사용하려면 `backend` 폴더에서 아래 명령을 실행하고 새 비밀번호를 입력하세요. 비밀번호는 화면에 표시되지 않고 해시로 DB에 저장됩니다. 이미 비밀번호가 설정된 계정에는 적용되지 않습니다.
+확인:
 
 ```bash
-python3 scripts/activate-seed-member.py moka@ncafe.dev
+docker exec ncafe-postgres psql -U ncafe -d ncafedb -c "select count(*) from secret_recipes where ingredient_combo is not null"
 ```
 
-새 회원은 웹사이트의 회원가입 화면에서 만들 수 있습니다.
+`8` 이 나오면 됩니다.
 
 ## 자주 쓰는 명령
 
@@ -85,7 +87,8 @@ python3 scripts/activate-seed-member.py moka@ncafe.dev
 | 끄기 (데이터 유지) | `docker stop ncafe-postgres` |
 | DB 접속 (psql) | `docker exec -it ncafe-postgres psql -U ncafe -d ncafedb` |
 | 테이블 보기 | psql 안에서 `\dt`, 나가기 `\q` |
-| 완전히 초기화 (데이터 삭제) | `docker rm -f ncafe-postgres` → `docker volume rm ncafe-pgdata` → 처음 한 번 1~4 |
+| 데이터만 비우기 (테이블까지 삭제) | `docker exec ncafe-postgres psql -U ncafe -d ncafedb -c 'drop schema public cascade; create schema public;'` → 3, 4 다시 |
+| 완전히 초기화 (컨테이너 · 볼륨 삭제) | `docker rm -f ncafe-postgres` → `docker volume rm ncafe-pgdata` → 처음 한 번 1~4 |
 
 `docker run` 은 컨테이너를 **새로 만드는** 명령이라 한 번만 씁니다. 그 뒤로는 `docker start` / `docker stop`.
 
@@ -94,4 +97,5 @@ python3 scripts/activate-seed-member.py moka@ncafe.dev
 - **포트 5432 가 이미 사용 중:** 다른 PostgreSQL 이 떠 있음. 그걸 `docker stop` 하거나, `-p 5433:5432` 로 만들고 `DB_URL` 도 `localhost:5433` 으로
 - **`ncafe-postgres` 이름이 이미 있음:** 예전에 만든 컨테이너가 있음. `docker start ncafe-postgres` 로 켜거나, 초기화 후 다시 `docker run`
 - **비밀번호를 바꿨는데 접속이 안 됨:** 비밀번호는 볼륨을 처음 만들 때만 정해집니다. 완전히 초기화한 뒤 다시 `docker run`
-- **H2 로 빠르게 테스트하고 싶을 때:** Docker 없이 `application.yml` 의 datasource 를 H2 로 바꿔 쓸 수 있음 (커밋하지 말 것)
+- **예전에 만든 DB 라 로그인이 안 되거나 재료 선반이 비어 있음:** 예전 시작 데이터(비밀번호 `not-set`, 재료 없음)가 들어 있는 것. "데이터만 비우기" 후 3, 4 를 다시 합니다
+- **H2 로 빠르게 테스트하고 싶을 때:** Docker 없이 `./gradlew bootRun --args='--spring.profiles.active=h2'` (메모리 DB, 켤 때 `data.sql` 이 자동으로 들어가고 끄면 사라짐)
