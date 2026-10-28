@@ -64,10 +64,9 @@ Member ─┬─< Recipe >── Menu(baseMenu)          Recipe >── SecretRe
 - 없는 자원 404(`NotFoundException`), 지금 상태로 못 하는 요청 409(`IllegalStateException`)
 - 남의 글 수정·삭제는 403 → `ForbiddenException` 이 아직 없음. 포션 자랑 게시판을 만드는 사람이 `common/exception` 에 추가
 - 회원 기능(`/api/v1/my/...`)은 경로에 회원 id 를 넣지 않고 `CurrentMember` 로 받는다
-  - 회원을 못 찾으면 `NotFoundException("회원을 찾을 수 없습니다: " + id)` → 404. PostgreSQL 에는 시작 데이터가 없어서 회원이 없으면 이 메시지로 원인을 바로 알 수 있다
-  - PostgreSQL 로 테스트할 때는 회원 1명을 먼저 넣는다:
-    `insert into members (email, password, nickname, role, status, created_at, updated_at) values ('moka@ncafe.dev', 'not-set', '모카손님', 'member', 'active', now(), now());`
-    (공용 클라우드 DB 는 팀 확인 후)
+  - 회원을 못 찾으면 `NotFoundException("회원을 찾을 수 없습니다: " + id)` → 404. PostgreSQL 에는 시작 데이터가 자동으로 들어가지 않아서 회원이 없으면 이 메시지로 원인을 바로 알 수 있다
+  - 로컬 PostgreSQL 로 테스트할 때는 [local-db.md](../local-db.md) 4번대로 `data.sql` 을 넣는다 (시드 계정 비밀번호 `ncafe1234`)
+    (공용 클라우드 DB 에는 넣지 않는다. 팀 확인 후)
 - 검색은 목록 API + 쿼리 조건. 문자열 조건은 `cast(:keyword as String)` (PostgreSQL null 타입 문제, `MenuRepository` 참고)
 - 목록 화면의 개수는 `summary` API 로
 

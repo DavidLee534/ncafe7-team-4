@@ -360,7 +360,7 @@
 ### 확인할 것
 
 - **pull 후 브랜치 정리:** 원격 브랜치를 많이 지웠으니 `git fetch --prune` 후 develop 을 받고, 병합된 로컬 브랜치는 각자 지운다. #21 · #22 브랜치를 로컬에서 쓰고 있었다면 develop 기준으로 새로 딴다
-- **로컬 PostgreSQL 데이터:** `data.sql` 은 H2 에서만 실행되므로 예전에 만든 로컬 DB 에는 새 시드가 없다
+- **로컬 PostgreSQL 데이터:** `data.sql` 은 H2 에서만 실행되므로 예전에 만든 로컬 DB 에는 새 시드가 없다. 비우고 다시 넣는 방법은 [docs/local-db.md](docs/local-db.md) 4번 · "데이터만 비우기"
   - 회원 비밀번호가 `not-set` 이면 로그인이 안 된다. `data.sql` 의 BCrypt 해시로 바꾸면 시드 계정 모두 `ncafe1234`
   - `ingredients` 가 비어 있으면 연금 공방의 추가 재료 선반이 비고, 푸드 계열은 포션을 만들 수 없다 (속재료 1개 이상 필요). 비밀 레시피에도 재료 조합이 없다
   - 새 테이블 `recipe_ingredients`, `checkout_attempts` 는 `ddl-auto: update` 로 자동 생성된다
