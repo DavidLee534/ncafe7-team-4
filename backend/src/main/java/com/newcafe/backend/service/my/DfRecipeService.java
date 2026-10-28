@@ -5,11 +5,14 @@ import com.newcafe.backend.common.exception.NotFoundException;
 import com.newcafe.backend.dto.my.recipe.MyRecipeDetailResponseDto;
 import com.newcafe.backend.dto.my.recipe.MyRecipeListResponseDto;
 import com.newcafe.backend.dto.my.recipe.MyRecipeSummaryResponseDto;
+import com.newcafe.backend.entity.Ingredient;
 import com.newcafe.backend.entity.SecretRecipe;
 import com.newcafe.backend.entity.SecretRecipeDiscovery;
+import com.newcafe.backend.repository.RecipeIngredientRepository;
 import com.newcafe.backend.repository.RecipeRepository;
 import com.newcafe.backend.repository.SecretRecipeDiscoveryRepository;
 import com.newcafe.backend.repository.SecretRecipeRepository;
+import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +25,7 @@ public class DfRecipeService implements RecipeService {
 
   private final CurrentMember currentMember;
   private final RecipeRepository recipeRepository;
+  private final RecipeIngredientRepository recipeIngredientRepository;
   private final SecretRecipeRepository secretRecipeRepository;
   private final SecretRecipeDiscoveryRepository discoveryRepository;
 
@@ -37,7 +41,7 @@ public class DfRecipeService implements RecipeService {
   @Override
   public MyRecipeDetailResponseDto getDetail(Long id) {
     return recipeRepository.findByIdAndMemberIdWithMenu(id, currentMember.id())
-        .map(MyRecipeDetailResponseDto::from)
+        .map(recipe -> MyRecipeDetailResponseDto.from(recipe, ingredientNames(recipe.getId())))
         .orElseThrow(() -> new NotFoundException("포션을 찾을 수 없습니다: " + id));
   }
 
@@ -62,5 +66,13 @@ public class DfRecipeService implements RecipeService {
     return new MyRecipeSummaryResponseDto(
         recipeRepository.countByMemberId(memberId),
         secretFound, secretTotal, legendFound, legendTotal, progressRate);
+  }
+
+  // 포션에 넣은 재료 이름. 기반 재료를 먼저, 나머지는 넣은 순서대로
+  private List<String> ingredientNames(Long recipeId) {
+    return recipeIngredientRepository.findIngredientsByRecipeId(recipeId).stream()
+        .sorted(Comparator.comparing(ingredient -> ingredient.getKind() != Ingredient.Kind.BASE))
+        .map(Ingredient::getName)
+        .toList();
   }
 }

@@ -1,5 +1,5 @@
 "use client";
-// 오른쪽 상세. 목록 값으로 먼저 그리고, 목록에 없는 값(찾은 손님 비율, 기반 메뉴 설명, 맞힌 비밀 레시피)은
+// 오른쪽 상세. 목록 값으로 먼저 그리고, 목록에 없는 값(찾은 손님 비율, 기반 메뉴 설명, 맞힌 비밀 레시피, 재료 조합)은
 // 칸을 고를 때 백엔드 상세(/api/v1/my/...)에서 받아 채운다.
 // 메뉴 상세(옵션·장바구니)와 겹치지 않게 "기록"만 보여 주고, 연성은 연금 공방으로 보낸다.
 import { useEffect, useState } from "react";
@@ -18,6 +18,23 @@ function Rarity({ rate }: { rate: number }) {
       <div className={styles.rarityBar}><i style={{ width: `${Math.max(rate, 2)}%` }} /></div>
       <div className={styles.rarityLine}>{line}</div>
     </div>
+  );
+}
+
+// 재료 조합 칩. 못 찾은 비밀 레시피는 개수만큼 "?" 로
+function Combo({ title, names, count }: { title: string; names?: string[] | null; count?: number }) {
+  const hidden = !names;
+  const size = names?.length ?? count ?? 0;
+  if (size === 0) return null;
+  return (
+    <>
+      <h3>{title}</h3>
+      <div className={styles.chips}>
+        {hidden
+          ? Array.from({ length: size }, (_, i) => <span key={i} className={styles.chipQ}>?</span>)
+          : names.map((name) => <span key={name}>{name}</span>)}
+      </div>
+    </>
   );
 }
 
@@ -56,6 +73,7 @@ export default function CodexDetail({ entry, hiddenSecrets }: { entry: CodexEntr
         {detail?.recipe?.secretRecipeName && (
           <p className={styles.desc}>✦ 비밀 레시피 「{detail.recipe.secretRecipeName}」 조합으로 빚었어요.</p>
         )}
+        <Combo title="넣은 재료" names={detail?.recipe?.ingredients} />
         <p className={styles.found}>{shortDate(r.createdAt)} 연성</p>
         <Link href="/recipes/new" className={styles.go}>연금 공방에서 다시 빚기</Link>
         <div className={styles.moka}>
@@ -79,6 +97,7 @@ export default function CodexDetail({ entry, hiddenSecrets }: { entry: CodexEntr
           <h2>{s.name}</h2>
           <div className={styles.sub}>{s.categoryName ?? "비밀"} 계열</div>
           {s.description && <p className={styles.desc}>{s.description}</p>}
+          <Combo title="비밀 조합" names={detail?.secret?.ingredients} />
           <p className={styles.found}>{shortDate(s.discoveredAt)} 발견</p>
         </>
       ) : (
@@ -87,6 +106,7 @@ export default function CodexDetail({ entry, hiddenSecrets }: { entry: CodexEntr
           <div className={styles.sub}>{s.categoryName ?? "비밀"} 계열</div>
           <h3>모카 점장의 수수께끼</h3>
           <p className={styles.riddle}>“{s.riddle ?? "…"}”</p>
+          <Combo title="비밀 조합" names={null} count={detail?.secret?.ingredientCount} />
         </>
       )}
       {detail?.secret && <Rarity rate={detail.secret.customerRate} />}

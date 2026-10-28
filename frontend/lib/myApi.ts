@@ -26,6 +26,7 @@ export type MyRecipe = {
 export type MyRecipeDetail = Omit<MyRecipe, "secret"> & {
   baseMenuDescription: string | null;
   secretRecipeName: string | null;
+  ingredients: string[]; // 넣은 재료 이름 (기반 재료 먼저)
 };
 
 // 비밀 레시피 탭 (GET /api/v1/my/secret-recipes). 못 찾은 레시피는 name·description 이 null 이고 riddle 만 있다
@@ -42,8 +43,13 @@ export type MySecretRecipe = {
   riddle: string | null;
 };
 
-// 비밀 레시피 상세 (GET /api/v1/my/secret-recipes/{id}) — 목록 값 + 이 레시피를 찾은 회원 비율(%)
-export type MySecretRecipeDetail = MySecretRecipe & { customerRate: number };
+// 비밀 레시피 상세 (GET /api/v1/my/secret-recipes/{id}) — 목록 값 + 이 레시피를 찾은 회원 비율(%) + 재료 조합
+// 못 찾은 레시피는 재료 개수(ingredientCount)만 오고 ingredients 는 null
+export type MySecretRecipeDetail = MySecretRecipe & {
+  customerRate: number;
+  ingredientCount: number;
+  ingredients: string[] | null;
+};
 
 // 도감 상단 숫자 (GET /api/v1/my/recipes/summary)
 export type MyCodexSummary = {
