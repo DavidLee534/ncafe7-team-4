@@ -148,29 +148,30 @@ insert into secret_recipes (name, grade, category_id, color, description, riddle
   ('용 사냥꾼의 보급품',     'legend', (select id from categories where name = '푸드'),   '#5e8c3a', '용을 잡으러 떠나는 기사만 받을 수 있는 보급품이에요.',   '기사의 빵에 초록 버터와 해돋이, 불꽃을 숨긴 소스를 바르라냥.',                true, current_timestamp, current_timestamp);
 
 -- 비밀 레시피의 재료 조합: 기반 재료와, 기반 재료를 포함한 재료 id 를 작은 순으로 쉼표로 이은 값 (연금 공방에서 이 값과 비교한다)
+-- string_agg 는 H2(PostgreSQL 모드)와 PostgreSQL 둘 다 된다 (listagg 는 PostgreSQL 에 없다)
 update secret_recipes set base_ingredient_id = (select id from ingredients where name = '다크 로스트'),
-  ingredient_combo = (select listagg(cast(id as varchar), ',') within group (order by id) from ingredients where name in ('다크 로스트', '캐러멜', '오트', '마시멜로'))
+  ingredient_combo = (select string_agg(cast(id as varchar), ',' order by id) from ingredients where name in ('다크 로스트', '캐러멜', '오트', '마시멜로'))
   where name = '대연금술사의 황금 꼬리';
 update secret_recipes set base_ingredient_id = (select id from ingredients where name = '다크 로스트'),
-  ingredient_combo = (select listagg(cast(id as varchar), ',') within group (order by id) from ingredients where name in ('다크 로스트', '바닐라'))
+  ingredient_combo = (select string_agg(cast(id as varchar), ',' order by id) from ingredients where name in ('다크 로스트', '바닐라'))
   where name = '빛과 어둠의 균형 포션';
 update secret_recipes set base_ingredient_id = (select id from ingredients where name = '베이글'),
-  ingredient_combo = (select listagg(cast(id as varchar), ',') within group (order by id) from ingredients where name in ('베이글', '연어', '크림치즈'))
+  ingredient_combo = (select string_agg(cast(id as varchar), ',' order by id) from ingredients where name in ('베이글', '연어', '크림치즈'))
   where name = '바다 사냥꾼 식량';
 update secret_recipes set base_ingredient_id = (select id from ingredients where name = '캐모마일'),
-  ingredient_combo = (select listagg(cast(id as varchar), ',') within group (order by id) from ingredients where name in ('캐모마일', '꿀', '라벤더'))
+  ingredient_combo = (select string_agg(cast(id as varchar), ',' order by id) from ingredients where name in ('캐모마일', '꿀', '라벤더'))
   where name = '백 년 잠의 자장가';
 update secret_recipes set base_ingredient_id = (select id from ingredients where name = '히비스커스'),
-  ingredient_combo = (select listagg(cast(id as varchar), ',') within group (order by id) from ingredients where name in ('히비스커스', '자몽청', '로즈마리'))
+  ingredient_combo = (select string_agg(cast(id as varchar), ',' order by id) from ingredients where name in ('히비스커스', '자몽청', '로즈마리'))
   where name = '붉은 마녀의 비밀 서약';
 update secret_recipes set base_ingredient_id = (select id from ingredients where name = '블루베리'),
-  ingredient_combo = (select listagg(cast(id as varchar), ',') within group (order by id) from ingredients where name in ('블루베리', '요거트', '꿀'))
+  ingredient_combo = (select string_agg(cast(id as varchar), ',' order by id) from ingredients where name in ('블루베리', '요거트', '꿀'))
   where name = '별을 삼킨 밤의 정령';
 update secret_recipes set base_ingredient_id = (select id from ingredients where name = '와플'),
-  ingredient_combo = (select listagg(cast(id as varchar), ',') within group (order by id) from ingredients where name in ('와플', '아이스크림', '캐러멜 소스', '견과류'))
+  ingredient_combo = (select string_agg(cast(id as varchar), ',' order by id) from ingredients where name in ('와플', '아이스크림', '캐러멜 소스', '견과류'))
   where name = '다람쥐 왕의 보물 상자';
 update secret_recipes set base_ingredient_id = (select id from ingredients where name = '치아바타'),
-  ingredient_combo = (select listagg(cast(id as varchar), ',') within group (order by id) from ingredients where name in ('치아바타', '아보카도', '에그', '스리라차 마요'))
+  ingredient_combo = (select string_agg(cast(id as varchar), ',' order by id) from ingredients where name in ('치아바타', '아보카도', '에그', '스리라차 마요'))
   where name = '용 사냥꾼의 보급품';
 
 -- 모카손님(1번)은 비밀 레시피 2개를 발견했다
